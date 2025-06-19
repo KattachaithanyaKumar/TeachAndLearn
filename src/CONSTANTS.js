@@ -2,6 +2,12 @@ import { SlBadge } from "react-icons/sl";
 import { GoPeople } from "react-icons/go";
 import { FaRegHeart } from "react-icons/fa";
 import { MdOutlineMedicalServices } from "react-icons/md";
+import { IoExtensionPuzzleOutline } from "react-icons/io5";
+import { TbChartBubble } from "react-icons/tb";
+import { MdOutlineToys } from "react-icons/md";
+import { PiLego } from "react-icons/pi";
+import { TbHorse } from "react-icons/tb";
+import { PiTrainSimple } from "react-icons/pi";
 
 export const navItems = [
   {
@@ -71,3 +77,42 @@ export const aboutUs = {
     "Our team of experienced and dedicated therapists is here to provide the guidance, support, and encouragement needed to overcome challenges and build skills. With our help, individuals can reach their goals and thrive.",
   items: ["Great Staff", "Safety", "Experience", "Activities"],
 };
+
+export const services = [
+  {
+    name: "Speech Therapy",
+    description:
+      "It is an essential intervention for children who struggle with communication.",
+    icon: IoExtensionPuzzleOutline,
+  },
+  {
+    name: "Occupational Therapy",
+    description:
+      "It is a form of therapy that helps children develop the skills they need to perform activities.",
+    icon: TbChartBubble,
+  },
+  {
+    name: "Behavioral Therapy",
+    description:
+      "Behavioral therapy is a form of psychotherapy that focuses on modifying problematic behaviors.",
+    icon: MdOutlineToys,
+  },
+  {
+    name: "Physiotherapy",
+    description:
+      "It is a type of therapy that focuses on helping children improve their physical function and mobility.",
+    icon: PiLego,
+  },
+  {
+    name: "School Readiness",
+    description:
+      "Our unwavering dedication to providing top-notch support and guidance is at the forefront of everything we do.",
+    icon: TbHorse,
+  },
+  {
+    name: "Psychology",
+    description:
+      "It focuses on helping individuals communicate effectively and promote healthier relationships and personal growth.",
+    icon: PiTrainSimple,
+  },
+];

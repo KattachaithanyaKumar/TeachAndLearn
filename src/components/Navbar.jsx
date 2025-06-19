@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { HiMenu, HiX } from "react-icons/hi";
 import logo from "../assets/logo-full.png";
@@ -7,9 +7,26 @@ import Button from "./Button";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50); // adjust threshold if needed
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="bg-white shadow w-full h-24 px-6 md:px-12 flex items-center justify-between relative">
+    <div
+      className={`fixed top-0 left-0 w-full h-24 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white shadow-md backdrop-blur-lg"
+          : "bg-transparent text-white"
+      }`}
+    >
       {/* Logo */}
       <img src={logo} alt="logo" className="w-[160px] md:w-[200px]" />
 
@@ -20,7 +37,11 @@ const Navbar = () => {
             <Link
               key={index}
               to={item.path}
-              className="px-4 py-2 rounded-full font-medium text-gray-700 hover:bg-red-100 hover:text-red-600 transition-all duration-200 transform"
+              className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-gray-700 ${
+                scrolled
+                  ? " hover:bg-red-100 hover:text-red-600"
+                  : "hover:text-orange-500"
+              }`}
             >
               {item.label}
             </Link>
@@ -33,7 +54,9 @@ const Navbar = () => {
       <div className="md:hidden flex items-center">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="text-3xl text-red-600"
+          className={`text-3xl ${
+            scrolled ? "text-red-600" : "text-white"
+          } transition-all duration-300`}
         >
           {menuOpen ? <HiX /> : <HiMenu />}
         </button>

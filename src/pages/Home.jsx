@@ -3,7 +3,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, statistics } from "../CONSTANTS";
+import { aboutUs, services, statistics } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 
@@ -16,7 +16,10 @@ const Home = () => {
     <div>
       <Navbar />
       {/* Section with child image and text */}
-      <section className="relative z-10 bg-amber-100 overflow-hidden" id="hero">
+      <section
+        className="relative z-10 bg-amber-100 overflow-hidden pt-24"
+        id="hero"
+      >
         <div className="flex flex-col md:flex-row items-center justify-center w-full px-4 md:px-12 py-16 gap-8 relative z-10">
           {/* Left Content */}
           <div className="w-full md:w-1/2 flex flex-col gap-2">
@@ -54,7 +57,7 @@ const Home = () => {
             <img
               src={child}
               alt="Child smiling with a stack of books"
-              className="w-full md:block hidden"
+              className="w-full md:block hidden scale-125"
             />
           </div>
         </div>
@@ -81,7 +84,7 @@ const Home = () => {
         id="statistics"
       >
         <div className="flex justify-center items-center pb-20 relative z-10">
-          <div className="w-[90%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {statistics.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -120,11 +123,12 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ABOUT US */}
       <section
         id="about-us"
-        className="bg-lime-100 px-6 py-20 flex justify-center items-center"
+        className="relative bg-lime-100 px-6 py-20 flex justify-center items-center overflow-hidden"
       >
-        <div className="flex flex-col md:flex-row gap-16 w-full max-w-6xl items-center">
+        <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center">
           {/* Image with Mask */}
           <div className="flex-shrink-0">
             <img
@@ -172,6 +176,81 @@ const Home = () => {
 
             <Button>Know More</Button>
           </div>
+        </div>
+
+        {/* Wave at bottom */}
+        <div className="absolute bottom-0 left-0 w-full z-0">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 180"
+            className="w-full h-[80px]"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill="#fef9c2"
+              d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,180L1405.7,180C1371.4,180,1303,180,1234,180C1165.7,180,1097,180,1029,180C960,180,891,180,823,180C754.3,180,686,180,617,180C548.6,180,480,180,411,180C342.9,180,274,180,206,180C137.1,180,69,180,34,180L0,180Z"
+            />
+          </svg>
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section
+        id="services"
+        className="bg-yellow-100 relative flex items-center justify-center py-20 px-4 overflow-hidden"
+      >
+        <div className="max-w-6xl w-full">
+          <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2 text-center">
+            Our Services
+          </p>
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-10 text-center">
+            What Service We Offer
+          </h1>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
+            {services.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300"
+                >
+                  {Icon && (
+                    <div className="bg-yellow-50 p-4 rounded-full mb-4 shadow-sm">
+                      <Icon className="text-5xl text-yellow-500" />
+                    </div>
+                  )}
+                  <h2 className="text-xl font-bold text-gray-800 mb-2">
+                    {item.name}
+                  </h2>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    {item.description}
+                  </p>
+                  <a
+                    href="#"
+                    className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
+                  >
+                    Read More →
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Wave at bottom */}
+        <div className="absolute bottom-0 left-0 w-full z-0">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 180"
+            className="w-full h-[80px]"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill="#fff"
+              d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,180L1405.7,180C1371.4,180,1303,180,1234,180C1165.7,180,1097,180,1029,180C960,180,891,180,823,180C754.3,180,686,180,617,180C548.6,180,480,180,411,180C342.9,180,274,180,206,180C137.1,180,69,180,34,180L0,180Z"
+            />
+          </svg>
         </div>
       </section>
     </div>
