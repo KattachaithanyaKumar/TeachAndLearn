@@ -22,3 +22,13 @@ export async function getServices() {
         throw error;
     }
 }
+
+export async function getStatistics() {
+    try {
+        const statistics = await client.fetch('*[_type == "stats"]');
+        return statistics;
+    } catch (error) {
+        console.error('Error fetching statistics:', error);
+        throw error;
+    }
+}

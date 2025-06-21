@@ -3,7 +3,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, statistics, allIcons } from "../CONSTANTS";
+import { aboutUs, allIcons } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import child from "../assets/child-hero.png";
@@ -15,22 +15,33 @@ import plus from "../assets/plus.png";
 import circles from "../assets/circles.svg";
 import whyUs from "../assets/why-us.jpg";
 
-import { getServices } from "../network/api_service";
+import { getServices, getStatistics } from "../network/api_service";
 const Home = () => {
+  const fetchServices = async () => {
+    try {
+      const servicesData = await getServices();
+      setServices(servicesData);
+      console.log("Fetched Services:", servicesData);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
   const [services, setServices] = useState([]);
+  const [statistics, setStatistics] = useState([]);
+
+  const fetchStatistics = async () => {
+    try {
+      const statsData = await getStatistics();
+      setStatistics(statsData);
+      console.log("Fetched Statistics:", statsData);
+    } catch (error) {
+      console.error("Error fetching statistics:", error);
+    }
+  }
   useEffect(() => {
     // Fetch services data from the API
-    const fetchServices = async () => {
-      try {
-        const servicesData = await getServices();
-        setServices(servicesData);
-        console.log("Fetched Services:", servicesData);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
-
     fetchServices();
+    fetchStatistics();
   }, []);
 
   return (
@@ -113,7 +124,7 @@ const Home = () => {
         <div className="flex justify-center items-center pb-20 relative z-10">
           <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {statistics.map((item, index) => {
-              const Icon = item.icon;
+              const Icon = allIcons[item.icon];
               return (
                 <div
                   key={index}
