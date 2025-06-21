@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, services, statistics } from "../CONSTANTS";
+import { aboutUs, statistics } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import child from "../assets/child-hero.png";
@@ -18,11 +18,13 @@ import whyUs from "../assets/why-us.jpg";
 import { getServices } from "../network/api_service";
 
 const Home = () => {
+  const [services, setServices] = useState([]);
   useEffect(() => {
     // Fetch services data from the API
     const fetchServices = async () => {
       try {
         const servicesData = await getServices();
+        setServices(servicesData);
         console.log("Fetched Services:", servicesData);
       } catch (error) {
         console.error("Error fetching services:", error);
