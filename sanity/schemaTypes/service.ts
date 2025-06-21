@@ -12,6 +12,10 @@ export const service = defineType({
         defineField({
             name: 'description',
             type: 'text',
-        })
+        }),
+        defineField({
+            name: 'icon',
+            type: 'string',
+        }),
     ]
 });

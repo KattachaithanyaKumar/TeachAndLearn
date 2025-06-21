@@ -23,7 +23,6 @@ const Home = () => {
     const fetchServices = async () => {
       try {
         const servicesData = await getServices();
-        // Update the services state or handle the data as needed
         console.log("Fetched Services:", servicesData);
       } catch (error) {
         console.error("Error fetching services:", error);
