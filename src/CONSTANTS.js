@@ -9,6 +9,7 @@ import { PiLego } from "react-icons/pi";
 import { TbHorse } from "react-icons/tb";
 import { PiTrainSimple } from "react-icons/pi";
 
+export const projectId = "fsko8ofn";
 export const navItems = [
   {
     label: "Home",
