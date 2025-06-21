@@ -14,6 +14,7 @@ import dots from "../assets/dots.png";
 import blob from "../assets/blob.png";
 import plus from "../assets/plus.png";
 import circles from "../assets/circles.svg";
+import whyUs from "../assets/why-us.jpg";
 
 const Home = () => {
   return (
@@ -263,6 +264,37 @@ const Home = () => {
               d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,180L1405.7,180C1371.4,180,1303,180,1234,180C1165.7,180,1097,180,1029,180C960,180,891,180,823,180C754.3,180,686,180,617,180C548.6,180,480,180,411,180C342.9,180,274,180,206,180C137.1,180,69,180,34,180L0,180Z"
             />
           </svg>
+        </div>
+      </section>
+
+      {/* WHY CHOOSE US */}
+      <section
+        id="why-us"
+        className="relative flex items-center justify-center py-20 px-4 overflow-hidden"
+      >
+        <div>
+          <img src={whyUs} alt="" />
+        </div>
+        <div>
+          <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2 text-center">
+            Why Choose us
+          </p>
+
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-10 text-center">
+            Experience, Expertise & Personalized Approach
+          </h1>
+
+          <p>
+            There are many reasons to choose our child development center for
+            your therapy needs. We have a team of highly trained and experienced
+            therapists who specialize in a range of areas, including behavioral
+            therapy, speech therapy, occupational therapy, physical therapy, and
+            school readiness programs. We also offer a personalized approach to
+            care, tailoring each treatment plan to meet the unique needs and
+            goals of each individual. Our compassionate and supportive
+            environment helps individuals feel comfortable and confident as they
+            work towards their goals.
+          </p>
         </div>
       </section>
     </div>
