@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, services, statistics } from "../CONSTANTS";
+import { aboutUs, statistics, allIcons } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
-
 import child from "../assets/child-hero.png";
 import about from "../assets/teacher-and-student.JPG";
 import mask from "../assets/mask.png";
@@ -16,7 +15,24 @@ import plus from "../assets/plus.png";
 import circles from "../assets/circles.svg";
 import whyUs from "../assets/why-us.jpg";
 
+import { getServices } from "../network/api_service";
 const Home = () => {
+  const [services, setServices] = useState([]);
+  useEffect(() => {
+    // Fetch services data from the API
+    const fetchServices = async () => {
+      try {
+        const servicesData = await getServices();
+        setServices(servicesData);
+        console.log("Fetched Services:", servicesData);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -222,7 +238,7 @@ const Home = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
             {services.map((item, index) => {
-              const Icon = item.icon;
+              const Icon = allIcons[item.icon];
               return (
                 <div
                   key={index}
