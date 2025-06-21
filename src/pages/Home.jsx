@@ -3,7 +3,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, statistics } from "../CONSTANTS";
+import { aboutUs, statistics, allIcons } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import child from "../assets/child-hero.png";
@@ -16,7 +16,6 @@ import circles from "../assets/circles.svg";
 import whyUs from "../assets/why-us.jpg";
 
 import { getServices } from "../network/api_service";
-
 const Home = () => {
   const [services, setServices] = useState([]);
   useEffect(() => {
@@ -239,7 +238,7 @@ const Home = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
             {services.map((item, index) => {
-              const Icon = item.icon;
+              const Icon = allIcons[item.icon];
               return (
                 <div
                   key={index}
