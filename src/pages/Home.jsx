@@ -3,7 +3,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 
-import { aboutUs, allIcons } from "../CONSTANTS";
+import { allIcons } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import child from "../assets/child-hero.png";
@@ -15,31 +15,56 @@ import plus from "../assets/plus.png";
 import circles from "../assets/circles.svg";
 import whyUs from "../assets/why-us.jpg";
 
-import { getServices, getStatistics } from "../network/api_service";
+import { getServices, getStatistics, getAboutUs } from "../network/api_service";
 const Home = () => {
+  const [services, setServices] = useState([]);
+  const [statistics, setStatistics] = useState([]);
+  const [aboutUs, setAboutUs] = useState();
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [loadingStatistics, setLoadingStatistics] = useState(true);
+  const [loadingAboutUs, setLoadingAboutUs] = useState(true);
+
   const fetchServices = async () => {
+    setLoadingServices(true);
     try {
       const servicesData = await getServices();
       setServices(servicesData);
       console.log("Fetched Services:", servicesData);
     } catch (error) {
       console.error("Error fetching services:", error);
+    } finally {
+      setLoadingServices(false);
     }
   };
-  const [services, setServices] = useState([]);
-  const [statistics, setStatistics] = useState([]);
 
   const fetchStatistics = async () => {
+    setLoadingStatistics(true);
     try {
       const statsData = await getStatistics();
       setStatistics(statsData);
       console.log("Fetched Statistics:", statsData);
     } catch (error) {
       console.error("Error fetching statistics:", error);
+    } finally {
+      setLoadingStatistics(false);
     }
   }
+
+  const fetchAboutUs = async () => {
+    setLoadingAboutUs(true);
+    try {
+      const aboutData = await getAboutUs();
+      console.log("Fetched About Us:", aboutData);
+      setAboutUs(aboutData[0]);
+    } catch (error) {
+      console.error("Error fetching about us:", error);
+    } finally {
+      setLoadingAboutUs(false);
+    }
+  }
+
   useEffect(() => {
-    // Fetch services data from the API
+    fetchAboutUs();
     fetchServices();
     fetchStatistics();
   }, []);
@@ -123,25 +148,29 @@ const Home = () => {
       >
         <div className="flex justify-center items-center pb-20 relative z-10">
           <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {statistics.map((item, index) => {
-              const Icon = allIcons[item.icon];
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col items-center justify-center p-4"
-                >
+            {loadingStatistics ? (
+              <div className="col-span-4 text-center py-8">Loading statistics...</div>
+            ) : (
+              statistics.map((item, index) => {
+                const Icon = allIcons[item.icon];
+                return (
                   <div
-                    className={`flex justify-center items-center rounded-full w-20 h-20 mb-4 ${item.bgColor}`}
+                    key={index}
+                    className="flex flex-col items-center justify-center p-4"
                   >
-                    <Icon className={`text-4xl ${item.iconColor}`} />
+                    <div
+                      className={`flex justify-center items-center rounded-full w-20 h-20 mb-4 ${item.bgColor}`}
+                    >
+                      <Icon className={`text-4xl ${item.iconColor}`} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {item.number}
+                    </h2>
+                    <p className="text-sm text-gray-600">{item.label}</p>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {item.number}
-                  </h2>
-                  <p className="text-sm text-gray-600">{item.label}</p>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -193,27 +222,34 @@ const Home = () => {
               About Us
             </p>
 
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              {aboutUs.title}
-            </h1>
+            {loadingAboutUs ? (
+              <p>Loading about us...</p>
+            ) : aboutUs ? (
+              <>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+                  {aboutUs.title}
+                </h1>
 
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
-              {aboutUs.description}
-            </p>
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
+                  {aboutUs.description}
+                </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {aboutUs.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
-                >
-                  <FaRegCircleCheck className="text-green-600 text-lg" />
-                  <p className="text-gray-800 text-sm md:text-base">{item}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {aboutUs.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
+                    >
+                      <FaRegCircleCheck className="text-green-600 text-lg" />
+                      <p className="text-gray-800 text-sm md:text-base">{item}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <Button>Know More</Button>
+                <Button>Know More</Button>
+              </>
+            ) : (
+              <p>About us data not available.</p>
+            )}
           </div>
         </div>
 
@@ -248,33 +284,39 @@ const Home = () => {
           </h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
-            {services.map((item, index) => {
-              const Icon = allIcons[item.icon];
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300"
-                >
-                  {Icon && (
-                    <div className="bg-yellow-50 p-4 rounded-full mb-4 shadow-sm">
-                      <Icon className="text-5xl text-yellow-500" />
-                    </div>
-                  )}
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">
-                    {item.name}
-                  </h2>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    {item.description}
-                  </p>
-                  <a
-                    href="#"
-                    className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
+            {loadingServices ? (
+              <div className="col-span-3 text-center py-8">Loading services...</div>
+            ) : services.length > 0 ? (
+              services.map((item, index) => {
+                const Icon = allIcons[item.icon];
+                return (
+                  <div
+                    key={index}
+                    className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300"
                   >
-                    Read More →
-                  </a>
-                </div>
-              );
-            })}
+                    {Icon && (
+                      <div className="bg-yellow-50 p-4 rounded-full mb-4 shadow-sm">
+                        <Icon className="text-5xl text-yellow-500" />
+                      </div>
+                    )}
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                      {item.name}
+                    </h2>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                      {item.description}
+                    </p>
+                    <a
+                      href="#"
+                      className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
+                    >
+                      Read More →
+                    </a>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-3 text-center py-8">No services available.</div>
+            )}
           </div>
         </div>
 
