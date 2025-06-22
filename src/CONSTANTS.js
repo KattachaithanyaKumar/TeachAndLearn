@@ -51,10 +51,3 @@ export const navItems = [
     path: "/contact-us",
   },
 ];
-
-export const aboutUs = {
-  title: "Top Choice For Children",
-  description:
-    "Our team of experienced and dedicated therapists is here to provide the guidance, support, and encouragement needed to overcome challenges and build skills. With our help, individuals can reach their goals and thrive.",
-  items: ["Great Staff", "Safety", "Experience", "Activities"],
-};
