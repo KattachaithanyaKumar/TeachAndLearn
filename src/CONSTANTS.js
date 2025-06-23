@@ -8,6 +8,10 @@ import { MdOutlineToys } from "react-icons/md";
 import { PiLego } from "react-icons/pi";
 import { TbHorse } from "react-icons/tb";
 import { PiTrainSimple } from "react-icons/pi";
+import { BiTargetLock } from "react-icons/bi";
+import { TbMicroscope } from "react-icons/tb";
+import { MdFamilyRestroom } from "react-icons/md";
+import { FiThumbsUp } from "react-icons/fi";
 
 export const navItems = [
   {
@@ -116,3 +120,22 @@ export const services = [
     icon: PiTrainSimple,
   },
 ];
+
+export const whyUs = {
+  heading: "Experience, Expertise & Personalized Approach",
+  description:
+    "Our center offers expert therapy in areas like behavior, speech, and occupational development. We personalize every treatment plan to meet each individual’s needs, ensuring care is compassionate, supportive, and effective.",
+
+  approaches: [
+    { label: "Holistic Approach", icon: BiTargetLock },
+    { label: "Science Based Research", icon: TbMicroscope },
+    { label: "Parent Report Support", icon: MdFamilyRestroom },
+    { label: "Best Quality Service", icon: FiThumbsUp },
+  ],
+};
+
+export const ourPhilosophy = {
+  heading: "Fostering Growth and Success Through Collaboration and Partnership",
+  description:
+    "At our center, we believe that success comes from collaboration and partnership. We work closely with families, caregivers, and other professionals to ensure that every individual receives the support they need to achieve their goals. We also believe in the importance of ongoing communication and collaboration, as we work together to monitor progress and make adjustments to treatment plans as needed.",
+};
