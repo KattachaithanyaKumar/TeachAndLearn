@@ -12,7 +12,30 @@ import { BiTargetLock } from "react-icons/bi";
 import { TbMicroscope } from "react-icons/tb";
 import { MdFamilyRestroom } from "react-icons/md";
 import { FiThumbsUp } from "react-icons/fi";
+import * as FaIcons from "react-icons/fa";
+import * as MdIcons from "react-icons/md";
+import * as GiIcons from "react-icons/gi";
+import * as BsIcons from "react-icons/bs";
+import * as SlIcons from "react-icons/sl";
+import * as GoIcons from "react-icons/go";
+import * as IoIcons from "react-icons/io5";
+import * as TbIcons from "react-icons/tb";
+import * as PiIcons from "react-icons/pi";
+// add more as needed
 
+export const allIcons = {
+  ...FaIcons,
+  ...MdIcons,
+  ...GiIcons,
+  ...BsIcons,
+  ...SlIcons,
+  ...GoIcons,
+  ...IoIcons,
+  ...TbIcons,
+  ...PiIcons,
+};
+
+export const projectId = "fsko8ofn";
 export const navItems = [
   {
     label: "Home",
@@ -48,28 +71,28 @@ export const statistics = [
   {
     label: "5+ Years Experience",
     number: "5+",
-    icon: SlBadge,
+    icon: SlIcons.SlBadge,
     iconColor: "text-amber-600",
     bgColor: "bg-amber-100",
   },
   {
     label: "30+ Therapists",
     number: "30+",
-    icon: GoPeople,
+    icon: GoIcons.GoPeople,
     iconColor: "text-teal-600",
     bgColor: "bg-teal-100",
   },
   {
     label: "150+ Happy Children",
     number: "150+",
-    icon: FaRegHeart,
+    icon: FaIcons.FaRegHeart,
     iconColor: "text-pink-600",
     bgColor: "bg-pink-100",
   },
   {
     label: "15 Pediatric Services",
     number: "15",
-    icon: MdOutlineMedicalServices,
+    icon: MdIcons.MdOutlineMedicalServices,
     iconColor: "text-indigo-600",
     bgColor: "bg-indigo-100",
   },
