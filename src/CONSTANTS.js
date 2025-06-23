@@ -139,3 +139,29 @@ export const ourPhilosophy = {
   description:
     "At our center, we believe that success comes from collaboration and partnership. We work closely with families, caregivers, and other professionals to ensure that every individual receives the support they need to achieve their goals. We also believe in the importance of ongoing communication and collaboration, as we work together to monitor progress and make adjustments to treatment plans as needed.",
 };
+
+export const testimonials = [
+  {
+    review:
+      "Good therapy given to child, finding improvement in my child, training staff OT, BT are friendly and giving good guidance...... overall teach and learn development center... The ambiance is good and also the supporting staff too...",
+    author: "V Sai Reddy",
+    rating: 5,
+  },
+  {
+    review: "Good and safe environment for kids to learn and play.",
+    author: "Ancha Venkateswararao",
+    rating: 5,
+  },
+  {
+    review:
+      "Everyone there is good-natured and sympathetic. My son's therapy sessions are his favorite part of the week because of the fantastic job they've done with him.",
+    author: "Vennam Rama Krishna Reddy",
+    rating: 5,
+  },
+  {
+    review:
+      "we had a great experience with Sharmila and Likitha Madam. My son improved a lot in 3 months. He got a a very good difference in the speech and OT. Over all good center for the children development.",
+    author: "naveen lakshmi",
+    rating: 5,
+  },
+];
