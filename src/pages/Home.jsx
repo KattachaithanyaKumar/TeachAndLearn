@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
+import { IoLocationOutline } from "react-icons/io5";
+import { IoMdTime } from "react-icons/io";
 
 import {
   aboutUs,
@@ -27,9 +29,16 @@ import room from "../assets/room.jpg";
 import mask3 from "../assets/mask3.png";
 import star from "../assets/star.png";
 import line from "../assets/line.png";
+import blob2 from "../assets/blob2.png";
+import sphere from "../assets/sphere.png";
+import capsule from "../assets/capsule.png";
+import zigzag from "../assets/zigzag.png";
+import circleHalf from "../assets/circle-half.png";
+
 import Carousel from "../components/Carousel";
 
 import { getServices, getStatistics } from "../network/api_service";
+import Footer from "../components/Footer";
 const Home = () => {
   const fetchServices = async () => {
     try {
@@ -57,6 +66,13 @@ const Home = () => {
     fetchServices();
     fetchStatistics();
   }, []);
+
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" }); // or 'auto'
+    }
+  };
 
   return (
     <div>
@@ -97,7 +113,11 @@ const Home = () => {
                   Know More <IoIosArrowRoundForward size={24} />
                 </span>
               </Button>
-              <Button variant="secondary" className="flex gap-3">
+              <Button
+                variant="secondary"
+                className="flex gap-3"
+                onClick={() => scrollToId("book")}
+              >
                 Book Appointment
                 <FiPhone size={16} />
               </Button>
@@ -464,6 +484,8 @@ const Home = () => {
         aria-label="Testimonials from parents"
         className="relative overflow-hidden bg-lime-100"
       >
+        <img src={sphere} alt="" className="absolute left-10" />
+        <img src={capsule} alt="" className="absolute right-10" />
         <div className="w-screen z-10 flex flex-col items-center justify-center py-16 px-4 sm:px-6 md:px-12 mb-10">
           <div className="text-center">
             <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
@@ -493,7 +515,112 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="h-[100vh] bg-amber-100"></section>
+      {/* BOOK APPOINTMENT */}
+      <section
+        id="book"
+        className="bg-amber-100 relative overflow-hidden py-16 px-4 md:px-12"
+      >
+        <img src={zigzag} alt="" className="absolute" />
+        <img src={circleHalf} alt="" className="absolute right-10 bottom-20" />
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+          {/* Left */}
+          <div className="relative flex justify-center items-center">
+            {/* Blob background */}
+            <img
+              src={blob2}
+              alt="decorative blob"
+              className="w-full h-full scale-90 object-cover opacity-30 absolute top-0 left-0 z-0"
+            />
+
+            <div className="relative w-full max-w-md p-8 flex flex-col gap-10 z-10">
+              {/* Location */}
+              <div className="flex gap-4 items-start">
+                <IoLocationOutline className="text-orange-600 w-8 h-8 mt-1 shrink-0" />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Hafeezpet Branch
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    Satvika Residency, Vinayaka Nagar, Hafeezpet, Hyderabad,
+                    Telangana 50004.
+                  </p>
+                </div>
+              </div>
+
+              {/* Timing */}
+              <div className="flex gap-4 items-start">
+                <IoMdTime className="text-orange-600 w-8 h-8 mt-1 shrink-0" />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Opening Hours
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    09:00 a.m. – 8:00 p.m.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right - Form */}
+          <form className="bg-white shadow-lg rounded-xl p-8 space-y-5">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Quick Appointment
+            </h1>
+
+            <input
+              type="text"
+              placeholder="Your Name"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <input
+              type="text"
+              placeholder="Phone Number"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <input
+              type="text"
+              placeholder="Email Address"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+              <option value="">Select Service</option>
+              {services.map((item, index) => (
+                <option key={index} value={item.name}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <textarea
+              placeholder="Your Message"
+              className="w-full border border-gray-300 rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+            ></textarea>
+            <Button
+              type="submit"
+              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition duration-200"
+            >
+              <p className="text-center w-full">Book Appointment</p>
+            </Button>
+          </form>
+        </div>
+
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 w-full z-0">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 180"
+            className="w-full h-[80px]"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill="#E0F2FE"
+              d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,180L1405.7,180C1371.4,180,1303,180,1234,180C1165.7,180,1097,180,1029,180C960,180,891,180,823,180C754.3,180,686,180,617,180C548.6,180,480,180,411,180C342.9,180,274,180,206,180C137.1,180,69,180,34,180L0,180Z"
+            />
+          </svg>
+        </div>
+      </section>
+
+      <Footer color="#E0F2FE" />
     </div>
   );
 };
