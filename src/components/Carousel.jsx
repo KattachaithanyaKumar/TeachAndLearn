@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FaStar } from "react-icons/fa";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
+import bubble from "../assets/bubble.svg";
 
 const Rating = ({ value }) => (
   <div
@@ -13,115 +14,98 @@ const Rating = ({ value }) => (
   </div>
 );
 
-// Responsive slide widths
-const getResponsiveSlideVW = () => {
-  const width = window.innerWidth;
-  if (width < 640) return 90; // mobile
-  if (width < 1024) return 80; // tablet
-  return 70; // desktop
-};
-
 const Carousel = ({ data, autoScroll = true, interval = 3000 }) => {
-  const total = data.length;
-  const [currentIndex, setCurrentIndex] = useState(1);
-  const [transitioning, setTransitioning] = useState(true);
-  const [slideVW, setSlideVW] = useState(getResponsiveSlideVW());
+  const scrollRef = useRef(null);
+  const itemRef = useRef(null);
+  const scrollInterval = useRef(null);
 
-  const extendedData = [data[data.length - 1], ...data, data[0]];
-  const containerRef = useRef(null);
+  // Duplicate items at start and end for infinite effect
+  const extendedData = [
+    ...data.slice(-4), // last 4
+    ...data,
+    ...data.slice(0, 4), // first 4
+  ];
 
-  useEffect(() => {
-    const handleResize = () => setSlideVW(getResponsiveSlideVW());
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const scrollByItems = (count) => {
+    const container = scrollRef.current;
+    const itemWidth = itemRef.current?.offsetWidth || 0;
+    container.scrollBy({ left: count * itemWidth, behavior: "smooth" });
+  };
 
+  const handleNext = () => scrollByItems(1);
+  const handlePrev = () => scrollByItems(-1);
+
+  // Auto-scroll
   useEffect(() => {
     if (!autoScroll) return;
-    const id = setInterval(goToNext, interval);
-    return () => clearInterval(id);
-  }, [currentIndex, autoScroll]);
 
+    scrollInterval.current = setInterval(() => {
+      handleNext();
+    }, interval);
+
+    return () => clearInterval(scrollInterval.current);
+  }, [autoScroll, interval, handleNext]);
+
+  // Handle infinite looping
+  const handleScroll = () => {
+    const container = scrollRef.current;
+    const itemWidth = itemRef.current?.offsetWidth || 0;
+    const totalItems = extendedData.length;
+    const visibleCount = 4;
+    const totalScrollableWidth = itemWidth * totalItems;
+
+    if (container.scrollLeft <= itemWidth * 3) {
+      // Jump to actual content end
+      container.scrollLeft = itemWidth * (data.length + 3);
+    } else if (
+      container.scrollLeft >=
+      totalScrollableWidth - itemWidth * visibleCount
+    ) {
+      // Jump to actual content start
+      container.scrollLeft = itemWidth * 4;
+    }
+  };
+
+  // Set initial scroll to skip cloned items at start
   useEffect(() => {
-    const track = containerRef.current;
-    const handleEnd = () => {
-      setTransitioning(false);
-      if (currentIndex === 0) setCurrentIndex(total);
-      else if (currentIndex === total + 1) setCurrentIndex(1);
-    };
-    track.addEventListener("transitionend", handleEnd);
-    return () => track.removeEventListener("transitionend", handleEnd);
-  }, [currentIndex, total]);
-
-  const goToNext = () => {
-    setTransitioning(true);
-    setCurrentIndex((i) => i + 1);
-  };
-  const goToPrev = () => {
-    setTransitioning(true);
-    setCurrentIndex((i) => i - 1);
-  };
-
-  const GAP_REM = 1.5;
-  const SIDE_OFFSET_VW = (100 - slideVW) / 2;
-  const GAP_VW = (GAP_REM * 16) / (window.innerWidth / 100);
-  const translate = `translateX(calc(-${currentIndex * slideVW}vw - ${
-    currentIndex * GAP_VW
-  }vw + ${SIDE_OFFSET_VW}vw))`;
+    const container = scrollRef.current;
+    const itemWidth = itemRef.current?.offsetWidth || 0;
+    container.scrollLeft = itemWidth * 4;
+  }, []);
 
   return (
-    <div className="relative w-screen overflow-hidden py-10 px-2 sm:px-6">
-      {/* Fading masks */}
-      <div className="absolute left-0 top-0 w-24 sm:w-32 h-full z-20 pointer-events-none bg-gradient-to-r from-[#ecfcca] to-transparent" />
-      <div className="absolute right-0 top-0 w-24 sm:w-32 h-full z-20 pointer-events-none bg-gradient-to-l from-[#ecfcca] to-transparent" />
-
-      {/* Arrows */}
+    <div className="relative w-full overflow-hidden">
+      {/* Controls */}
       <button
-        onClick={goToPrev}
-        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 bg-white rounded-full shadow p-2"
+        onClick={handlePrev}
+        className="absolute z-20 left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
       >
         <FaArrowLeft />
       </button>
       <button
-        onClick={goToNext}
-        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 bg-white rounded-full shadow p-2"
+        onClick={handleNext}
+        className="absolute z-20 right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
       >
         <FaArrowRight />
       </button>
 
-      {/* Track + Slides */}
+      {/* Carousel */}
       <div
-        ref={containerRef}
-        className="flex items-stretch space-x-4 sm:space-x-6"
-        style={{
-          transform: translate,
-          transition: transitioning ? "transform 0.5s ease-in-out" : "none",
-        }}
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto scroll-smooth no-scrollbar"
       >
-        {extendedData.map((item, idx) => (
+        {extendedData.map((item, index) => (
           <div
-            key={idx}
-            className="flex-shrink-0"
-            style={{ width: `${slideVW}vw` }}
+            key={index}
+            ref={index === 4 ? itemRef : null} // ref for real first item
+            className="relative w-1/4 flex-shrink-0"
           >
-            <div className="relative h-full">
-              <div
-                className="bg-white shadow-md p-4 sm:p-6 h-full min-h-40 flex flex-col justify-between 
-                rounded-tl-xl rounded-tr-3xl rounded-bl-3xl rounded-br-xl border border-gray-200"
-              >
-                <p className="text-gray-700 italic mb-4 text-sm sm:text-base">
-                  “{item.review}”
-                </p>
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                    {item.author}
-                  </h3>
-                  <Rating value={item.rating} />
-                </div>
-              </div>
-
-              {/* Tail */}
-              <div className="absolute -bottom-2 left-6 sm:left-10 w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent" />
+            <img src={bubble} alt="" className="w-full h-auto" />
+            <div className="absolute top-0 left-0 z-10 p-6 w-full h-full flex items-center justify-center flex-col">
+              <p className="text-black text-center">{item.review}</p>
+              <Rating value={item.rating} />
+              <p className="text-sm font-semibold mt-2">{item.author}</p>
             </div>
           </div>
         ))}
