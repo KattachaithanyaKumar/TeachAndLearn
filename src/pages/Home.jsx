@@ -242,7 +242,9 @@ const Home = () => {
                   className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
                 >
                   <FaRegCircleCheck className="text-green-600 text-lg" />
-                  <p className="text-gray-800 text-sm md:text-base">{item}</p>
+                  <p className="text-gray-800 text-sm md:text-base">
+                    {item.title}
+                  </p>
                 </div>
               ))}
             </div>
