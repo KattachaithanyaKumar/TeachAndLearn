@@ -102,7 +102,27 @@ export const aboutUs = {
   title: "Top Choice For Children",
   description:
     "Our team of experienced and dedicated therapists is here to provide the guidance, support, and encouragement needed to overcome challenges and build skills. With our help, individuals can reach their goals and thrive.",
-  items: ["Great Staff", "Safety", "Experience", "Activities"],
+  items: [
+    {
+      title: "Great Staff",
+      description: " Our carers respond every time with a big warm smile.",
+    },
+    {
+      title: "Safety",
+      description:
+        "We keep your child safe and happy with careful supervision and child-friendly surroundings.",
+    },
+    {
+      title: "Experience",
+      description:
+        "We provide enriching experiences that help children learn and thrive.",
+    },
+    {
+      title: "Activities",
+      description:
+        "At our Teach And Learn, kids have fun while learning through various enjoyable activities.",
+    },
+  ],
 };
 
 export const services = [
