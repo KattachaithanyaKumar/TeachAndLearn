@@ -16,32 +16,30 @@ import { getStatistics } from "../network/api_service";
 const Wave = ({ color }) => {
   return (
     <svg
-      width="100%"
-      height="150"
       viewBox="0 0 1200 150"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="none"
-      className="absolute bottom-0 left-0"
+      className="absolute bottom-0 left-0 w-full h-[100px] sm:h-[120px] md:h-[150px]"
     >
       <path
         d="
-              M0,75
-              Q50,0 100,75
-              T200,75
-              T300,75
-              T400,75
-              T500,75
-              T600,75
-              T700,75
-              T800,75
-              T900,75
-              T1000,75
-              T1100,75
-              T1200,75
-              V150
-              H0
-              Z
-            "
+          M0,75
+          Q50,0 100,75
+          T200,75
+          T300,75
+          T400,75
+          T500,75
+          T600,75
+          T700,75
+          T800,75
+          T900,75
+          T1000,75
+          T1100,75
+          T1200,75
+          V150
+          H0
+          Z
+        "
         fill={color}
       />
     </svg>
@@ -202,7 +200,7 @@ const About = () => {
       </section>
 
       <section className="relative flex items-center justify-center py-16 px-4 sm:px-6 md:px-12 overflow-hidden bg-[#E0F2FE]">
-        <div className="flex flex-col text-center items-center">
+        <div className="flex flex-col text-center items-center pb-20">
           {/* Header Content */}
           <div className="max-w-3xl">
             <p className="text-sm sm:text-base md:text-lg text-orange-500 font-semibold mb-2">
