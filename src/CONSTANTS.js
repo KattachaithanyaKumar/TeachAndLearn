@@ -208,3 +208,80 @@ export const testimonials = [
     rating: 5,
   },
 ];
+
+export const childServices = [
+  {
+    title: "Speech Therapy",
+    description:
+      "Comprehensive speech and language therapy to help children communicate effectively.",
+    items: [
+      "Articulation Disorder",
+      "Voice Disorder",
+      "Dysprosody",
+      "Mutism",
+      "Stuttering",
+      "Childhood Apraxia of Speech",
+      "Apraxia of Speech",
+      "Dysarthria",
+      "Phonological Disorder",
+      "Cluttering",
+    ],
+  },
+  {
+    title: "Occupational Therapy",
+    description:
+      "Helping children develop fine motor skills, sensory processing, and daily living skills.",
+    items: [
+      "Developmental Milestones",
+      "Sensory Processing",
+      "Fine Motor Skills",
+      "Gross Motor Skills",
+      "Play Skills",
+      "Self-Care Skills",
+      "School Readiness",
+    ],
+  },
+  {
+    title: "Behavioral Therapy",
+    description:
+      "Evidence-based interventions to address behavioral challenges and promote positive behaviors.",
+    items: ["ADHD", "Oppositional Defiant Disorder", "Conduct Disorder"],
+  },
+  {
+    title: "Physiotherapy",
+    description:
+      "Physical therapy to improve movement, strength, and motor development.",
+    items: [
+      "Balance and coordination",
+      "Muscle strength training",
+      "Posture improvement",
+      "Mobility training",
+      "Exercise programs",
+    ],
+  },
+  {
+    title: "School Readiness",
+    description:
+      "Comprehensive program to prepare children for academic success.",
+    items: [
+      "Mind & Body",
+      "Scholastics",
+      "Creative",
+      "Self-Identity",
+      "Thinking Skills",
+      "Community & Culture",
+      "Exploration",
+      "Holistic approach",
+    ],
+  },
+  {
+    title: "Psychology",
+    description:
+      "focuses on helping individuals communicate effectively and promote healthier relationships and personal growth.",
+    items: [
+      "express their thoughts",
+      "communication challenges",
+      "interpersonal relationships",
+    ],
+  },
+];

@@ -12,39 +12,7 @@ import mask from "../assets/mask.png";
 import facility from "../assets/facility.jpg";
 import mask2 from "../assets/mask4.png";
 import { getStatistics } from "../network/api_service";
-
-const Wave = ({ color }) => {
-  return (
-    <svg
-      viewBox="0 0 1200 150"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="none"
-      className="absolute bottom-0 left-0 w-full h-[100px] sm:h-[120px] md:h-[150px]"
-    >
-      <path
-        d="
-          M0,75
-          Q50,0 100,75
-          T200,75
-          T300,75
-          T400,75
-          T500,75
-          T600,75
-          T700,75
-          T800,75
-          T900,75
-          T1000,75
-          T1100,75
-          T1200,75
-          V150
-          H0
-          Z
-        "
-        fill={color}
-      />
-    </svg>
-  );
-};
+import Wave from "../components/Wave";
 
 const CloudShape = ({ icon, title, children }) => {
   return (
@@ -276,15 +244,12 @@ const About = () => {
           </div>
         </div>
 
-        <Wave color={"#fef3c6"} />
+        <Wave color={"#fff"} />
       </section>
 
-      <section
-        className="relative bg-[#fef3c6] overflow-hidden"
-        id="statistics"
-      >
+      <section className="relative bg-[#fff] overflow-hidden" id="statistics">
         <div className="flex justify-center items-center pb-20 relative z-10">
-          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center pb-30">
+          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center pb-20">
             {statistics.map((item, index) => {
               const Icon = allIcons[item.icon];
               return (
@@ -307,10 +272,10 @@ const About = () => {
           </div>
         </div>
 
-        <Wave color={"#fff"} />
+        <Wave color={"#fef3c6"} />
       </section>
 
-      <Footer />
+      <Footer color={"#fef3c6"} />
     </div>
   );
 };
