@@ -8,10 +8,12 @@ import AdultServices from "./pages/AdultServices";
 import Franchises from "./pages/Franchises";
 import Contact from "./pages/Contact";
 import Service from "./pages/Service";
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
