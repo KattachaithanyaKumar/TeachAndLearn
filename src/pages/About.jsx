@@ -14,6 +14,7 @@ import mask2 from "../assets/mask4.png";
 import { getStatistics } from "../network/api_service";
 import Wave from "../components/Wave";
 import CTA from "../components/CTA";
+import Header from "../components/Header";
 
 const CloudShape = ({ icon, title, children }) => {
   return (
@@ -91,25 +92,21 @@ const About = () => {
   return (
     <div>
       <Navbar />
-      <section className="bg-amber-100 py-44 relative overflow-hidden">
-        <div className="flex justify-center items-center flex-col pb-20">
-          <h1 className="text-4xl font-bold  mb-4">
-            About{" "}
-            <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-              Teach & Learn
-            </span>
-          </h1>
-          <div className="flex gap-2 items-center ">
-            <Link to="/" className="hover:underline ">
-              Home
-            </Link>
-            <span>/</span>
-            <span>About</span>
-          </div>
+      <Header color={"#FEF3C6"}>
+        <h1 className="text-4xl font-bold  mb-4">
+          About{" "}
+          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Teach & Learn
+          </span>
+        </h1>
+        <div className="flex gap-2 items-center ">
+          <Link to="/" className="hover:underline ">
+            Home
+          </Link>
+          <span>/</span>
+          <span>About</span>
         </div>
-
-        <Wave color={"#fff"} />
-      </section>
+      </Header>
 
       <section className="relative bg-white px-6 py-20 flex justify-center items-center overflow-hidden">
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-40">
@@ -249,7 +246,7 @@ const About = () => {
       </section>
 
       <section className="relative bg-[#fff] overflow-hidden" id="statistics">
-        <div className="flex justify-center items-center pb-20 relative z-10">
+        <div className="flex justify-center items-center pb-40 relative z-10">
           <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center ">
             {statistics.map((item, index) => {
               const Icon = allIcons[item.icon];
@@ -273,9 +270,9 @@ const About = () => {
           </div>
         </div>
 
-        <div className="mb-40">
+        {/* <div className="mb-40">
           <CTA />
-        </div>
+          </div> */}
         <Wave color={"#FEF3C6"} />
       </section>
 

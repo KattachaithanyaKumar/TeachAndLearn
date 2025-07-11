@@ -6,6 +6,8 @@ import { childServices } from "../CONSTANTS";
 import CTA from "../components/CTA";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import { IoIosArrowRoundForward } from "react-icons/io";
+import Header from "../components/Header";
 
 const ChildServices = () => {
   const navigate = useNavigate();
@@ -17,25 +19,21 @@ const ChildServices = () => {
   return (
     <div>
       <Navbar />
-      <section className="bg-[#E0F2FE] py-44 relative overflow-hidden">
-        <div className="flex justify-center items-center flex-col pb-20">
-          <h1 className="text-4xl font-bold  mb-4">
-            Child{" "}
-            <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-              Services
-            </span>
-          </h1>
-          <div className="flex gap-2 items-center ">
-            <p>
-              Comprehensive therapy services designed to help children reach
-              their developmental milestones and achieve their full potential in
-              a fun, supportive environment.
-            </p>
-          </div>
+      <Header color={"#E0F2FE"}>
+        <h1 className="text-4xl font-bold  mb-4">
+          Child{" "}
+          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Services
+          </span>
+        </h1>
+        <div className="flex gap-2 items-center ">
+          <p>
+            Comprehensive therapy services designed to help children reach their
+            developmental milestones and achieve their full potential in a fun,
+            supportive environment.
+          </p>
         </div>
-
-        <Wave color={"#fff"} />
-      </section>
+      </Header>
 
       <section className="bg-white py-20 px-4 sm:px-6 md:px-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto pb-30">
@@ -81,6 +79,7 @@ const ChildServices = () => {
                     }
                   >
                     Explore
+                    <IoIosArrowRoundForward size={24} />
                   </Button>
                 </div>
               </div>
