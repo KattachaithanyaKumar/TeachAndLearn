@@ -3,8 +3,17 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Wave from "../components/Wave";
 import { childServices } from "../CONSTANTS";
+import CTA from "../components/CTA";
+import Button from "../components/Button";
+import { useNavigate } from "react-router-dom";
 
 const ChildServices = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (path) => {
+    navigate(`/child-services/${path}`);
+  };
+
   return (
     <div>
       <Navbar />
@@ -45,24 +54,43 @@ const ChildServices = () => {
             {childServices.map((item, index) => (
               <div
                 key={index}
-                className="bg-[#fefce8] rounded-xl shadow-lg p-6 flex flex-col gap-4"
+                className="bg-[#FEFCE8] rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between"
               >
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
                     {item.title}
                   </h2>
-                  <p className="text-gray-700 text-sm">{item.description}</p>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {item.description}
+                  </p>
+
+                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 mb-4">
+                    {item.items.map((i, idx) => (
+                      <li key={idx}>{i}</li>
+                    ))}
+                  </ul>
                 </div>
 
-                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  {item.items.map((i, idx) => (
-                    <li key={idx}>{i}</li>
-                  ))}
-                </ul>
+                <div className="mt-auto pt-4">
+                  <Button
+                    className="w-fit"
+                    onClick={() =>
+                      handleNavigate(
+                        item.title.toLowerCase().replace(/\s+/g, "-")
+                      )
+                    }
+                  >
+                    Explore
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         </div>
+        <div className="mb-40">
+          <CTA />
+        </div>
+
         <Wave color={"#E0F2FE"} />
       </section>
 

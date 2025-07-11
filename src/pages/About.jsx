@@ -13,6 +13,7 @@ import facility from "../assets/facility.jpg";
 import mask2 from "../assets/mask4.png";
 import { getStatistics } from "../network/api_service";
 import Wave from "../components/Wave";
+import CTA from "../components/CTA";
 
 const CloudShape = ({ icon, title, children }) => {
   return (
@@ -249,7 +250,7 @@ const About = () => {
 
       <section className="relative bg-[#fff] overflow-hidden" id="statistics">
         <div className="flex justify-center items-center pb-20 relative z-10">
-          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center pb-20">
+          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center ">
             {statistics.map((item, index) => {
               const Icon = allIcons[item.icon];
               return (
@@ -272,10 +273,13 @@ const About = () => {
           </div>
         </div>
 
-        <Wave color={"#fef3c6"} />
+        <div className="mb-40">
+          <CTA />
+        </div>
+        <Wave color={"#FEF3C6"} />
       </section>
 
-      <Footer color={"#fef3c6"} />
+      <Footer color={"#FEF3C6"} />
     </div>
   );
 };
