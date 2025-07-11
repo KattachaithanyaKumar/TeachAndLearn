@@ -9,18 +9,41 @@ import Section from "../../components/Section";
 import CTA from "../../components/CTA";
 import Footer from "../../components/Footer";
 
+import {
+  FaComments,
+  FaChild,
+  FaChalkboardTeacher,
+  FaMicrophone,
+  FaAssistiveListeningSystems,
+  FaHandsHelping,
+  FaRobot,
+  FaUserShield,
+  FaBrain,
+  FaSmile,
+  FaUserFriends,
+} from "react-icons/fa";
+
+import { GiBabyBottle, GiSchoolBag } from "react-icons/gi";
+import { FaCommentDots } from "react-icons/fa"; // <-- Use this instead of GiTalking
+
+import { MdAccessibility, MdRecordVoiceOver } from "react-icons/md";
+
 const ageGroups = [
   {
+    icon: <GiBabyBottle className="text-pink-400 text-2xl" />,
     title: "Infants and Toddlers",
     description:
       "Early speech therapy addresses infant/toddler developmental delays, feeding issues, and communication disorders, with SLPs collaborating with parents for early skill support.",
   },
   {
+    icon: <FaCommentDots className="text-yellow-500 text-2xl" />,
     title: "Preschool-Aged Children",
     description:
       "This age group gets speech therapy for sound disorders, language delays, articulation, stuttering, and early social skills for school readiness.",
   },
+
   {
+    icon: <GiSchoolBag className="text-blue-500 text-2xl" />,
     title: "School-Aged Children",
     description:
       "Speech therapy for school-aged children improves language, articulation, social communication, literacy, and academic success, addressing challenges in learning and classroom participation.",
@@ -38,6 +61,74 @@ const speechDisorders = [
   "Childhood Apraxia of Speech",
   "Dysprosody",
   "Mutism",
+];
+
+const therapyBenefits = [
+  {
+    icon: <FaComments className="text-red-500 text-2xl" />,
+    title: "Improved Communication Skills",
+    description:
+      "Addresses sound errors, language delays, and disorders for clearer expression of thoughts and ideas.",
+  },
+  {
+    icon: <FaChalkboardTeacher className="text-orange-500 text-2xl" />,
+    title: "Enhanced Language Development",
+    description: "Improves both verbal and non-verbal communication abilities.",
+  },
+  {
+    icon: <FaSmile className="text-yellow-500 text-2xl" />,
+    title: "Increased Confidence",
+    description:
+      "Boosts self-confidence in social, academic, and professional settings.",
+  },
+  {
+    icon: <MdAccessibility className="text-green-500 text-2xl" />,
+    title: "Better Swallowing and Feeding",
+    description:
+      "Helps with safe, efficient swallowing to prevent aspiration and support nutrition.",
+  },
+  {
+    icon: <MdRecordVoiceOver className="text-blue-500 text-2xl" />,
+    title: "Management of Voice Disorders",
+    description:
+      "Improves vocal quality, pitch, and loudness for comfortable speech.",
+  },
+  {
+    icon: <FaCommentDots className="text-yellow-500 text-2xl" />,
+    title: "Treatment for Fluency Disorders",
+    description:
+      "Supports individuals who stutter to improve fluency and confidence.",
+  },
+  {
+    icon: <FaBrain className="text-purple-500 text-2xl" />,
+    title: "Support for Cognitive-Communication Skills",
+    description:
+      "Enhances memory, attention, and problem-solving in individuals with cognitive impairments.",
+  },
+  {
+    icon: <FaChild className="text-pink-500 text-2xl" />,
+    title: "Early Intervention for Children",
+    description:
+      "Boosts early language development, aiding academic and social success.",
+  },
+  {
+    icon: <FaRobot className="text-emerald-500 text-2xl" />,
+    title: "Assistive Technology Implementation",
+    description:
+      "Empowers limited speech individuals with AAC devices for effective communication.",
+  },
+  {
+    icon: <FaUserShield className="text-sky-500 text-2xl" />,
+    title: "Individualized Treatment Plans",
+    description:
+      "Tailored strategies ensure focused interventions and progress tracking.",
+  },
+  {
+    icon: <FaUserFriends className="text-violet-500 text-2xl" />,
+    title: "Support for Families and Caregivers",
+    description:
+      "Guides families and caregivers to effectively support communication and swallowing needs.",
+  },
 ];
 
 const Speech = () => {
@@ -98,70 +189,17 @@ const Speech = () => {
 
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Improved Communication Skills",
-                description:
-                  "Addresses sound errors, language delays, and disorders for clearer expression of thoughts and ideas.",
-              },
-              {
-                title: "Enhanced Language Development",
-                description:
-                  "Improves both verbal and non-verbal communication abilities.",
-              },
-              {
-                title: "Increased Confidence",
-                description:
-                  "Boosts self-confidence in social, academic, and professional settings.",
-              },
-              {
-                title: "Better Swallowing and Feeding",
-                description:
-                  "Helps with safe, efficient swallowing to prevent aspiration and support nutrition.",
-              },
-              {
-                title: "Management of Voice Disorders",
-                description:
-                  "Improves vocal quality, pitch, and loudness for comfortable speech.",
-              },
-              {
-                title: "Treatment for Fluency Disorders",
-                description:
-                  "Supports individuals who stutter to improve fluency and confidence.",
-              },
-              {
-                title: "Support for Cognitive-Communication Skills",
-                description:
-                  "Enhances memory, attention, and problem-solving in individuals with cognitive impairments.",
-              },
-              {
-                title: "Early Intervention for Children",
-                description:
-                  "Boosts early language development, aiding academic and social success.",
-              },
-              {
-                title: "Assistive Technology Implementation",
-                description:
-                  "Empowers limited speech individuals with AAC devices for effective communication.",
-              },
-              {
-                title: "Individualized Treatment Plans",
-                description:
-                  "Tailored strategies ensure focused interventions and progress tracking.",
-              },
-              {
-                title: "Support for Families and Caregivers",
-                description:
-                  "Guides families and caregivers to effectively support communication and swallowing needs.",
-              },
-            ].map((item, index) => (
+            {therapyBenefits.map((item, index) => (
               <div
                 key={index}
                 className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300"
               >
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {item.title}
-                </h3>
+                <span className="flex gap-2 items-center">
+                  <div className="mb-4">{item.icon}</div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {item.title}
+                  </h3>
+                </span>
                 <p className="text-gray-600 text-sm">{item.description}</p>
               </div>
             ))}
@@ -191,9 +229,12 @@ const Speech = () => {
                   key={idx}
                   className="bg-[#f1f5f9] p-6 rounded-xl shadow-sm hover:shadow-md transition"
                 >
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {group.title}
-                  </h3>
+                  <span className="flex gap-2 items-center">
+                    <div className="mb-4">{group.icon}</div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      {group.title}
+                    </h3>
+                  </span>
                   <p className="text-gray-700 text-sm">{group.description}</p>
                 </div>
               ))}
@@ -203,13 +244,13 @@ const Speech = () => {
       </Section>
 
       <Section className="bg-[#f9fafb] py-20 px-4 sm:px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-          {/* Text + Disorders List */}
-          <div className="w-full lg:w-1/2">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center lg:text-left">
+        <div className="max-w-7xl mx-auto">
+          {/* Top: Centered Heading and Paragraph */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Names of Speech Disorders
             </h2>
-            <p className="text-gray-700 text-base mb-6">
+            <p className="text-gray-700 text-base max-w-3xl mx-auto">
               SLPs work with individuals who have difficulties producing speech
               sounds, such as articulation disorders (errors in pronunciation),
               phonological disorders (sound patterns affecting speech clarity),
@@ -217,26 +258,48 @@ const Speech = () => {
               dysarthria (muscle weakness affecting speech). They also address
               fluency and voice-related conditions.
             </p>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {speechDisorders.map((name, idx) => (
+          {/* Bottom: Grid of [disorders | image | disorders] */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            {/* Left Disorders */}
+            <div className="space-y-4">
+              {speechDisorders.slice(0, 5).map((name, idx) => (
                 <div
                   key={idx}
                   className="bg-white border border-gray-200 rounded-lg p-4 text-gray-800 shadow-sm hover:shadow-md transition"
                 >
-                  {name}
+                  <div className="flex items-center gap-3">
+                    <FaMicrophone className="text-indigo-500" />
+                    <span>{name}</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Image */}
-          <div className="flex-shrink-0 w-full lg:w-1/2">
-            <img
-              src={disordersImage}
-              alt="Various types of speech disorders"
-              className="w-full h-auto rounded-xl shadow-md object-cover"
-            />
+            {/* Center Image */}
+            <div className="w-full">
+              <img
+                src={disordersImage}
+                alt="Various types of speech disorders"
+                className="w-full h-auto rounded-xl shadow-md object-cover"
+              />
+            </div>
+
+            {/* Right Disorders */}
+            <div className="space-y-4">
+              {speechDisorders.slice(5).map((name, idx) => (
+                <div
+                  key={idx + 5}
+                  className="bg-white border border-gray-200 rounded-lg p-4 text-gray-800 shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <FaMicrophone className="text-indigo-500" />
+                    <span>{name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Section>
