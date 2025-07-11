@@ -4,7 +4,7 @@ import { services } from "../CONSTANTS";
 
 const Footer = ({ color }) => {
   return (
-    <footer className={`bg-[${color}] pt-16 px-4 md:px-12`}>
+    <footer style={{ backgroundColor: color }} className="pt-16 px-4 md:px-12">
       {/* Main Content */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo and Description */}
