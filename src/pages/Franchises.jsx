@@ -53,13 +53,8 @@ const Franchises = () => {
   return (
     <div>
       <Navbar />
-      {/* Intro Section */}
-      <Section
-        className="relative px-4 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden"
-      >
-        {/* Decorative animated background blobs */}
-        
-        <div
+           {/* Decorative animated background blobs */}
+           <div
           className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
           style={{
             background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
@@ -80,6 +75,10 @@ const Franchises = () => {
             opacity: 0.6,
           }}
         />
+      {/* Intro Section */}
+      <Section
+        className="relative px-4 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden"
+      >
         <div className="relative z-10 max-w-4xl mx-auto text-center py-16 sm:py-20 md:py-24 flex flex-col items-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
             Welcome to Our Franchise Opportunities!
@@ -94,7 +93,7 @@ const Franchises = () => {
       </Section>
 
       {/* Steps Section */}
-      <Section color="#fff">
+      <Section>
         <div className="max-w-7xl mx-auto py-8 px-2">
           <div className="flex flex-col md:flex-row items-stretch justify-between w-full gap-x-0 gap-y-8">
             {steps.map((step, idx) => (
