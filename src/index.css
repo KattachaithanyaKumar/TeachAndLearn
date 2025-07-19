@@ -49,3 +49,18 @@ body {
 .animated-blob-3 {
   animation: blob-bounce-3 32s ease-in-out infinite alternate;
 }
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  background-size: 300% 300%;
+  animation: gradient-x 6s ease infinite;
+}
+

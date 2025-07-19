@@ -100,9 +100,6 @@ const AdultServices = () => {
             })}
           </div>
         </div>
-        <div className="mb-40">
-          <CTA />
-        </div>
 
         <Wave color={"#EDE9FE"} />
       </section>

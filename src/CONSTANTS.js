@@ -49,10 +49,10 @@ export const navItems = [
     label: "Child Services",
     path: "/child-services",
   },
-  {
-    label: "School Readiness",
-    path: "/school-readiness",
-  },
+  // {
+  //   label: "School Readiness",
+  //   path: "/school-readiness",
+  // },
   {
     label: "Adult Services",
     path: "/adult-services",
