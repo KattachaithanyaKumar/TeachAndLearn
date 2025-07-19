@@ -9,30 +9,51 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import teacherImg from "../assets/teacher-and-student.JPG";
 
+// Functions to handle call and email actions
+const handleCall = (phoneNumber) => {
+  // Remove spaces and dashes for tel: link
+  const cleanedNumber = phoneNumber.replace(/\s+/g, '').replace(/-/g, '');
+  window.open(`tel:${cleanedNumber}`);
+};
+
+const handleEmail = (email) => {
+  window.open(`mailto:${email}`);
+};
+
 const contactDetails = [
   {
     icon: <FaPhoneAlt className="text-2xl text-white" />,
     label: "Hafeezpet CDC",
     value: "+91 98541 12555",
     highlight: true,
+    onClick: () => handleCall("+91 98541 12555"),
+    isAction: true,
+    actionType: "call",
   },
   {
     icon: <FaPhoneAlt className="text-2xl text-white" />,
     label: "Kondapur CDC",
     value: "+91 98451 13555",
     highlight: true,
+    onClick: () => handleCall("+91 98451 13555"),
+    isAction: true,
+    actionType: "call",
   },
   {
     icon: <FaEnvelope className="text-2xl text-white" />,
     label: "Email",
     value: "teachandlearnedu@gmail.com",
     highlight: false,
+    onClick: () => handleEmail("teachandlearnedu@gmail.com"),
+    isAction: true,
+    actionType: "email",
   },
   {
     icon: <IoMdTime className="text-2xl text-white" />,
     label: "Working Hours",
     value: "10:00 a.m. – 7:00 p.m.",
     highlight: false,
+    isAction: false,
   },
 ];
 
@@ -91,6 +112,10 @@ const Contact = () => {
         <div
           key={index}
           className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-200 cursor-pointer transition-transform duration-200 transform hover:-translate-y-2 hover:scale-105"
+          onClick={detail.isAction && detail.onClick ? detail.onClick : undefined}
+          tabIndex={detail.isAction ? 0 : undefined}
+          role={detail.isAction ? "button" : undefined}
+          
         >
           <div className="flex flex-row items-center justify-center gap-3 px-6 py-4 text-white font-semibold text-lg 
             bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 
