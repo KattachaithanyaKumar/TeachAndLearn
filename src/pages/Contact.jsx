@@ -5,6 +5,8 @@ import Section from "../components/Section";
 import Button from "../components/Button";
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
+import { FaWhatsapp } from "react-icons/fa";
+
 import teacherImg from "../assets/teacher-and-student.JPG";
 
 const contactDetails = [
@@ -180,6 +182,17 @@ const Contact = () => {
           </form>
         </div>
       </div>
+      {/* Floating WhatsApp Button */}
+      <a
+        href="https://api.whatsapp.com/send/?phone=919854112555&text&type=phone_number&app_absent=0"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center"
+        aria-label="Chat on WhatsApp"
+      >
+        <FaWhatsapp className="w-6 h-6" />
+      </a>
+
       <Footer />
     </div>
   );
