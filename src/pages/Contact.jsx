@@ -93,71 +93,93 @@ const Contact = () => {
           opacity: 0.6,
         }}
       />
-<Section className="bg-gray-50 py-20 px-6 sm:px-10 md:px-20">
-  <div className="max-w-4xl mx-auto text-center">
-    {/* Animated Gradient Heading */}
-    <h1 className="text-5xl font-bold mb-10">
-      <span className="inline-block bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 
+      <Section className="bg-gray-50 py-20 px-6 sm:px-10 md:px-20">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Animated Gradient Heading */}
+          <h1 className="text-5xl font-bold mb-10">
+            <span className="inline-block bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 
         bg-clip-text text-transparent animate-gradient-x">
-        Get in Touch
-      </span>
-    </h1>
+              Get in Touch
+            </span>
+          </h1>
 
-    <p className="text-lg text-gray-600 mb-14 leading-relaxed">
-      Have a question or need assistance? We’re here to help. Reach out using the details below and a team member will respond promptly.
-    </p>
+          <p className="text-lg text-gray-600 mb-14 leading-relaxed">
+            Have a question or need assistance? We’re here to help. Reach out using the details below and a team member will respond promptly.
+          </p>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-      {contactDetails.map((detail, index) => (
-        <div
-          key={index}
-          className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-200 cursor-pointer transition-transform duration-200 transform hover:-translate-y-2 hover:scale-105"
-          onClick={detail.isAction && detail.onClick ? detail.onClick : undefined}
-          tabIndex={detail.isAction ? 0 : undefined}
-          role={detail.isAction ? "button" : undefined}
-          
-        >
-          <div className="flex flex-row items-center justify-center gap-3 px-6 py-4 text-white font-semibold text-lg 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {contactDetails.map((detail, index) => (
+              <div
+                key={index}
+                className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-200 cursor-pointer transition-transform duration-200 transform hover:-translate-y-2 hover:scale-105"
+                onClick={detail.isAction && detail.onClick ? detail.onClick : undefined}
+                tabIndex={detail.isAction ? 0 : undefined}
+                role={detail.isAction ? "button" : undefined}
+
+              >
+                <div className="flex flex-row items-center justify-center gap-3 px-6 py-4 text-white font-semibold text-lg 
             bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 
             animate-gradient-x cursor-pointer"
-          >
-            <span className="flex justify-center">{detail.icon}</span>
-            <span className="text-center">{detail.label}</span>
-          </div>
+                >
+                  <span className="flex justify-center">{detail.icon}</span>
+                  <span className="text-center">{detail.label}</span>
+                </div>
 
-          <div className="px-6 py-5 text-gray-800 text-base sm:text-lg break-words font-bold cursor-pointer">
-            {detail.value}
+                <div className="px-6 py-5 text-gray-800 text-base sm:text-lg break-words font-bold cursor-pointer">
+                  {detail.value}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</Section>
+      </Section>
 
 
       <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch">
         {/* Left Card: Addresses, Image */}
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-orange-400 to-orange-300 rounded-2xl shadow-xl overflow-hidden min-w-[320px]
-        bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 
-            animate-gradient-x cursor-pointer">
+        <div
+          className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer"
+          style={{
+            background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
+          }}
+        >
           <div className="p-8 flex flex-col gap-6 flex-grow">
-            <div className="mt-6">
-              <h2 className="text-white font-bold">{mainOffice.title}</h2>
-              <div className="flex items-start gap-3 mb-4">
-                <FaMapMarkerAlt className="text-xl text-white mt-1" />
-                <span className="text-white/90 text-base font-bold">{mainOffice.address}</span>
+            <div className="mt-6 space-y-6">
+              <div>
+                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
+                  {mainOffice.title}
+                </h2>
+                <div className="flex items-start gap-3 mt-2">
+                  <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
+                  <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
+                    {mainOffice.address}
+                  </span>
+                </div>
               </div>
-              <h2 className="text-white font-bold">{branch.title}</h2>
-              <div className="flex items-start gap-3">
-                <FaMapMarkerAlt className="text-xl text-white mt-1" />
-                <span className="text-white/90 text-base font-bold">{branch.address}</span>
+
+              <div>
+                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
+                  {branch.title}
+                </h2>
+                <div className="flex items-start gap-3 mt-2">
+                  <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
+                  <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
+                    {branch.address}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+
           <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
-            <img src={teacherImg} alt="Contact support" className="object-cover w-full h-full rounded-b-2xl" />
+            <img
+              src={teacherImg}
+              alt="Contact support"
+              className="object-cover w-full h-full rounded-b-2xl"
+            />
           </div>
         </div>
+
         {/* Right Card: Contact Form */}
         <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Send Us a Message</h2>
@@ -173,7 +195,7 @@ const Contact = () => {
                 email: form.email.value,
                 message: form.message.value,
               };
-              alert(`Thank you for reaching out!\n\n${Object.entries(data).map(([k,v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
+              alert(`Thank you for reaching out!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
               form.reset();
             }}
           >
