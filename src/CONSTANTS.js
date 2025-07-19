@@ -58,6 +58,10 @@ export const navItems = [
     path: "/adult-services",
   },
   {
+    label: "Facilities",
+    path: "/facilities"
+  },
+  {
     label: "Franchises",
     path: "/franchises",
   },
