@@ -85,7 +85,6 @@ const Behavioral = () => {
         </Section>
       ))}
 
-      <CTA />
       <Footer />
     </div>
   );

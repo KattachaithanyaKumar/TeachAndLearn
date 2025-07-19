@@ -84,8 +84,7 @@ const Psychology = () => {
           </div>
         </Section>
       ))}
-
-      <CTA />
+  
       <Footer />
     </div>
   );

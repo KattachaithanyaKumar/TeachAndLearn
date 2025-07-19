@@ -85,7 +85,6 @@ const Physical = () => {
         </Section>
       ))}
 
-      <CTA />
       <Footer />
     </div>
   );

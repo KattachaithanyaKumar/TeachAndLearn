@@ -85,7 +85,6 @@ const AdultSpeech = () => {
         </Section>
       ))}
 
-      <CTA />
       <Footer />
     </div>
   );
