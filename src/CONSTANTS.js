@@ -49,13 +49,17 @@ export const navItems = [
     label: "Child Services",
     path: "/child-services",
   },
-  {
-    label: "School Readiness",
-    path: "/school-readiness",
-  },
+  // {
+  //   label: "School Readiness",
+  //   path: "/school-readiness",
+  // },
   {
     label: "Adult Services",
     path: "/adult-services",
+  },
+  {
+    label: "Facilities",
+    path: "/facilities"
   },
   {
     label: "Franchises",
@@ -283,5 +287,63 @@ export const childServices = [
       "communication challenges",
       "interpersonal relationships",
     ],
+  },
+];
+
+export const adultServices = [
+  {
+    title: "Psychology",
+    description:
+      "Personalized psychiatric care for adults, addressing mental health conditions such as anxiety, depression, bipolar disorder, and more.",
+    items: [
+      "Diagnosis & treatment of mental illnesses",
+      "Personalized treatment plans",
+      "Medication management",
+      "Therapy & lifestyle changes",
+      "Support for anxiety, depression, bipolar disorder, schizophrenia, substance use disorders"
+    ],
+    icon: PiTrainSimple,
+  },
+  {
+    title: "Speech Therapy",
+    description:
+      "Speech therapy for adults to improve communication skills, confidence, and quality of life, addressing speech, language, and voice disorders.",
+    items: [
+      "Articulation disorders",
+      "Fluency disorders",
+      "Voice disorders",
+      "Language disorders",
+      "Personalized treatment plans",
+      "Evidence-based therapies",
+      "Support for confidence and self-esteem"
+    ],
+    icon: IoExtensionPuzzleOutline,
+  },
+  {
+    title: "Physical Therapy",
+    description:
+      "Physical therapy for adults to restore function, reduce pain, and prevent disability through exercise and manual therapy.",
+    items: [
+      "Restoration of physical function",
+      "Pain reduction",
+      "Prevention of disability",
+      "Personalized exercise plans",
+      "Rehabilitation for injuries, arthritis, stroke, neurological disorders",
+      "Chronic condition management"
+    ],
+    icon: PiLego,
+  },
+  {
+    title: "Behavioral Therapy",
+    description:
+      "Behavioral therapy for adults to change unwanted behaviors, manage emotions, and develop positive coping skills.",
+    items: [
+      "Addressing anxiety, depression, anger, addiction, phobias",
+      "Coping skills development",
+      "Personalized treatment plans",
+      "Evidence-based therapies",
+      "Support for mental health and well-being"
+    ],
+    icon: MdOutlineToys,
   },
 ];
