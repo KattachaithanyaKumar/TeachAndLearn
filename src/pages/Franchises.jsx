@@ -53,28 +53,28 @@ const Franchises = () => {
   return (
     <div>
       <Navbar />
-           {/* Decorative animated background blobs */}
-           <div
-          className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
-          style={{
-            background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
-          style={{
-            background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
-          style={{
-            background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-            opacity: 0.6,
-          }}
-        />
+      {/* Decorative animated background blobs */}
+      <div
+        className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
+        style={{
+          background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
+          opacity: 0.6,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
+        style={{
+          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
+          opacity: 0.6,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
+        style={{
+          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
+          opacity: 0.6,
+        }}
+      />
       {/* Intro Section */}
       <Section
         className="relative px-4 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden"
@@ -126,7 +126,12 @@ const Franchises = () => {
       <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch">
 
         {/* Left Card: Contact Info, Requirements, Image */}
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-orange-400 to-orange-300 rounded-2xl shadow-xl overflow-hidden min-w-[320px]">
+        <div
+          className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer"
+          style={{
+            background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
+          }}
+        >
           <div className="p-8 flex flex-col gap-6 flex-grow">
             {contactInfo.map((item, idx) => (
               <div key={idx} className="flex items-center gap-4 border-b border-orange-200 pb-6 mb-2 last:border-b-0 last:pb-0 last:mb-0">
@@ -140,16 +145,21 @@ const Franchises = () => {
               </div>
             ))}
             <div className="mt-6">
-              <h2 className="text-lg font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Franchise Requirements</h2>
-              <ul className="list-disc list-inside text-white/90 text-base space-y-1 pl-2">
+              <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md mb-2">Franchise Requirements</h2>
+              <ul className="list-disc list-inside text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm space-y-1 pl-2">
                 {requirements.map((req, idx) => (
                   <li key={idx}>{req}</li>
                 ))}
               </ul>
             </div>
           </div>
+
           <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
-            <img src={teacherImg} alt="Franchise support" className="object-cover w-full h-full rounded-b-2xl" />
+            <img
+              src={teacherImg}
+              alt="Franchise support"
+              className="object-cover w-full h-full rounded-b-2xl"
+            />
           </div>
         </div>
 
@@ -169,7 +179,7 @@ const Franchises = () => {
                 location: form.location.value,
                 comments: form.comments.value,
               };
-              alert(`Thank you for your interest!\n\n${Object.entries(data).map(([k,v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
+              alert(`Thank you for your interest!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
               form.reset();
             }}
           >
