@@ -36,7 +36,7 @@ const sections = [
   },
 ];
 
-const Behavioral = () => {
+const AdultBehavioral = () => {
   return (
     <div>
       <Navbar />
@@ -90,4 +90,4 @@ const Behavioral = () => {
   );
 };
 
-export default Behavioral; 
+export default AdultBehavioral; 
