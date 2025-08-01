@@ -10,6 +10,7 @@ body {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -22,23 +23,23 @@ body {
 
 @keyframes blob-bounce-1 {
   0%, 100% { transform: translateY(0) translateX(0); }
-  20% { transform: translateY(-120px) translateX(200px); }
-  40% { transform: translateY(80px) translateX(-300px); }
-  60% { transform: translateY(200px) translateX(100px); }
-  80% { transform: translateY(-100px) translateX(-200px); }
+  20% { transform: translateY(-80px) translateX(120px); }
+  40% { transform: translateY(60px) translateX(-150px); }
+  60% { transform: translateY(100px) translateX(80px); }
+  80% { transform: translateY(-60px) translateX(-100px); }
 }
 @keyframes blob-bounce-2 {
   0%, 100% { transform: translateY(0) translateX(0); }
-  15% { transform: translateY(200px) translateX(-150px); }
-  35% { transform: translateY(-120px) translateX(250px); }
-  55% { transform: translateY(100px) translateX(-200px); }
-  75% { transform: translateY(-180px) translateX(150px); }
+  15% { transform: translateY(120px) translateX(-100px); }
+  35% { transform: translateY(-80px) translateX(150px); }
+  55% { transform: translateY(80px) translateX(-120px); }
+  75% { transform: translateY(-100px) translateX(100px); }
 }
 @keyframes blob-bounce-3 {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  25% { transform: translateY(-200px) translateX(300px); }
-  50% { transform: translateY(150px) translateX(-250px); }
-  75% { transform: translateY(-100px) translateX(200px); }
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) translateX(0); }
+  25% { transform: translate(-50%, -50%) translateY(-120px) translateX(150px); }
+  50% { transform: translate(-50%, -50%) translateY(100px) translateX(-130px); }
+  75% { transform: translate(-50%, -50%) translateY(-80px) translateX(120px); }
 }
 .animated-blob-1 {
   animation: blob-bounce-1 22s ease-in-out infinite alternate;
