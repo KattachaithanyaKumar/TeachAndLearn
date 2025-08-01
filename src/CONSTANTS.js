@@ -278,16 +278,16 @@ export const childServices = [
       "Holistic approach",
     ],
   },
-  {
-    title: "Psychology",
-    description:
-      "focuses on helping individuals communicate effectively and promote healthier relationships and personal growth.",
-    items: [
-      "express their thoughts",
-      "communication challenges",
-      "interpersonal relationships",
-    ],
-  },
+  // {
+  //   title: "Psychology",
+  //   description:
+  //     "focuses on helping individuals communicate effectively and promote healthier relationships and personal growth.",
+  //   items: [
+  //     "express their thoughts",
+  //     "communication challenges",
+  //     "interpersonal relationships",
+  //   ],
+  // },
 ];
 
 export const adultServices = [
