@@ -31,6 +31,43 @@ export function getImageUrlFromRef(asset) {
   }
 }
 
+export async function getFranchise(){
+  try {
+    const franchise = await client.fetch(`*[_type == "franchise"][0]{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      title,
+      description,
+
+      steps[]->{
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        index,
+        title,
+        description,
+        icon
+      },
+      contact[]->{
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        title,
+        content,
+        icon
+      },
+      }`);
+    return franchise;
+  } catch (error) {
+    console.error("Error fetching franchise data:", error);
+    throw error;
+  }
+}
+
 export async function getHome() {
   try {
     const home = await client.fetch(`
