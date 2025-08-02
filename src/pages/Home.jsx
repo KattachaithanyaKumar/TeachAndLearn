@@ -268,7 +268,9 @@ const Home = () => {
         <div className="flex justify-center items-center pb-20 relative z-10">
           {statisticsLoading ? (
             <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <SkeletonLoader type="stat" count={4} />
+              {Array.from({ length: 4 }, (_, index) => (
+                <SkeletonLoader key={index} type="stat" count={1} />
+              ))}
             </div>
           ) : statisticsError ? (
             <ErrorMessage message={statisticsError} onRetry={fetchStatistics} />
@@ -425,7 +427,9 @@ const Home = () => {
 
           {servicesLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
-              <SkeletonLoader type="card" count={6} />
+              {Array.from({ length: 6 }, (_, index) => (
+                <SkeletonLoader key={index} type="card" count={1} />
+              ))}
             </div>
           ) : servicesError ? (
             <ErrorMessage message={servicesError} onRetry={fetchServices} />
@@ -498,7 +502,9 @@ const Home = () => {
                   <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
                   <div className="h-4 bg-gray-300 rounded w-3/4 mb-8"></div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <SkeletonLoader type="approach" count={4} />
+                    {Array.from({ length: 4 }, (_, index) => (
+                      <SkeletonLoader key={index} type="approach" count={1} />
+                    ))}
                   </div>
                 </div>
               </div>

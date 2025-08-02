@@ -37,62 +37,62 @@ const AdultServices = () => {
     <div>
       <Navbar />
       <Header color={"#EDE9FE"}>
-        <h1 className="text-4xl font-bold  mb-4">
+        <h1 className="text-4xl font-bold mb-4 text-center">
           Adult{" "}
           <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
             Services
           </span>
         </h1>
-        <div className="flex gap-2 items-center ">
-          <p>
+        <div className="flex gap-2 items-center justify-center">
+          <p className="max-w-2xl text-lg sm:text-xl text-center">
             Specialized therapy services for adults, focusing on mental, physical, and emotional well-being to help individuals lead fulfilling lives.
           </p>
         </div>
       </Header>
 
-      <section className=" py-20 px-4 sm:px-6 md:px-12 relative overflow-hidden">
+      <section className="bg-white py-24 px-4 sm:px-8 md:px-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto pb-30">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2 ">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4">
               Our Adult Services
             </h1>
-            <p className="text-gray-700 text-base sm:text-lg">
+            <p className="text-gray-600 text-lg sm:text-xl max-w-2xl mx-auto">
               Comprehensive therapies tailored for adults' unique needs
             </p>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {adultServices.map((item, index) => {
               const Icon = allIcons[item.icon?.displayName || item.icon?.name] || item.icon;
               return (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between border border-indigo-200"
+                  className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-8 flex flex-col justify-between border border-indigo-200 hover:translate-y-[-5px]"
                 >
                   <div>
-                    <h2 className="text-xl font-semibold text-indigo-900 mb-2">
+                    <h2 className="text-2xl font-semibold text-indigo-900 mb-3 text-center">
                       {item.title}
                     </h2>
-                    <p className="text-gray-700 text-sm mb-4">
+                    <p className="text-gray-700 text-base mb-6 leading-relaxed text-center">
                       {item.description}
                     </p>
 
-                    <ul className="list-disc list-inside text-sm text-gray-800 space-y-1 mb-4">
+                    <ul className="list-disc list-inside text-base text-gray-800 space-y-2 mb-6 ml-2">
                       {item.items.map((i, idx) => (
-                        <li key={idx}>{i}</li>
+                        <li key={idx} className="pl-2">{i}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="mt-auto pt-4">
+                  <div className="mt-auto pt-5 flex justify-center">
                     <Button
-                      className="w-fit bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-purple-600 hover:to-indigo-600"
+                      className="w-fit text-base hover:scale-105 transition-transform bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-purple-600 hover:to-indigo-600"
                       onClick={() => handleNavigate(item.title)}
                     >
                       Explore
-                      <IoIosArrowRoundForward size={24} />
+                      <IoIosArrowRoundForward size={28} />
                     </Button>
                   </div>
                 </div>
