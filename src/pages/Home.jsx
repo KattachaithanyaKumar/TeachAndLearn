@@ -32,28 +32,30 @@ import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
 
-import { getServices, getStatistics, getWhyUs, getTestimonials, getPhilosophy,getAboutUs } from "../network/api_service";
+import { getHome } from "../network/api_service";
 import Footer from "../components/Footer";
 
 const Home = () => {
   // State for data
+  const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
   const [statistics, setStatistics] = useState([]);
   const [whyUs, setWhyUs] = useState([]);
   const [aboutUs, setAboutUs] = useState({});
+  const [ourPhilosophy, setOurPhilosophy] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
 
   // Loading states
+  const [homeLoading, setHomeLoading] = useState(true);
   const [servicesLoading, setServicesLoading] = useState(true);
   const [statisticsLoading, setStatisticsLoading] = useState(true);
   const [whyUsLoading, setWhyUsLoading] = useState(true);
-  const [ourPhilosophy, setOurPhilosophy] = useState([]);
   const [philosophyLoading, setPhilosophyLoading] = useState(true);
   const [aboutUsLoading, setAboutUsLoading] = useState(true);
-  // Testimonials
-  const [testimonials, setTestimonials] = useState([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
 
   // Error states
+  const [homeError, setHomeError] = useState(null);
   const [servicesError, setServicesError] = useState(null);
   const [statisticsError, setStatisticsError] = useState(null);
   const [whyUsError, setWhyUsError] = useState(null);
@@ -61,120 +63,137 @@ const Home = () => {
   const [philosophyError, setPhilosophyError] = useState(null);
   const [testimonialsError, setTestimonialsError] = useState(null);
 
-  const fetchAboutUs = async () => {
+  const fetchHomeData = async () => {
     try {
-      setAboutUsLoading(true);
-      const aboutUsData = await getAboutUs();
-      setAboutUs(aboutUsData[0]);
-      console.log("Fetched About Us:", aboutUsData);
-    } catch (error) {
-      console.error("Error fetching about us:", error);
-      setAboutUsError("Failed to load about us data");
-    } finally {
-      setAboutUsLoading(false);
-    }
-  }
-
-  const fetchServices = async () => {
-    try {
+      setHomeLoading(true);
+      setHomeError(null);
+      
+      // Reset all loading states
       setServicesLoading(true);
-      setServicesError(null);
-      const servicesData = await getServices();
-      setServices(servicesData);
-      console.log("Fetched Services:", servicesData);
-      // Debug: Check if all icons exist
-      servicesData.forEach(service => {
-        if (!allIcons[service.icon]) {
-          console.warn(`Icon "${service.icon}" not found for service: ${service.name}`);
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching services:", error);
-      setServicesError("Failed to load services");
-    } finally {
-      setServicesLoading(false);
-    }
-  };
-
-  const fetchStatistics = async () => {
-    try {
       setStatisticsLoading(true);
-      setStatisticsError(null);
-      const statsData = await getStatistics();
-      setStatistics(statsData);
-      console.log("Fetched Statistics:", statsData);
-      // Debug: Check if all icons exist
-      statsData.forEach(stat => {
-        if (!allIcons[stat.icon]) {
-          console.warn(`Icon "${stat.icon}" not found for statistic: ${stat.label}`);
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-      setStatisticsError("Failed to load statistics");
-    } finally {
-      setStatisticsLoading(false);
-    }
-  };
-
-  const fetchWhyUs = async () => {
-    try {
       setWhyUsLoading(true);
+      setAboutUsLoading(true);
+      setPhilosophyLoading(true);
+      setTestimonialsLoading(true);
+      
+      // Reset all error states
+      setServicesError(null);
+      setStatisticsError(null);
       setWhyUsError(null);
-      const whyUsData = await getWhyUs();
-      setWhyUs(whyUsData);
-      console.log("Fetched Why Us:", whyUsData);
-      // Debug: Check if all icons exist
-      if (whyUsData[0]?.approaches) {
-        whyUsData[0].approaches.forEach(approach => {
-          if (!allIcons[approach.icon]) {
-            console.warn(`Icon "${approach.icon}" not found for approach: ${approach.label}`);
+      setAboutUsError(null);
+      setPhilosophyError(null);
+      setTestimonialsError(null);
+
+      const homeData = await getHome();
+      console.log("Fetched Home Data:", homeData);
+      
+      if (homeData) {
+        setHomeData(homeData);
+        
+        // Set services data
+        if (homeData.service) {
+          setServices(homeData.service);
+          console.log("Fetched Services:", homeData.service);
+          // Debug: Check if all icons exist
+          homeData.service.forEach(service => {
+            if (!allIcons[service.icon]) {
+              console.warn(`Icon "${service.icon}" not found for service: ${service.name}`);
+            }
+          });
+          setServicesLoading(false);
+        } else {
+          setServicesError("No services data available");
+          setServicesLoading(false);
+        }
+        
+        // Set statistics data
+        if (homeData.stats) {
+          setStatistics(homeData.stats);
+          console.log("Fetched Statistics:", homeData.stats);
+          // Debug: Check if all icons exist
+          homeData.stats.forEach(stat => {
+            if (!allIcons[stat.icon]) {
+              console.warn(`Icon "${stat.icon}" not found for statistic: ${stat.label}`);
+            }
+          });
+          setStatisticsLoading(false);
+        } else {
+          setStatisticsError("No statistics data available");
+          setStatisticsLoading(false);
+        }
+        
+        // Set about us data
+        if (homeData.aboutUs && homeData.aboutUs.length > 0) {
+          setAboutUs(homeData.aboutUs[0]);
+          console.log("Fetched About Us:", homeData.aboutUs);
+          setAboutUsLoading(false);
+        } else {
+          setAboutUsError("No about us data available");
+          setAboutUsLoading(false);
+        }
+        
+        // Set why us data
+        if (homeData.whyUs && homeData.whyUs.length > 0) {
+          setWhyUs(homeData.whyUs);
+          console.log("Fetched Why Us:", homeData.whyUs);
+          // Debug: Check if all icons exist
+          if (homeData.whyUs[0]?.approaches) {
+            homeData.whyUs[0].approaches.forEach(approach => {
+              if (!allIcons[approach.icon]) {
+                console.warn(`Icon "${approach.icon}" not found for approach: ${approach.label}`);
+              }
+            });
           }
-        });
+          setWhyUsLoading(false);
+        } else {
+          setWhyUsError("No why us data available");
+          setWhyUsLoading(false);
+        }
+        
+        // Set philosophy data
+        if (homeData.ourPhilosophy && homeData.ourPhilosophy.length > 0) {
+          setOurPhilosophy(homeData.ourPhilosophy[0]);
+          console.log("Fetched Philosophy:", homeData.ourPhilosophy);
+          setPhilosophyLoading(false);
+        } else {
+          setPhilosophyError("No philosophy data available");
+          setPhilosophyLoading(false);
+        }
+        
+        // Set testimonials data
+        if (homeData.testimonials) {
+          setTestimonials(homeData.testimonials);
+          console.log("Fetched Testimonials:", homeData.testimonials);
+          setTestimonialsLoading(false);
+        } else {
+          setTestimonialsError("No testimonials data available");
+          setTestimonialsLoading(false);
+        }
       }
     } catch (error) {
-      console.error("Error fetching why us:", error);
-      setWhyUsError("Failed to load why us data");
-    } finally {
+      console.error("Error fetching home data:", error);
+      setHomeError("Failed to load page data");
+      
+      // Set all loading states to false and error states
+      setServicesLoading(false);
+      setStatisticsLoading(false);
       setWhyUsLoading(false);
-    }
-  };
-
-  const fetchPhilosophy = async () => {
-    try {
-      setPhilosophyLoading(true);
-      const philosophyData = await getPhilosophy();
-      setOurPhilosophy(philosophyData[0]);
-      console.log("Fetched Philosophy:", philosophyData);
-    } catch (error) {
-      console.error("Error fetching philosophy:", error);
-      setPhilosophyError("Failed to load philosophy data");
-    } finally {
+      setAboutUsLoading(false);
       setPhilosophyLoading(false);
-    }
-  }
-
-  const fetchTestimonials = async () => {
-    try {
-      setTestimonialsLoading(true);
-      const testimonialsData = await getTestimonials();
-      setTestimonials(testimonialsData);
-      console.log("Fetched Testimonials:", testimonialsData);
-    } catch (error) {
-      console.error("Error fetching testimonials:", error);
+      setTestimonialsLoading(false);
+      
+      setServicesError("Failed to load services");
+      setStatisticsError("Failed to load statistics");
+      setWhyUsError("Failed to load why us data");
+      setAboutUsError("Failed to load about us data");
+      setPhilosophyError("Failed to load philosophy data");
       setTestimonialsError("Failed to load testimonials");
     } finally {
-      setTestimonialsLoading(false);
+      setHomeLoading(false);
     }
-  }
+  };
   useEffect(() => {
-    // Fetch services data from the API
-    fetchAboutUs();
-    fetchServices();
-    fetchStatistics();
-    fetchWhyUs();
-    fetchPhilosophy();
-    fetchTestimonials();
+    fetchHomeData();
   }, []);
 
   const scrollToId = (id) => {
@@ -273,7 +292,7 @@ const Home = () => {
               ))}
             </div>
           ) : statisticsError ? (
-            <ErrorMessage message={statisticsError} onRetry={fetchStatistics} />
+            <ErrorMessage message={statisticsError} onRetry={fetchHomeData} />
           ) : (
             <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {statistics.map((item, index) => {
@@ -332,7 +351,7 @@ const Home = () => {
             <div className="w-full text-center py-20">
               <ErrorMessage 
                 message={aboutUsError} 
-                onRetry={fetchAboutUs} 
+                onRetry={fetchHomeData} 
                 className="w-full max-w-md mx-auto" 
               />
             </div>
@@ -432,7 +451,7 @@ const Home = () => {
               ))}
             </div>
           ) : servicesError ? (
-            <ErrorMessage message={servicesError} onRetry={fetchServices} />
+            <ErrorMessage message={servicesError} onRetry={fetchHomeData} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
               {services.map((item, index) => {
@@ -511,7 +530,7 @@ const Home = () => {
               <div className="w-[380px] md:w-[700px] h-96 bg-gray-300 rounded-lg animate-pulse"></div>
             </div>
           ) : whyUsError ? (
-            <ErrorMessage message={whyUsError} onRetry={fetchWhyUs} className="w-full" />
+            <ErrorMessage message={whyUsError} onRetry={fetchHomeData} className="w-full" />
           ) : whyUs.length > 0 ? (
             <>
               {/* Text Content */}
@@ -639,7 +658,7 @@ const Home = () => {
             <div className="w-full text-center py-20">
               <ErrorMessage 
                 message={philosophyError} 
-                onRetry={fetchPhilosophy}
+                onRetry={fetchHomeData}
                 className="w-full max-w-md mx-auto" 
               />
             </div>
@@ -731,7 +750,7 @@ const Home = () => {
             <div className="w-full max-w-md mx-auto">
               <ErrorMessage 
                 message={testimonialsError} 
-                onRetry={fetchTestimonials}
+                onRetry={fetchHomeData}
                 className="py-8"
               />
             </div>
