@@ -21,6 +21,8 @@ import * as GoIcons from "react-icons/go";
 import * as IoIcons from "react-icons/io5";
 import * as TbIcons from "react-icons/tb";
 import * as PiIcons from "react-icons/pi";
+import * as BiIcons from "react-icons/bi";
+import * as FiIcons from "react-icons/fi";
 // add more as needed
 
 export const allIcons = {
@@ -33,6 +35,8 @@ export const allIcons = {
   ...IoIcons,
   ...TbIcons,
   ...PiIcons,
+  ...BiIcons,
+  ...FiIcons,
 };
 
 export const projectId = "fsko8ofn";
@@ -68,37 +72,6 @@ export const navItems = [
   {
     label: "Contact",
     path: "/contact-us",
-  },
-];
-
-export const statistics = [
-  {
-    label: "5+ Years Experience",
-    number: "5+",
-    icon: SlIcons.SlBadge,
-    iconColor: "text-amber-600",
-    bgColor: "bg-amber-100",
-  },
-  {
-    label: "30+ Therapists",
-    number: "30+",
-    icon: GoIcons.GoPeople,
-    iconColor: "text-teal-600",
-    bgColor: "bg-teal-100",
-  },
-  {
-    label: "150+ Happy Children",
-    number: "150+",
-    icon: FaIcons.FaRegHeart,
-    iconColor: "text-pink-600",
-    bgColor: "bg-pink-100",
-  },
-  {
-    label: "15 Pediatric Services",
-    number: "15",
-    icon: MdIcons.MdOutlineMedicalServices,
-    iconColor: "text-indigo-600",
-    bgColor: "bg-indigo-100",
   },
 ];
 

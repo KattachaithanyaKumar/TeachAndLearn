@@ -32,3 +32,27 @@ export async function getStatistics() {
     throw error;
   }
 }
+
+ export async function getWhyUs() {
+    try{
+      const whyUs = await client.fetch(`
+        *[_type == "whyUs"]{
+          _id,
+          _type,
+          _createdAt,
+          _updatedAt,
+          heading,
+          description,
+          approaches[]->{
+            _id,
+            label,
+            icon
+          }
+        }
+      `);
+      return whyUs;
+    }catch (error) {
+      console.error("Error fetching why us:", error);
+      throw error;
+    }
+  }
