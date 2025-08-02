@@ -98,9 +98,8 @@ export async function getHome() {
           _type,
           _createdAt,
           _updatedAt,
-          name,
-          designation,
-          testimonial,
+          author,
+          review,
           rating
         }
       }
@@ -192,7 +191,17 @@ export async function getWhyUs() {
 
 export async function getTestimonials() {
   try {
-    const testimonials = await client.fetch('*[_type == "testimonials"]');
+    const testimonials = await client.fetch(`
+      *[_type == "testimonials"]{
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        author,
+        review,
+        rating
+      }
+    `);
     return testimonials;
   } catch (error) {
     console.error("Error fetching testimonials:", error);
