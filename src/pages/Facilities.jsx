@@ -7,6 +7,7 @@ import { getFacilities, getImageUrlFromRef } from "../network/api_service";
 import { useApiStates } from "../hooks/useApiStates";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import Header from "../components/Header";
 import facilityImg from "../assets/facility.jpg";
 import roomImg from "../assets/room.jpg";
 import occupationalImg from "../assets/occupational.jpg";
@@ -72,27 +73,20 @@ const Facilities = () => {
     return (
         <div className="bg-white min-h-screen">
             <Navbar />
-            <div className="pt-24">
-                <header
-                    className="w-full flex flex-col items-center justify-center text-center mb-0 px-4 py-16 relative"
-                    style={{ backgroundColor: "#fff", paddingBottom: "220px" }}
-                >
-                    <h1 className="text-4xl font-bold  mb-4">
-                        Our{" "}
-                        <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                            Facilities
-                        </span>
-                    </h1>
-                    <div className="flex gap-2 items-center ">
-                        <p>
-                            We provide a nurturing, safe, and professional environment designed to support every child's and family's needs. Explore our thoughtfully designed spaces below.
-                        </p>
-                    </div>
-                    <div className="absolute left-0 right-0 bottom-0">
-                        <Wave color="#FFF7E6" />
-                    </div>
-                </header>
-                
+            <Header color={"#FFF7E6"}>
+                <h1 className="text-4xl font-bold mb-4 text-center">
+                    Our{" "}
+                    <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                        Facilities
+                    </span>
+                </h1>
+                <div className="flex gap-2 items-center justify-center">
+                    <p className="max-w-2xl text-lg sm:text-xl text-center">
+                        We provide a nurturing, safe, and professional environment designed to support every child's and family's needs. Explore our thoughtfully designed spaces below.
+                    </p>
+                </div>
+            </Header>
+            
                 {/* Show error message if API failed but we have fallback data */}
                 {showError && (
                     <div className="max-w-4xl mx-auto px-4 mb-8">
@@ -132,8 +126,7 @@ const Facilities = () => {
                         )}
                     </div>
                 ))}
-            </div>
-            <Footer />
+            <Footer color={"#FFF7E6"} />
         </div>
     );
 
