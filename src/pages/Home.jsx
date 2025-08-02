@@ -7,10 +7,10 @@ import { IoMdTime } from "react-icons/io";
 
 import {
   aboutUs,
-  ourPhilosophy,
+  // ourPhilosophy,
   // services,
   // statistics,
-  testimonials,
+  // testimonials,
   // whyUs,
   allIcons,
 } from "../CONSTANTS";
@@ -40,7 +40,7 @@ import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
 
-import { getServices, getStatistics, getWhyUs } from "../network/api_service";
+import { getServices, getStatistics, getWhyUs, getTestimonials, getPhilosophy } from "../network/api_service";
 import Footer from "../components/Footer";
 
 const Home = () => {
@@ -53,11 +53,18 @@ const Home = () => {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [statisticsLoading, setStatisticsLoading] = useState(true);
   const [whyUsLoading, setWhyUsLoading] = useState(true);
+  const [ourPhilosophy, setOurPhilosophy] = useState([]);
+  const [philosophyLoading, setPhilosophyLoading] = useState(true);
+  // Testimonials
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
 
   // Error states
   const [servicesError, setServicesError] = useState(null);
   const [statisticsError, setStatisticsError] = useState(null);
   const [whyUsError, setWhyUsError] = useState(null);
+  const [philosophyError, setPhilosophyError] = useState(null);
+  const [testimonialsError, setTestimonialsError] = useState(null);
 
   const fetchServices = async () => {
     try {
@@ -123,11 +130,41 @@ const Home = () => {
       setWhyUsLoading(false);
     }
   };
+
+  const fetchPhilosophy = async () => {
+    try {
+      setPhilosophyLoading(true);
+      const philosophyData = await getPhilosophy();
+      setOurPhilosophy(philosophyData[0]);
+      console.log("Fetched Philosophy:", philosophyData);
+    } catch (error) {
+      console.error("Error fetching philosophy:", error);
+      setPhilosophyError("Failed to load philosophy data");
+    } finally {
+      setPhilosophyLoading(false);
+    }
+  }
+
+  const fetchTestimonials = async () => {
+    try {
+      setTestimonialsLoading(true);
+      const testimonialsData = await getTestimonials();
+      setTestimonials(testimonialsData);
+      console.log("Fetched Testimonials:", testimonialsData);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+      setTestimonialsError("Failed to load testimonials");
+    } finally {
+      setTestimonialsLoading(false);
+    }
+  }
   useEffect(() => {
     // Fetch services data from the API
     fetchServices();
     fetchStatistics();
     fetchWhyUs();
+    fetchPhilosophy();
+    fetchTestimonials();
   }, []);
 
   const scrollToId = (id) => {

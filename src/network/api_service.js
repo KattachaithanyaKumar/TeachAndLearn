@@ -33,7 +33,7 @@ export async function getStatistics() {
   }
 }
 
- export async function getWhyUs() {
+export async function getWhyUs() {
     try{
       const whyUs = await client.fetch(`
         *[_type == "whyUs"]{
@@ -55,4 +55,24 @@ export async function getStatistics() {
       console.error("Error fetching why us:", error);
       throw error;
     }
+}
+
+export async function getTestimonials() {
+  try {
+    const testimonials = await client.fetch('*[_type == "testimonials"]');
+    return testimonials;
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    throw error;
   }
+}
+
+export async function getPhilosophy() {
+  try {
+    const philosophy = await client.fetch('*[_type == "our_philosophy"]');
+    return philosophy;
+  } catch (error) {
+    console.error("Error fetching philosophy:", error);
+    throw error;
+  }
+}

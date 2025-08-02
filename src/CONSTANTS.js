@@ -179,8 +179,7 @@ export const testimonials = [
     rating: 5,
   },
   {
-    review:
-      "we had a great experience with Sharmila and Likitha Madam. My son improved a lot in 3 months. He got a a very good difference in the speech and OT. Over all good center for the children development.",
+    review:      "we had a great experience with Sharmila and Likitha Madam. My son improved a lot in 3 months. He got a a very good difference in the speech and OT. Over all good center for the children development.",
     author: "naveen lakshmi",
     rating: 5,
   },
