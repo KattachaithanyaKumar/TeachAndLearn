@@ -5,17 +5,12 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 
-import {
-  aboutUs,
-  ourPhilosophy,
-  // services,
-  // statistics,
-  testimonials,
-  whyUs,
-  allIcons,
-} from "../CONSTANTS";
+import { allIcons} from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
+import SkeletonLoader from "../components/SkeletonLoader";
 import child from "../assets/child-hero.png";
 import about from "../assets/teacher-and-student.JPG";
 import mask from "../assets/mask.png";
@@ -37,34 +32,168 @@ import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
 
-import { getServices, getStatistics } from "../network/api_service";
+import { getHome } from "../network/api_service";
 import Footer from "../components/Footer";
+
 const Home = () => {
-  const fetchServices = async () => {
-    try {
-      const servicesData = await getServices();
-      setServices(servicesData);
-      console.log("Fetched Services:", servicesData);
-    } catch (error) {
-      console.error("Error fetching services:", error);
-    }
-  };
+  // State for data
+  const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
   const [statistics, setStatistics] = useState([]);
+  const [whyUs, setWhyUs] = useState([]);
+  const [aboutUs, setAboutUs] = useState({});
+  const [ourPhilosophy, setOurPhilosophy] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
 
-  const fetchStatistics = async () => {
+  // Loading states
+  const [homeLoading, setHomeLoading] = useState(true);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [statisticsLoading, setStatisticsLoading] = useState(true);
+  const [whyUsLoading, setWhyUsLoading] = useState(true);
+  const [philosophyLoading, setPhilosophyLoading] = useState(true);
+  const [aboutUsLoading, setAboutUsLoading] = useState(true);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  // Error states
+  const [homeError, setHomeError] = useState(null);
+  const [servicesError, setServicesError] = useState(null);
+  const [statisticsError, setStatisticsError] = useState(null);
+  const [whyUsError, setWhyUsError] = useState(null);
+  const [aboutUsError, setAboutUsError] = useState(null);
+  const [philosophyError, setPhilosophyError] = useState(null);
+  const [testimonialsError, setTestimonialsError] = useState(null);
+
+  const fetchHomeData = async () => {
     try {
-      const statsData = await getStatistics();
-      setStatistics(statsData);
-      console.log("Fetched Statistics:", statsData);
+      setHomeLoading(true);
+      setHomeError(null);
+      
+      // Reset all loading states
+      setServicesLoading(true);
+      setStatisticsLoading(true);
+      setWhyUsLoading(true);
+      setAboutUsLoading(true);
+      setPhilosophyLoading(true);
+      setTestimonialsLoading(true);
+      
+      // Reset all error states
+      setServicesError(null);
+      setStatisticsError(null);
+      setWhyUsError(null);
+      setAboutUsError(null);
+      setPhilosophyError(null);
+      setTestimonialsError(null);
+
+      const homeData = await getHome();
+      console.log("Fetched Home Data:", homeData);
+      
+      if (homeData) {
+        setHomeData(homeData);
+        
+        // Set services data
+        if (homeData.service) {
+          setServices(homeData.service);
+          console.log("Fetched Services:", homeData.service);
+          // Debug: Check if all icons exist
+          homeData.service.forEach(service => {
+            if (!allIcons[service.icon]) {
+              console.warn(`Icon "${service.icon}" not found for service: ${service.name}`);
+            }
+          });
+          setServicesLoading(false);
+        } else {
+          setServicesError("No services data available");
+          setServicesLoading(false);
+        }
+        
+        // Set statistics data
+        if (homeData.stats) {
+          setStatistics(homeData.stats);
+          console.log("Fetched Statistics:", homeData.stats);
+          // Debug: Check if all icons exist
+          homeData.stats.forEach(stat => {
+            if (!allIcons[stat.icon]) {
+              console.warn(`Icon "${stat.icon}" not found for statistic: ${stat.label}`);
+            }
+          });
+          setStatisticsLoading(false);
+        } else {
+          setStatisticsError("No statistics data available");
+          setStatisticsLoading(false);
+        }
+        
+        // Set about us data
+        if (homeData.aboutUs && homeData.aboutUs.length > 0) {
+          setAboutUs(homeData.aboutUs[0]);
+          console.log("Fetched About Us:", homeData.aboutUs);
+          setAboutUsLoading(false);
+        } else {
+          setAboutUsError("No about us data available");
+          setAboutUsLoading(false);
+        }
+        
+        // Set why us data
+        if (homeData.whyUs && homeData.whyUs.length > 0) {
+          setWhyUs(homeData.whyUs);
+          console.log("Fetched Why Us:", homeData.whyUs);
+          // Debug: Check if all icons exist
+          if (homeData.whyUs[0]?.approaches) {
+            homeData.whyUs[0].approaches.forEach(approach => {
+              if (!allIcons[approach.icon]) {
+                console.warn(`Icon "${approach.icon}" not found for approach: ${approach.label}`);
+              }
+            });
+          }
+          setWhyUsLoading(false);
+        } else {
+          setWhyUsError("No why us data available");
+          setWhyUsLoading(false);
+        }
+        
+        // Set philosophy data
+        if (homeData.ourPhilosophy && homeData.ourPhilosophy.length > 0) {
+          setOurPhilosophy(homeData.ourPhilosophy[0]);
+          console.log("Fetched Philosophy:", homeData.ourPhilosophy);
+          setPhilosophyLoading(false);
+        } else {
+          setPhilosophyError("No philosophy data available");
+          setPhilosophyLoading(false);
+        }
+        
+        // Set testimonials data
+        if (homeData.testimonials) {
+          setTestimonials(homeData.testimonials);
+          console.log("Fetched Testimonials:", homeData.testimonials);
+          setTestimonialsLoading(false);
+        } else {
+          setTestimonialsError("No testimonials data available");
+          setTestimonialsLoading(false);
+        }
+      }
     } catch (error) {
-      console.error("Error fetching statistics:", error);
+      console.error("Error fetching home data:", error);
+      setHomeError("Failed to load page data");
+      
+      // Set all loading states to false and error states
+      setServicesLoading(false);
+      setStatisticsLoading(false);
+      setWhyUsLoading(false);
+      setAboutUsLoading(false);
+      setPhilosophyLoading(false);
+      setTestimonialsLoading(false);
+      
+      setServicesError("Failed to load services");
+      setStatisticsError("Failed to load statistics");
+      setWhyUsError("Failed to load why us data");
+      setAboutUsError("Failed to load about us data");
+      setPhilosophyError("Failed to load philosophy data");
+      setTestimonialsError("Failed to load testimonials");
+    } finally {
+      setHomeLoading(false);
     }
   };
   useEffect(() => {
-    // Fetch services data from the API
-    fetchServices();
-    fetchStatistics();
+    fetchHomeData();
   }, []);
 
   const scrollToId = (id) => {
@@ -156,27 +285,41 @@ const Home = () => {
         id="statistics"
       >
         <div className="flex justify-center items-center pb-20 relative z-10">
-          <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {statistics.map((item, index) => {
-              const Icon = allIcons[item.icon];
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col items-center justify-center p-4"
-                >
+          {statisticsLoading ? (
+            <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {Array.from({ length: 4 }, (_, index) => (
+                <SkeletonLoader key={index} type="stat" count={1} />
+              ))}
+            </div>
+          ) : statisticsError ? (
+            <ErrorMessage message={statisticsError} onRetry={fetchHomeData} />
+          ) : (
+            <div className="w-[80%] grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {statistics.map((item, index) => {
+                const Icon = allIcons[item.icon];
+                return (
                   <div
-                    className={`flex justify-center items-center rounded-full w-20 h-20 mb-4 ${item.bgColor}`}
+                    key={index}
+                    className="flex flex-col items-center justify-center p-4"
                   >
-                    <Icon className={`text-4xl ${item.iconColor}`} />
+                    <div
+                      className={`flex justify-center items-center rounded-full w-20 h-20 mb-4 ${item.bgColor || 'bg-orange-100'}`}
+                    >
+                      {Icon ? (
+                        <Icon className={`text-4xl ${item.iconColor || 'text-orange-500'}`} />
+                      ) : (
+                        <div className="text-2xl font-bold text-orange-500">?</div>
+                      )}
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {item.number}
+                    </h2>
+                    <p className="text-sm text-gray-600">{item.label}</p>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {item.number}
-                  </h2>
-                  <p className="text-sm text-gray-600">{item.label}</p>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -202,55 +345,73 @@ const Home = () => {
       >
         <img src={plus} alt="" className="absolute left-[10%]" />
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center">
-          {/* Image with Mask */}
-          <div className="flex-shrink-0">
-            <img
-              src={about}
-              alt="teacher and student in a study session"
-              className="w-[300px] md:w-[480px] h-auto object-cover"
-              style={{
-                WebkitMaskImage: `url(${mask})`,
-                maskImage: `url(${mask})`,
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskSize: "cover",
-                maskSize: "cover",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }}
-            />
-          </div>
-
-          {/* Text Content */}
-          <div className="max-w-xl text-center md:text-left z-10">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              About Us
-            </p>
-
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              {aboutUs.title}
-            </h1>
-
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
-              {aboutUs.description}
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {aboutUs.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
-                >
-                  <FaRegCircleCheck className="text-green-600 text-lg" />
-                  <p className="text-gray-800 text-sm md:text-base">
-                    {item.title}
-                  </p>
-                </div>
-              ))}
+          {aboutUsLoading ? (
+            <SkeletonLoader type="aboutus" count={1} />
+          ) : aboutUsError ? (
+            <div className="w-full text-center py-20">
+              <ErrorMessage 
+                message={aboutUsError} 
+                onRetry={fetchHomeData} 
+                className="w-full max-w-md mx-auto" 
+              />
             </div>
+          ) : aboutUs && aboutUs.title ? (
+            <>
+              {/* Image with Mask */}
+              <div className="flex-shrink-0">
+                <img
+                  src={about}
+                  alt="teacher and student in a study session"
+                  className="w-[300px] md:w-[480px] h-auto object-cover"
+                  style={{
+                    WebkitMaskImage: `url(${mask})`,
+                    maskImage: `url(${mask})`,
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskSize: "cover",
+                    maskSize: "cover",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                  }}
+                />
+              </div>
 
-            <Button>Know More</Button>
-          </div>
+              {/* Text Content */}
+              <div className="max-w-xl text-center md:text-left z-10">
+                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
+                  About Us
+                </p>
+
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+                  {aboutUs.title}
+                </h1>
+
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
+                  {aboutUs.description}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {aboutUs.items?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
+                    >
+                      <FaRegCircleCheck className="text-green-600 text-lg" />
+                      <p className="text-gray-800 text-sm md:text-base">
+                        {item.title}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <Button>Know More</Button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full text-center py-20">
+              <p className="text-gray-600">No content available</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -283,35 +444,49 @@ const Home = () => {
             What Service We Offer
           </h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
-            {services.map((item, index) => {
-              const Icon = allIcons[item.icon];
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300"
-                >
-                  {Icon && (
-                    <div className="bg-yellow-50 p-4 rounded-full mb-4 shadow-sm">
-                      <Icon className="text-5xl text-yellow-500" />
-                    </div>
-                  )}
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">
-                    {item.name}
-                  </h2>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    {item.description}
-                  </p>
-                  <a
-                    href="#"
-                    className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
+          {servicesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
+              {Array.from({ length: 6 }, (_, index) => (
+                <SkeletonLoader key={index} type="card" count={1} />
+              ))}
+            </div>
+          ) : servicesError ? (
+            <ErrorMessage message={servicesError} onRetry={fetchHomeData} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
+              {services.map((item, index) => {
+                const Icon = allIcons[item.icon];
+                return (
+                  <div
+                    key={index}
+                    className="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300"
                   >
-                    Read More →
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+                    <div className="bg-yellow-50 p-4 rounded-full mb-4 shadow-sm">
+                      {Icon ? (
+                        <Icon className="text-5xl text-yellow-500" />
+                      ) : (
+                        <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl font-bold">
+                          ?
+                        </div>
+                      )}
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                      {item.name}
+                    </h2>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                      {item.description}
+                    </p>
+                    <a
+                      href="#"
+                      className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
+                    >
+                      Read More →
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -337,57 +512,90 @@ const Home = () => {
       >
         <img src={dots} alt="" className="absolute right-40 -z-10" />
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-20">
-          {/* Text Content */}
-          <div className="flex flex-col justify-center max-w-xl text-center md:text-left">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              Why Choose Us
-            </p>
-
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              {whyUs.heading}
-            </h1>
-
-            <p className="text-gray-700 mb-8 whitespace-pre-line">
-              {whyUs.description}
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 ">
-              {whyUs.approaches.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={index}
-                    className="flex items-start gap-3 p-4 rounded-xl"
-                  >
-                    <Icon className="text-3xl text-orange-500 flex-shrink-0" />
-                    <p className="text-gray-800 text-base font-medium">
-                      {item.label}
-                    </p>
+          {whyUsLoading ? (
+            <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-20">
+              <div className="flex flex-col justify-center max-w-xl">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-32 mb-4"></div>
+                  <div className="h-12 bg-gray-300 rounded w-full mb-6"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-8"></div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Array.from({ length: 4 }, (_, index) => (
+                      <SkeletonLoader key={index} type="approach" count={1} />
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              </div>
+              <div className="w-[380px] md:w-[700px] h-96 bg-gray-300 rounded-lg animate-pulse"></div>
             </div>
-          </div>
+          ) : whyUsError ? (
+            <ErrorMessage message={whyUsError} onRetry={fetchHomeData} className="w-full" />
+          ) : whyUs.length > 0 ? (
+            <>
+              {/* Text Content */}
+              <div className="flex flex-col justify-center max-w-xl text-center md:text-left">
+                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
+                  Why Choose Us
+                </p>
 
-          <div
-            className="w-[380px] md:w-[700px] h-auto"
-            style={{
-              WebkitMaskImage: `url(${mask2})`,
-              maskImage: `url(${mask2})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskSize: "100% 100%",
-              maskSize: "100% 100%",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-            }}
-          >
-            <img
-              src={whyUsImg}
-              alt="teacher and student in a study session"
-              className="w-full h-auto object-cover"
-            />
-          </div>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+                  {whyUs[0].heading}
+                </h1>
+
+                <p className="text-gray-700 mb-8 whitespace-pre-line">
+                  {whyUs[0].description}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 ">
+                  {whyUs[0].approaches?.map((item, index) => {
+                    const Icon = allIcons[item.icon];
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-4 rounded-xl"
+                      >
+                        {Icon ? (
+                          <Icon className="text-3xl text-orange-500 flex-shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 text-sm font-bold flex-shrink-0">
+                            ?
+                          </div>
+                        )}
+                        <p className="text-gray-800 text-base font-medium">
+                          {item.label}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div
+                className="w-[380px] md:w-[700px] h-auto"
+                style={{
+                  WebkitMaskImage: `url(${mask2})`,
+                  maskImage: `url(${mask2})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskSize: "100% 100%",
+                  maskSize: "100% 100%",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                }}
+              >
+                <img
+                  src={whyUsImg}
+                  alt="teacher and student in a study session"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8 w-full">
+              <p className="text-gray-600">No content available</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at Bottom */}
@@ -428,40 +636,74 @@ const Home = () => {
 
         {/* Content container */}
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center z-10">
-          {/* Image with mask */}
-          <div
-            className="w-full max-w-[380px] md:max-w-[450px] mb-20"
-            style={{
-              backgroundColor: "#fefefe",
-              WebkitMaskImage: `url(${mask3})`,
-              maskImage: `url(${mask3})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskSize: "100% 100%",
-              maskSize: "100% 100%",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-            }}
-          >
-            <img
-              src={room}
-              alt="Teacher and student in a study session"
-              className="w-full h-auto object-cover"
-            />
-          </div>
+          {philosophyLoading ? (
+            <>
+              {/* Image Skeleton */}
+              <div className="w-full max-w-[380px] md:max-w-[450px] mb-20">
+                <div className="w-full h-96 bg-gray-300 rounded-lg animate-pulse"></div>
+              </div>
 
-          {/* Text Block */}
-          <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              Our Philosophy
-            </p>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              {ourPhilosophy.heading}
-            </h1>
-            <p className="text-gray-700 mb-8 whitespace-pre-line">
-              {ourPhilosophy.description}
-            </p>
-          </div>
+              {/* Text Skeleton */}
+              <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-32 mb-4"></div>
+                  <div className="h-12 bg-gray-300 rounded w-full mb-6"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-8"></div>
+                </div>
+              </div>
+            </>
+          ) : philosophyError ? (
+            <div className="w-full text-center py-20">
+              <ErrorMessage 
+                message={philosophyError} 
+                onRetry={fetchHomeData}
+                className="w-full max-w-md mx-auto" 
+              />
+            </div>
+          ) : ourPhilosophy && ourPhilosophy.heading ? (
+            <>
+              {/* Image with mask */}
+              <div
+                className="w-full max-w-[380px] md:max-w-[450px] mb-20"
+                style={{
+                  backgroundColor: "#fefefe",
+                  WebkitMaskImage: `url(${mask3})`,
+                  maskImage: `url(${mask3})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskSize: "100% 100%",
+                  maskSize: "100% 100%",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                }}
+              >
+                <img
+                  src={room}
+                  alt="Teacher and student in a study session"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+
+              {/* Text Block */}
+              <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
+                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
+                  Our Philosophy
+                </p>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+                  {ourPhilosophy.heading}
+                </h1>
+                <p className="text-gray-700 mb-8 whitespace-pre-line">
+                  {ourPhilosophy.description}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="w-full text-center py-20">
+              <p className="text-gray-600">No content available</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -498,7 +740,27 @@ const Home = () => {
             </h2>
           </div>
 
-          <Carousel data={testimonials} />
+          {testimonialsLoading ? (
+            <div className="w-full max-w-6xl mx-auto">
+              <div className="flex gap-6 overflow-hidden justify-center">
+                <SkeletonLoader type="testimonial" count={3} />
+              </div>
+            </div>
+          ) : testimonialsError ? (
+            <div className="w-full max-w-md mx-auto">
+              <ErrorMessage 
+                message={testimonialsError} 
+                onRetry={fetchHomeData}
+                className="py-8"
+              />
+            </div>
+          ) : testimonials.length > 0 ? (
+            <Carousel data={testimonials} />
+          ) : (
+            <div className="w-full text-center py-12">
+              <p className="text-gray-600">No testimonials available at the moment.</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at Bottom */}
@@ -586,8 +848,8 @@ const Home = () => {
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="">Select Service</option>
-              {services.map((item, index) => (
+              <option value="">{servicesLoading ? "Loading services..." : "Select Service"}</option>
+              {!servicesLoading && services.map((item, index) => (
                 <option key={index} value={item.name}>
                   {item.name}
                 </option>

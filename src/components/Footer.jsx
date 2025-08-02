@@ -1,8 +1,38 @@
-import React from "react";
 import logo from "../assets/logo.png";
-import { services } from "../CONSTANTS";
-
+import React, { useEffect, useState } from "react";
+import { getServices } from "../network/api_service";
+import {allIcons} from "../CONSTANTS";
 const Footer = ({ color }) => {
+    const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [statisticsLoading, setStatisticsLoading] = useState(true);
+  const [servicesError, setServicesError] = useState(null);
+      const fetchServices = async () => {
+      try {
+        setServicesLoading(true);
+        setServicesError(null);
+        const servicesData = await getServices();
+        setServices(servicesData);
+        console.log("Fetched Services:", servicesData);
+        // Debug: Check if all icons exist
+        servicesData.forEach(service => {
+          if (!allIcons[service.icon]) {
+            console.warn(`Icon "${service.icon}" not found for service: ${service.name}`);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setServicesError("Failed to load services");
+      } finally {
+        setServicesLoading(false);
+      }
+    };
+
+      useEffect(() => {
+        // Fetch services data from the API
+        fetchServices();
+      }, []);
+
   return (
     <footer style={{ backgroundColor: color }} className="pt-16 px-4 md:px-12">
       {/* Main Content */}

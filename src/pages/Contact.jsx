@@ -69,28 +69,29 @@ const branch = {
 
 const Contact = () => {
   return (
-    <div>
+    <div className="overflow-hidden">
       <Navbar />
       {/* Decorative animated background blobs */}
       <div
-        className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
+        className="pointer-events-none fixed top-20 left-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
         style={{
           background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
-          opacity: 0.6,
+          opacity: 0.4,
         }}
       />
       <div
-        className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
+        className="pointer-events-none fixed bottom-20 right-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
         style={{
           background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.6,
+          opacity: 0.4,
         }}
       />
       <div
-        className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
+        className="pointer-events-none fixed top-1/2 left-1/2 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
         style={{
           background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.6,
+          opacity: 0.3,
+          transform: 'translate(-50%, -50%)',
         }}
       />
       <Section className="bg-gray-50 py-20 px-6 sm:px-10 md:px-20">

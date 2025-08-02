@@ -12,7 +12,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Psychology from "./pages/services/Psychology";
 import AdultSpeech from "./pages/services/AdultSpeech";
 import Physical from "./pages/services/Physical";
-import Behavioral from "./pages/services/Behavioral";
+import AdultBehavioral from "./pages/services/AdultBehavioral";
 import Facilities from "./pages/Facilities";
 
 const App = () => {
@@ -29,7 +29,7 @@ const App = () => {
         <Route path="/adult-services/psychology" element={<Psychology />} />
         <Route path="/adult-services/speech-therapy" element={<AdultSpeech />} />
         <Route path="/adult-services/physical-therapy" element={<Physical />} />
-        <Route path="/adult-services/behavioral-therapy" element={<Behavioral />} />
+        <Route path="/adult-services/behavioral-therapy" element={<AdultBehavioral />} />
         <Route path="/facilities" element={<Facilities />} />
         <Route path="/franchises" element={<Franchises />} />
         <Route path="/contact-us" element={<Contact />} />

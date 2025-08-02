@@ -1,72 +1,113 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
 import Wave from "../components/Wave";
+import { getFacilities, getImageUrlFromRef } from "../network/api_service";
+import { useApiStates } from "../hooks/useApiStates";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
+import Header from "../components/Header";
 import facilityImg from "../assets/facility.jpg";
 import roomImg from "../assets/room.jpg";
 import occupationalImg from "../assets/occupational.jpg";
 import whyUsImg from "../assets/why-us.jpg";
 
-const FACILITIES = [
-    {
-        title: "Therapy Rooms",
-        img: roomImg,
-        description:
-            "Our therapy rooms are purpose-built to create an optimal environment for delivering therapy services that cater to the unique needs of each child. Our highly trained therapists leverage these resources to deliver a wide range of services, including behavioral therapy, speech therapy, physical therapy, and occupational therapy, all tailored to meet the unique needs of each child. In addition, we offer private therapy rooms for families who seek a more personalized approach to care.",
-        bg: "#FFF7E6",
-    },
-    {
-        title: "Play Areas",
-        img: facilityImg,
-        description:
-            "We recognize the importance of physical activity in promoting children’s growth and development. That’s why we have created both indoor and outdoor play areas that are safe, secure, and designed to encourage children’s natural curiosity and love for play. Our indoor play area is also equipped with specialized equipment and materials that support occupational and physical therapies, providing a safe and stimulating space for children to develop their motor skills and build their strength. Together, our play areas represent our commitment to creating an inclusive, nurturing environment where children can thrive.",
-        bg: "#E0F2FE",
-    },
-    {
-        title: "Parent Lounge",
-        img: occupationalImg,
-        description:
-            "Our parent lounge is a comfortable and private space where parents can relax and wait for their child during therapy sessions. We provide refreshments and reading materials to make your wait more enjoyable.",
-        bg: "#F3F4F6",
-    },
-];
-
 const Facilities = () => {
+    const { states, setLoading, setError, setData } = useApiStates({
+        facilities: { loading: false, error: null, data: null }
+    });
+
+    const [facilities, setFacilities] = React.useState([]);
+    const [facilitiesWithImages, setFacilitiesWithImages] = React.useState([]);
+
+    useEffect(() => {
+        const fetchFacilitiesData = async () => {
+            setLoading('facilities', true);
+            try {
+                const facilitiesData = await getFacilities();
+                setFacilities(facilitiesData);
+                console.log('Fetched facilities:', facilitiesData);
+                
+                // Process facilities with images
+                const facilitiesWithImageUrls = facilitiesData.map((facility) => {
+                    if (facility.image?.asset?._ref) {
+                        try {
+                            const imageUrl = getImageUrlFromRef(facility.image.asset);
+                            return { ...facility, imageUrl };
+                        } catch (error) {
+                            console.error('Error fetching image for facility:', facility.title, error);
+                            return { ...facility, imageUrl: null };
+                        }
+                    }
+                    return { ...facility, imageUrl: null };
+                });
+                
+                setFacilitiesWithImages(facilitiesWithImageUrls);
+                setLoading('facilities', false);
+            } catch (error) {
+                console.error('Error fetching facilities:', error);
+                setError('facilities', error.message);
+            }
+        };
+
+        fetchFacilitiesData();
+    }, [setLoading, setError, setData]);
+
+
+    // Show loading spinner while fetching data
+    if (states.facilities?.loading) {
+        return (
+            <div className="bg-white min-h-screen">
+                <Navbar />
+                <div className="pt-24 flex justify-center items-center min-h-[50vh]">
+                    <LoadingSpinner />
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // Show error message if there's an error (but still show fallback data)
+    const showError = states.facilities?.error && !states.facilities?.data;
     return (
         <div className="bg-white min-h-screen">
             <Navbar />
-            <div className="pt-24">
-                <header
-                    className="w-full flex flex-col items-center justify-center text-center mb-0 px-4 py-16 relative"
-                    style={{ backgroundColor: "#fff", paddingBottom: "220px" }}
-                >
-                    <h1 className="text-4xl font-bold  mb-4">
-                        Our{" "}
-                        <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                            Facilities
-                        </span>
-                    </h1>
-                    <div className="flex gap-2 items-center ">
-                        <p>
-                            We provide a nurturing, safe, and professional environment designed to support every child's and family's needs. Explore our thoughtfully designed spaces below.
-                        </p>
+            <Header color={"#FFF7E6"}>
+                <h1 className="text-4xl font-bold mb-4 text-center">
+                    Our{" "}
+                    <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                        Facilities
+                    </span>
+                </h1>
+                <div className="flex gap-2 items-center justify-center">
+                    <p className="max-w-2xl text-lg sm:text-xl text-center">
+                        We provide a nurturing, safe, and professional environment designed to support every child's and family's needs. Explore our thoughtfully designed spaces below.
+                    </p>
+                </div>
+            </Header>
+            
+                {/* Show error message if API failed but we have fallback data */}
+                {showError && (
+                    <div className="max-w-4xl mx-auto px-4 mb-8">
+                        <ErrorMessage 
+                            message="Unable to load facilities from server. Showing default content." 
+                            onRetry={() => window.location.reload()}
+                        />
                     </div>
-                    <div className="absolute left-0 right-0 bottom-0">
-                        <Wave color="#FFF7E6" />
-                    </div>
-                </header>
-                {FACILITIES.map((facility, idx) => (
+                )}
+                
+                {facilitiesWithImages.map((facility, idx) => (
                     <div key={facility.title} className="relative">
 
                         <Section color={facility.bg}>
                             <div
                                 className={`flex flex-col md:flex-row items-center gap-10 w-full max-w-5xl mx-auto ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}
-                                style={idx === FACILITIES.length - 1 ? {} : { paddingBottom: "70px" }}
+                                style={idx === facilitiesWithImages.length - 1 ? {} : { paddingBottom: "70px" }}
                             >
                                 <div className="md:w-1/2 w-full flex justify-center">
                                     <img
-                                        src={facility.img}
+                                        src={facility.imageUrl || facilityImg}
                                         alt={facility.title}
                                         className="rounded-2xl shadow-lg object-cover w-full max-w-md h-64 md:h-80"
                                     />
@@ -77,16 +118,15 @@ const Facilities = () => {
                                 </div>
                             </div>
                         </Section>
-                        {idx < FACILITIES.length - 1 && (
+                        {idx < facilitiesWithImages.length - 1 && (
                             <Wave
-                                color={FACILITIES[idx + 1].bg}
+                                color={facilitiesWithImages[idx + 1].bg}
                                 flip={true}
                             />
                         )}
                     </div>
                 ))}
-            </div>
-            <Footer />
+            <Footer color={"#FFF7E6"} />
         </div>
     );
 
