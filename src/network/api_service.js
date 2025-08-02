@@ -33,6 +33,30 @@ export async function getStatistics() {
   }
 }
 
+export async function getAboutUs() {
+  try {
+    const aboutUs = await client.fetch(`
+      *[_type == "about_us"]{
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        title,
+        description,
+        items[]->{
+          _id,
+          title,
+          description
+        }
+      }
+    `);
+    return aboutUs;
+  } catch (error) {
+    console.error("Error fetching about us:", error);
+    throw error;
+  }
+}
+
 export async function getWhyUs() {
     try{
       const whyUs = await client.fetch(`

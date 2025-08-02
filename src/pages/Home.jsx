@@ -5,15 +5,7 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 
-import {
-  aboutUs,
-  // ourPhilosophy,
-  // services,
-  // statistics,
-  // testimonials,
-  // whyUs,
-  allIcons,
-} from "../CONSTANTS";
+import { allIcons} from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -40,7 +32,7 @@ import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
 
-import { getServices, getStatistics, getWhyUs, getTestimonials, getPhilosophy } from "../network/api_service";
+import { getServices, getStatistics, getWhyUs, getTestimonials, getPhilosophy,getAboutUs } from "../network/api_service";
 import Footer from "../components/Footer";
 
 const Home = () => {
@@ -48,6 +40,7 @@ const Home = () => {
   const [services, setServices] = useState([]);
   const [statistics, setStatistics] = useState([]);
   const [whyUs, setWhyUs] = useState([]);
+  const [aboutUs, setAboutUs] = useState({});
 
   // Loading states
   const [servicesLoading, setServicesLoading] = useState(true);
@@ -55,6 +48,7 @@ const Home = () => {
   const [whyUsLoading, setWhyUsLoading] = useState(true);
   const [ourPhilosophy, setOurPhilosophy] = useState([]);
   const [philosophyLoading, setPhilosophyLoading] = useState(true);
+  const [aboutUsLoading, setAboutUsLoading] = useState(true);
   // Testimonials
   const [testimonials, setTestimonials] = useState([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
@@ -63,8 +57,23 @@ const Home = () => {
   const [servicesError, setServicesError] = useState(null);
   const [statisticsError, setStatisticsError] = useState(null);
   const [whyUsError, setWhyUsError] = useState(null);
+  const [aboutUsError, setAboutUsError] = useState(null);
   const [philosophyError, setPhilosophyError] = useState(null);
   const [testimonialsError, setTestimonialsError] = useState(null);
+
+  const fetchAboutUs = async () => {
+    try {
+      setAboutUsLoading(true);
+      const aboutUsData = await getAboutUs();
+      setAboutUs(aboutUsData[0]);
+      console.log("Fetched About Us:", aboutUsData);
+    } catch (error) {
+      console.error("Error fetching about us:", error);
+      setAboutUsError("Failed to load about us data");
+    } finally {
+      setAboutUsLoading(false);
+    }
+  }
 
   const fetchServices = async () => {
     try {
@@ -160,6 +169,7 @@ const Home = () => {
   }
   useEffect(() => {
     // Fetch services data from the API
+    fetchAboutUs();
     fetchServices();
     fetchStatistics();
     fetchWhyUs();
@@ -314,55 +324,73 @@ const Home = () => {
       >
         <img src={plus} alt="" className="absolute left-[10%]" />
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center">
-          {/* Image with Mask */}
-          <div className="flex-shrink-0">
-            <img
-              src={about}
-              alt="teacher and student in a study session"
-              className="w-[300px] md:w-[480px] h-auto object-cover"
-              style={{
-                WebkitMaskImage: `url(${mask})`,
-                maskImage: `url(${mask})`,
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskSize: "cover",
-                maskSize: "cover",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }}
-            />
-          </div>
-
-          {/* Text Content */}
-          <div className="max-w-xl text-center md:text-left z-10">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              About Us
-            </p>
-
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              {aboutUs.title}
-            </h1>
-
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
-              {aboutUs.description}
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {aboutUs.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
-                >
-                  <FaRegCircleCheck className="text-green-600 text-lg" />
-                  <p className="text-gray-800 text-sm md:text-base">
-                    {item.title}
-                  </p>
-                </div>
-              ))}
+          {aboutUsLoading ? (
+            <SkeletonLoader type="aboutus" count={1} />
+          ) : aboutUsError ? (
+            <div className="w-full text-center py-20">
+              <ErrorMessage 
+                message={aboutUsError} 
+                onRetry={fetchAboutUs} 
+                className="w-full max-w-md mx-auto" 
+              />
             </div>
+          ) : aboutUs && aboutUs.title ? (
+            <>
+              {/* Image with Mask */}
+              <div className="flex-shrink-0">
+                <img
+                  src={about}
+                  alt="teacher and student in a study session"
+                  className="w-[300px] md:w-[480px] h-auto object-cover"
+                  style={{
+                    WebkitMaskImage: `url(${mask})`,
+                    maskImage: `url(${mask})`,
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskSize: "cover",
+                    maskSize: "cover",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                  }}
+                />
+              </div>
 
-            <Button>Know More</Button>
-          </div>
+              {/* Text Content */}
+              <div className="max-w-xl text-center md:text-left z-10">
+                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
+                  About Us
+                </p>
+
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+                  {aboutUs.title}
+                </h1>
+
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
+                  {aboutUs.description}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {aboutUs.items?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="border border-amber-300 bg-amber-50 rounded-lg flex items-center gap-3 px-4 py-3 shadow-sm"
+                    >
+                      <FaRegCircleCheck className="text-green-600 text-lg" />
+                      <p className="text-gray-800 text-sm md:text-base">
+                        {item.title}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <Button>Know More</Button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full text-center py-20">
+              <p className="text-gray-600">No content available</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -583,40 +611,74 @@ const Home = () => {
 
         {/* Content container */}
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center z-10">
-          {/* Image with mask */}
-          <div
-            className="w-full max-w-[380px] md:max-w-[450px] mb-20"
-            style={{
-              backgroundColor: "#fefefe",
-              WebkitMaskImage: `url(${mask3})`,
-              maskImage: `url(${mask3})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskSize: "100% 100%",
-              maskSize: "100% 100%",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-            }}
-          >
-            <img
-              src={room}
-              alt="Teacher and student in a study session"
-              className="w-full h-auto object-cover"
-            />
-          </div>
+          {philosophyLoading ? (
+            <>
+              {/* Image Skeleton */}
+              <div className="w-full max-w-[380px] md:max-w-[450px] mb-20">
+                <div className="w-full h-96 bg-gray-300 rounded-lg animate-pulse"></div>
+              </div>
 
-          {/* Text Block */}
-          <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              Our Philosophy
-            </p>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              {ourPhilosophy.heading}
-            </h1>
-            <p className="text-gray-700 mb-8 whitespace-pre-line">
-              {ourPhilosophy.description}
-            </p>
-          </div>
+              {/* Text Skeleton */}
+              <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-32 mb-4"></div>
+                  <div className="h-12 bg-gray-300 rounded w-full mb-6"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-8"></div>
+                </div>
+              </div>
+            </>
+          ) : philosophyError ? (
+            <div className="w-full text-center py-20">
+              <ErrorMessage 
+                message={philosophyError} 
+                onRetry={fetchPhilosophy}
+                className="w-full max-w-md mx-auto" 
+              />
+            </div>
+          ) : ourPhilosophy && ourPhilosophy.heading ? (
+            <>
+              {/* Image with mask */}
+              <div
+                className="w-full max-w-[380px] md:max-w-[450px] mb-20"
+                style={{
+                  backgroundColor: "#fefefe",
+                  WebkitMaskImage: `url(${mask3})`,
+                  maskImage: `url(${mask3})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskSize: "100% 100%",
+                  maskSize: "100% 100%",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                }}
+              >
+                <img
+                  src={room}
+                  alt="Teacher and student in a study session"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+
+              {/* Text Block */}
+              <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
+                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
+                  Our Philosophy
+                </p>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+                  {ourPhilosophy.heading}
+                </h1>
+                <p className="text-gray-700 mb-8 whitespace-pre-line">
+                  {ourPhilosophy.description}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="w-full text-center py-20">
+              <p className="text-gray-600">No content available</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at bottom */}
@@ -653,7 +715,27 @@ const Home = () => {
             </h2>
           </div>
 
-          <Carousel data={testimonials} />
+          {testimonialsLoading ? (
+            <div className="w-full max-w-6xl mx-auto">
+              <div className="flex gap-6 overflow-hidden justify-center">
+                <SkeletonLoader type="testimonial" count={3} />
+              </div>
+            </div>
+          ) : testimonialsError ? (
+            <div className="w-full max-w-md mx-auto">
+              <ErrorMessage 
+                message={testimonialsError} 
+                onRetry={fetchTestimonials}
+                className="py-8"
+              />
+            </div>
+          ) : testimonials.length > 0 ? (
+            <Carousel data={testimonials} />
+          ) : (
+            <div className="w-full text-center py-12">
+              <p className="text-gray-600">No testimonials available at the moment.</p>
+            </div>
+          )}
         </div>
 
         {/* Wave at Bottom */}
