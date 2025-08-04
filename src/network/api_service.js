@@ -13,6 +13,34 @@ const client = createClient({
   apiVersion: import.meta.env.VITE_SANITY_API_VERSION,
 });
 
+export function getContactUs() {
+  return client.fetch(`*[_type == "contact_us"][0]{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    contact_details[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      label,
+      icon,
+      value,
+      isAction,
+      actionType
+    },
+    contact_address[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      title,
+      address,
+    }
+  }`);
+}
+
 // Create image URL builder
 const builder = imageUrlBuilder(client);
 
@@ -22,7 +50,7 @@ export function getImageUrlFromRef(asset) {
   try {
     // Use the image URL builder to create the image URL
     const imageUrl = builder.image(asset).url();
-    
+
     console.log("Generated image URL:", imageUrl);
     return imageUrl;
   } catch (error) {
@@ -31,7 +59,7 @@ export function getImageUrlFromRef(asset) {
   }
 }
 
-export async function getFranchise(){
+export async function getFranchise() {
   try {
     const franchise = await client.fetch(`*[_type == "franchise"][0]{
       _id,
@@ -203,8 +231,8 @@ export async function getAboutUs() {
 }
 
 export async function getWhyUs() {
-    try{
-      const whyUs = await client.fetch(`
+  try {
+    const whyUs = await client.fetch(`
         *[_type == "whyUs"]{
           _id,
           _type,
@@ -219,11 +247,11 @@ export async function getWhyUs() {
           }
         }
       `);
-      return whyUs;
-    }catch (error) {
-      console.error("Error fetching why us:", error);
-      throw error;
-    }
+    return whyUs;
+  } catch (error) {
+    console.error("Error fetching why us:", error);
+    throw error;
+  }
 }
 
 export async function getTestimonials() {
