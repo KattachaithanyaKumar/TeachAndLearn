@@ -68,6 +68,14 @@ export async function getFranchise() {
       _updatedAt,
       title,
       description,
+      requirements->{
+        _id,
+        _type,
+        _createdAt,
+        _updatedAt,
+        title,
+        requirements,
+      },
 
       steps[]->{
         _id,
