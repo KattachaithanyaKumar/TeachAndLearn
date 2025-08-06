@@ -112,6 +112,7 @@ const Contact = () => {
   }).filter(Boolean) || fallbackContactDetails;
 
   const addresses = contactData?.contactAddress || fallbackAddresses;
+  const whatsapp = contactData?.contactDetails?.find(detail => detail.label === "Whatsapp");
   return (
     <div className="overflow-hidden">
       <Navbar />
@@ -271,7 +272,7 @@ const Contact = () => {
       </div>
       {/* Floating WhatsApp Button */}
       <a
-        href="https://api.whatsapp.com/send/?phone=919854112555&text&type=phone_number&app_absent=0"
+        href={`https://api.whatsapp.com/send/?phone=${whatsapp?.value || ''}&text&type=phone_number&app_absent=0`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center"
