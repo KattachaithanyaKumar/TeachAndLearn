@@ -19,7 +19,7 @@ export function getContactUs() {
     _type,
     _createdAt,
     _updatedAt,
-    contact_details[]->{
+    contactDetails[]->{
       _id,
       _type,
       _createdAt,
@@ -30,7 +30,7 @@ export function getContactUs() {
       isAction,
       actionType
     },
-    contact_address[]->{
+    contactAddress[]->{
       _id,
       _type,
       _createdAt,

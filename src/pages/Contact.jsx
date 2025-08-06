@@ -33,6 +33,7 @@ const Contact = () => {
         setLoading(true);
         const data = await getContactUs();
         setContactData(data);
+        console.log("Fetched contact data:", data);
       } catch (err) {
         setError(err);
         console.error("Error fetching contact data:", err);
@@ -94,8 +95,11 @@ const Contact = () => {
   ];
 
   // Prepare contact details with icons and actions
-  const contactDetails = contactData?.contact_details?.map(detail => {
+  const contactDetails = contactData?.contactDetails?.map(detail => {
     const Icon = allIcons[detail.icon] || FaPhoneAlt;
+    // Skip items with label "Whatsapp"
+    if (detail.label === "Whatsapp") return null;
+    
     return {
       icon: <Icon className="text-2xl text-white" />,
       label: detail.label,
@@ -105,9 +109,9 @@ const Contact = () => {
       isAction: detail.isAction,
       actionType: detail.actionType,
     };
-  }) || fallbackContactDetails;
+  }).filter(Boolean) || fallbackContactDetails;
 
-  const addresses = contactData?.contact_address || fallbackAddresses;
+  const addresses = contactData?.contactAddress || fallbackAddresses;
   return (
     <div className="overflow-hidden">
       <Navbar />
