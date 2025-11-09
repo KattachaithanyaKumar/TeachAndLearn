@@ -23,6 +23,29 @@ export const franchise = defineType({
             type: 'array',
             of: [{ type: 'reference', to: [{ type: 'franchiseContact' }] }],
         }),
+        defineField({
+            name: 'requirements',
+            type: 'reference',
+            to: [{ type: 'franchiseReq' }],
+        }), 
+    ]
+});
+
+export const franchiseReq = defineType({
+    name: 'franchiseReq',
+    title: 'Franchise Requirements',
+    type: 'document',
+    fields: [
+        defineField({
+            name: 'title',
+            type: 'string',
+        }),
+        defineField({
+            name: 'requirements',
+            type: 'array',
+            of: [{ type: 'string' }],
+        }),
+        
     ]
 });
 

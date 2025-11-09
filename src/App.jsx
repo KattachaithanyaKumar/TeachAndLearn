@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import ChildServices from "./pages/ChildServices";
-import SchoolReadiness from "./pages/SchoolReadiness";
+import ChildSchoolReadiness from "./pages/services/ChildSchoolReadiness";
 import AdultServices from "./pages/AdultServices";
 import Franchises from "./pages/Franchises";
 import Contact from "./pages/Contact";
@@ -13,7 +13,11 @@ import Psychology from "./pages/services/Psychology";
 import AdultSpeech from "./pages/services/AdultSpeech";
 import Physical from "./pages/services/Physical";
 import AdultBehavioral from "./pages/services/AdultBehavioral";
+import ChildBehavioral from "./pages/services/ChildBehavioral";
 import Facilities from "./pages/Facilities";
+import Speech from "./pages/services/Speech";
+import ChildPhysiotherapy from "./pages/services/ChildPhysiotherapy";
+import Occupational from "./pages/services/Occupational";
 
 const App = () => {
   return (
@@ -23,8 +27,11 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/child-services" element={<ChildServices />} />
-        <Route path="/child-services/:name" element={<Service />} />
-        <Route path="/school-readiness" element={<SchoolReadiness />} />
+        <Route path="/child-services/speech" element={<Speech />} />
+        <Route path="/child-services/occupational" element={<Occupational />} />
+        <Route path="/child-services/child-physiotherapy" element={<ChildPhysiotherapy />} />
+        <Route path="/child-services/child-behavioral-therapy" element={<ChildBehavioral />} />
+        <Route path="/child-services/school-readiness" element={<ChildSchoolReadiness />} />
         <Route path="/adult-services" element={<AdultServices />} />
         <Route path="/adult-services/psychology" element={<Psychology />} />
         <Route path="/adult-services/speech-therapy" element={<AdultSpeech />} />

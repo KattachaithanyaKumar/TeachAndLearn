@@ -9,6 +9,8 @@ import Section from "../../components/Section";
 import CTA from "../../components/CTA";
 import Footer from "../../components/Footer";
 
+import Navbar from "../../components/Navbar";
+import Header from "../../components/Header";
 import {
   FaComments,
   FaChild,
@@ -134,6 +136,20 @@ const therapyBenefits = [
 const Speech = () => {
   return (
     <div>
+      <Navbar />
+      <Header color={"#E0F2FE"}>
+        <h1 className="text-4xl font-bold mb-4 text-center">
+          Child{" "}
+          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Speech Therapy
+          </span>
+        </h1>
+        <div className="flex gap-2 items-center justify-center">
+          <p className="max-w-2xl text-lg sm:text-xl text-center">
+            Comprehensive speech and language therapy to help children communicate effectively.
+          </p>
+        </div>
+      </Header>
       <Section>
         <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Image */}

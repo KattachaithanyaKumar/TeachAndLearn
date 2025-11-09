@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
@@ -6,6 +6,8 @@ import Button from "../components/Button";
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { FaWhatsapp } from "react-icons/fa";
+import { allIcons } from "../CONSTANTS";
+import { getContactUs } from "../network/api_service";
 
 import teacherImg from "../assets/teacher-and-student.JPG";
 
@@ -20,54 +22,97 @@ const handleEmail = (email) => {
   window.open(`mailto:${email}`);
 };
 
-const contactDetails = [
-  {
-    icon: <FaPhoneAlt className="text-2xl text-white" />,
-    label: "Hafeezpet CDC",
-    value: "+91 98541 12555",
-    highlight: true,
-    onClick: () => handleCall("+91 98541 12555"),
-    isAction: true,
-    actionType: "call",
-  },
-  {
-    icon: <FaPhoneAlt className="text-2xl text-white" />,
-    label: "Kondapur CDC",
-    value: "+91 98451 13555",
-    highlight: true,
-    onClick: () => handleCall("+91 98451 13555"),
-    isAction: true,
-    actionType: "call",
-  },
-  {
-    icon: <FaEnvelope className="text-2xl text-white" />,
-    label: "Email",
-    value: "teachandlearnedu@gmail.com",
-    highlight: false,
-    onClick: () => handleEmail("teachandlearnedu@gmail.com"),
-    isAction: true,
-    actionType: "email",
-  },
-  {
-    icon: <IoMdTime className="text-2xl text-white" />,
-    label: "Working Hours",
-    value: "10:00 a.m. – 7:00 p.m.",
-    highlight: false,
-    isAction: false,
-  },
-];
-
-const mainOffice = {
-  title: "Main Office",
-  address: "Satvika Residency, Vinayaka Nagar, Hafeezpet, Hyderabad, Telangana 500049",
-};
-
-const branch = {
-  title: "Our Branch",
-  address: "Sai Sigma 2, Madhava Hills Road No. 1, Opp. Arbor International School, Kondapur, Hyderabad, Telangana 500084",
-};
-
 const Contact = () => {
+  const [contactData, setContactData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        setLoading(true);
+        const data = await getContactUs();
+        setContactData(data);
+        console.log("Fetched contact data:", data);
+      } catch (err) {
+        setError(err);
+        console.error("Error fetching contact data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactData();
+  }, []);
+
+  // Fallback data in case API fails
+  const fallbackContactDetails = [
+    {
+      icon: <FaPhoneAlt className="text-2xl text-white" />,
+      label: "Hafeezpet CDC",
+      value: "+91 98541 12555",
+      highlight: true,
+      onClick: () => handleCall("+91 98541 12555"),
+      isAction: true,
+      actionType: "call",
+    },
+    {
+      icon: <FaPhoneAlt className="text-2xl text-white" />,
+      label: "Kondapur CDC",
+      value: "+91 98451 13555",
+      highlight: true,
+      onClick: () => handleCall("+91 98451 13555"),
+      isAction: true,
+      actionType: "call",
+    },
+    {
+      icon: <FaEnvelope className="text-2xl text-white" />,
+      label: "Email",
+      value: "teachandlearnedu@gmail.com",
+      highlight: false,
+      onClick: () => handleEmail("teachandlearnedu@gmail.com"),
+      isAction: true,
+      actionType: "email",
+    },
+    {
+      icon: <IoMdTime className="text-2xl text-white" />,
+      label: "Working Hours",
+      value: "10:00 a.m. – 7:00 p.m.",
+      highlight: false,
+      isAction: false,
+    },
+  ];
+
+  const fallbackAddresses = [
+    {
+      title: "Main Office",
+      address: "Satvika Residency, Vinayaka Nagar, Hafeezpet, Hyderabad, Telangana 500049",
+    },
+    {
+      title: "Our Branch",
+      address: "Sai Sigma 2, Madhava Hills Road No. 1, Opp. Arbor International School, Kondapur, Hyderabad, Telangana 500084",
+    }
+  ];
+
+  // Prepare contact details with icons and actions
+  const contactDetails = contactData?.contactDetails?.map(detail => {
+    const Icon = allIcons[detail.icon] || FaPhoneAlt;
+    // Skip items with label "Whatsapp"
+    if (detail.label === "Whatsapp") return null;
+    
+    return {
+      icon: <Icon className="text-2xl text-white" />,
+      label: detail.label,
+      value: detail.value,
+      highlight: detail.actionType === "call",
+      onClick: detail.isAction ? (detail.actionType === "call" ? () => handleCall(detail.value) : () => handleEmail(detail.value)) : undefined,
+      isAction: detail.isAction,
+      actionType: detail.actionType,
+    };
+  }).filter(Boolean) || fallbackContactDetails;
+
+  const addresses = contactData?.contactAddress || fallbackAddresses;
+  const whatsapp = contactData?.contactDetails?.find(detail => detail.label === "Whatsapp");
   return (
     <div className="overflow-hidden">
       <Navbar />
@@ -109,6 +154,11 @@ const Contact = () => {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {loading ? (
+              <div className="col-span-2 text-center py-8">Loading contact details...</div>
+            ) : error ? (
+              <div className="col-span-2 text-center py-8 text-red-500">Error loading contact details. Using default information.</div>
+            ) : null}
             {contactDetails.map((detail, index) => (
               <div
                 key={index}
@@ -146,29 +196,19 @@ const Contact = () => {
         >
           <div className="p-8 flex flex-col gap-6 flex-grow">
             <div className="mt-6 space-y-6">
-              <div>
-                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
-                  {mainOffice.title}
-                </h2>
-                <div className="flex items-start gap-3 mt-2">
-                  <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
-                  <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
-                    {mainOffice.address}
-                  </span>
+              {addresses.map((address, index) => (
+                <div key={index}>
+                  <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
+                    {address.title}
+                  </h2>
+                  <div className="flex items-start gap-3 mt-2">
+                    <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
+                    <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
+                      {address.address}
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
-                  {branch.title}
-                </h2>
-                <div className="flex items-start gap-3 mt-2">
-                  <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
-                  <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
-                    {branch.address}
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -232,7 +272,7 @@ const Contact = () => {
       </div>
       {/* Floating WhatsApp Button */}
       <a
-        href="https://api.whatsapp.com/send/?phone=919854112555&text&type=phone_number&app_absent=0"
+        href={`https://api.whatsapp.com/send/?phone=${whatsapp?.value || ''}&text&type=phone_number&app_absent=0`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center"

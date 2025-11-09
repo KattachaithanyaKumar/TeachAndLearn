@@ -24,7 +24,7 @@ const Franchises = () => {
         const data = await getFranchise();
         setFranchiseData(data);
         console.log('Fetched franchise data:', data);
-        
+
         setData('franchise', data);
         setLoading('franchise', false);
       } catch (error) {
@@ -51,15 +51,15 @@ const Franchises = () => {
 
   // Show error message if there's an error (but still show fallback data)
   const showError = states.franchise?.error && !states.franchise?.data;
-  
+
   // If there's an error and no data, show error page
   if (showError) {
     return (
       <div className="bg-white min-h-screen">
         <Navbar />
         <div className="pt-24 flex justify-center items-center min-h-[50vh] flex-col">
-          <ErrorMessage 
-            message="Unable to load franchise data from server." 
+          <ErrorMessage
+            message="Unable to load franchise data from server."
             onRetry={() => window.location.reload()}
           />
         </div>
@@ -81,7 +81,7 @@ const Franchises = () => {
     );
   }
 
-  const steps = franchiseData.steps ? 
+  const steps = franchiseData.steps ?
     franchiseData.steps
       .sort((a, b) => (a.index || 0) - (b.index || 0))
       .map((step) => ({
@@ -90,7 +90,7 @@ const Franchises = () => {
         description: step.description,
       })) : [];
 
-  const contactInfo = franchiseData.contact ? 
+  const contactInfo = franchiseData.contact ?
     franchiseData.contact.map((contact) => ({
       icon: <FaPhoneAlt className="text-2xl text-white" />,
       label: contact.title,
@@ -98,20 +98,22 @@ const Franchises = () => {
       highlight: true,
     })) : [];
 
+  const reqData = franchiseData.requirements;
+
   return (
     <div className="overflow-hidden">
       <Navbar />
-      
+
       {/* Show error message if API failed but we have data */}
       {states.franchise?.error && (
         <div className="max-w-4xl mx-auto px-4 pt-24 mb-8">
-          <ErrorMessage 
-            message="Some franchise data may not be up to date due to server issues." 
+          <ErrorMessage
+            message="Some franchise data may not be up to date due to server issues."
             onRetry={() => window.location.reload()}
           />
         </div>
       )}
-      
+
       {/* Decorative animated background blobs */}
       <div
         className="pointer-events-none fixed top-20 left-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
@@ -207,13 +209,14 @@ const Franchises = () => {
                   </div>
                 </div>
               ))}
+
               <div className="mt-6">
-                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md mb-2">Franchise Requirements</h2>
-                <ul className="list-disc list-inside text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm space-y-1 pl-2">
-                  <li>Must have access to a carpet area of at least 3000 sq ft</li>
-                  <li>₹ 15 lakhs Investment*</li>
-                  <li>Ready to be a part of Teach and Learn Family? Complete the form now</li>
-                </ul>
+                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md mb-2">{reqData.title}</h2>
+                {reqData.requirements.map((item, idx) => (
+                  <ul className="list-disc list-inside text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm space-y-1 pl-2">
+                    <li>{item}</li>
+                  </ul>
+                ))}
               </div>
             </div>
 
@@ -226,56 +229,56 @@ const Franchises = () => {
             </div>
           </div>
 
-        {/* Right Card: Heading, Subheading, Form */}
-        <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Ready To Get Started?</h1>
-          <p className="text-gray-500 mb-8">Contact us today to learn more about our services and how we can support you or your loved one’s growth and development.</p>
-          <form
-            className="space-y-6"
-            onSubmit={e => {
-              e.preventDefault();
-              const form = e.target;
-              const data = {
-                name: form.name.value,
-                email: form.email.value,
-                mobile: form.mobile.value,
-                location: form.location.value,
-                comments: form.comments.value,
-              };
-              alert(`Thank you for your interest!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
-              form.reset();
-            }}
-          >
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Your Name*</label>
-                <input type="text" id="name" name="name" required placeholder="Your Name" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+          {/* Right Card: Heading, Subheading, Form */}
+          <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Ready To Get Started?</h1>
+            <p className="text-gray-500 mb-8">Contact us today to learn more about our services and how we can support you or your loved one’s growth and development.</p>
+            <form
+              className="space-y-6"
+              onSubmit={e => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                  name: form.name.value,
+                  email: form.email.value,
+                  mobile: form.mobile.value,
+                  location: form.location.value,
+                  comments: form.comments.value,
+                };
+                alert(`Thank you for your interest!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
+                form.reset();
+              }}
+            >
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Your Name*</label>
+                  <input type="text" id="name" name="name" required placeholder="Your Name" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Your Email*</label>
+                  <input type="email" id="email" name="email" required placeholder="Your Email" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                </div>
               </div>
-              <div className="flex-1">
-                <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Your Email*</label>
-                <input type="email" id="email" name="email" required placeholder="Your Email" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <label htmlFor="mobile" className="block text-gray-700 font-medium mb-1">Mobile*</label>
+                  <input type="tel" id="mobile" name="mobile" required pattern="[0-9]{10,}" placeholder="Mobile Number" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="location" className="block text-gray-700 font-medium mb-1">Preferred Location*</label>
+                  <input type="text" id="location" name="location" required placeholder="Preferred Location" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <label htmlFor="mobile" className="block text-gray-700 font-medium mb-1">Mobile*</label>
-                <input type="tel" id="mobile" name="mobile" required pattern="[0-9]{10,}" placeholder="Mobile Number" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+              <div>
+                <label htmlFor="comments" className="block text-gray-700 font-medium mb-1">Write Message*</label>
+                <textarea id="comments" name="comments" rows={4} required placeholder="Write Message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
               </div>
-              <div className="flex-1">
-                <label htmlFor="location" className="block text-gray-700 font-medium mb-1">Preferred Location*</label>
-                <input type="text" id="location" name="location" required placeholder="Preferred Location" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="comments" className="block text-gray-700 font-medium mb-1">Write Message*</label>
-              <textarea id="comments" name="comments" rows={4} required placeholder="Write Message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
-            </div>
-            <button type="submit" className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2">Send Message <span aria-hidden>→</span></button>
-          </form>
+              <button type="submit" className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2">Send Message <span aria-hidden>→</span></button>
+            </form>
+          </div>
         </div>
-      </div>
       )}
-      
+
       <Footer />
     </div>
   );
