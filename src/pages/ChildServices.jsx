@@ -73,9 +73,7 @@ const ChildServices = () => {
                   <Button
                     className="w-fit text-base hover:scale-105 transition-transform"
                     onClick={() =>
-                      handleNavigate(
-                        item.title.toLowerCase().replace(/\s+/g, "-")
-                      )
+                      handleNavigate(item.path)
                     }
                   >
                     Explore

@@ -105,6 +105,7 @@ export const aboutUs = {
 export const childServices = [
   {
     title: "Speech Therapy",
+    path: "speech",
     description:
       "Comprehensive speech and language therapy to help children communicate effectively.",
     items: [
@@ -122,6 +123,7 @@ export const childServices = [
   },
   {
     title: "Occupational Therapy",
+    path: "occupational",
     description:
       "Helping children develop fine motor skills, sensory processing, and daily living skills.",
     items: [
@@ -136,12 +138,14 @@ export const childServices = [
   },
   {
     title: "Behavioral Therapy",
+    path: "child-behavioral-therapy",
     description:
       "Evidence-based interventions to address behavioral challenges and promote positive behaviors.",
     items: ["ADHD", "Oppositional Defiant Disorder", "Conduct Disorder"],
   },
   {
     title: "Physiotherapy",
+    path: "child-physiotherapy",
     description:
       "Physical therapy to improve movement, strength, and motor development.",
     items: [
@@ -154,6 +158,7 @@ export const childServices = [
   },
   {
     title: "School Readiness",
+    path: "school-readiness",
     description:
       "Comprehensive program to prepare children for academic success.",
     items: [
