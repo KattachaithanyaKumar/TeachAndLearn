@@ -625,13 +625,13 @@ const Home = () => {
           src={star}
           alt=""
           aria-hidden="true"
-          className="absolute left-40 top-10"
+          className="absolute left-40 top-10 hidden md:block"
         />
         <img
           src={line}
           alt=""
           aria-hidden="true"
-          className="absolute right-40 bottom-40 -rotate-45"
+          className="absolute right-40 bottom-40 -rotate-45 hidden md:block"
         />
 
         {/* Content container */}
@@ -666,7 +666,7 @@ const Home = () => {
             <>
               {/* Image with mask */}
               <div
-                className="w-full max-w-[380px] md:max-w-[450px] mb-20"
+                className="w-full max-w-[380px] md:max-w-[450px] mb-20 hidden sm:block"
                 style={{
                   backgroundColor: "#fefefe",
                   WebkitMaskImage: `url(${mask3})`,
