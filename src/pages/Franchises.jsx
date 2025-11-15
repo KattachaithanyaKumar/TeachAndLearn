@@ -101,7 +101,7 @@ const Franchises = () => {
   const reqData = franchiseData.requirements;
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden px-4 sm:px-6">
       <Navbar />
 
       {/* Show error message if API failed but we have data */}
@@ -114,32 +114,9 @@ const Franchises = () => {
         </div>
       )}
 
-      {/* Decorative animated background blobs */}
-      <div
-        className="pointer-events-none fixed top-20 left-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
-        style={{
-          background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
-          opacity: 0.4,
-        }}
-      />
-      <div
-        className="pointer-events-none fixed bottom-20 right-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
-        style={{
-          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.4,
-        }}
-      />
-      <div
-        className="pointer-events-none fixed top-1/2 left-1/2 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
-        style={{
-          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.3,
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
       {/* Intro Section */}
       <Section
-        className="relative px-4 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden"
+        className="relative px-2 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden mt-6"
       >
         <div className="relative z-10 max-w-4xl mx-auto text-center py-16 sm:py-20 md:py-24 flex flex-col items-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
@@ -156,7 +133,7 @@ const Franchises = () => {
 
       {/* Steps Section */}
       {steps && steps.length > 0 && (
-        <Section>
+        <Section className="mt-10 px-2 sm:px-6">
           <div className="max-w-7xl mx-auto py-8 px-2">
             <div className="flex flex-col md:flex-row items-stretch justify-between w-full gap-x-0 gap-y-8">
               {steps.map((step, idx) => (
@@ -188,11 +165,11 @@ const Franchises = () => {
       )}
 
       {contactInfo && contactInfo.length > 0 && (
-        <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch">
+        <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch px-2 sm:px-4">
 
           {/* Left Card: Contact Info, Requirements, Image */}
           <div
-            className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer"
+            className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer p-4 sm:p-0"
             style={{
               background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
             }}
@@ -230,7 +207,7 @@ const Franchises = () => {
           </div>
 
           {/* Right Card: Heading, Subheading, Form */}
-          <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
+          <div className="flex-1 bg-white rounded-2xl shadow-xl p-4 sm:p-8 flex flex-col justify-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Ready To Get Started?</h1>
             <p className="text-gray-500 mb-8">Contact us today to learn more about our services and how we can support you or your loved one’s growth and development.</p>
             <form

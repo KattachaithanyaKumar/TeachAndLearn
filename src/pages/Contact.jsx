@@ -99,7 +99,7 @@ const Contact = () => {
     const Icon = allIcons[detail.icon] || FaPhoneAlt;
     // Skip items with label "Whatsapp"
     if (detail.label === "Whatsapp") return null;
-    
+
     return {
       icon: <Icon className="text-2xl text-white" />,
       label: detail.label,
@@ -116,29 +116,6 @@ const Contact = () => {
   return (
     <div className="overflow-hidden">
       <Navbar />
-      {/* Decorative animated background blobs */}
-      <div
-        className="pointer-events-none fixed top-20 left-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-1"
-        style={{
-          background: 'linear-gradient(135deg, #fdba74 0%, #f87171 100%)',
-          opacity: 0.4,
-        }}
-      />
-      <div
-        className="pointer-events-none fixed bottom-20 right-20 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-2"
-        style={{
-          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.4,
-        }}
-      />
-      <div
-        className="pointer-events-none fixed top-1/2 left-1/2 w-72 h-72 rounded-full blur-3xl z-0 animated-blob-3"
-        style={{
-          background: 'linear-gradient(135deg, #fca5a5 0%, #fbbf24 100%)',
-          opacity: 0.3,
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
       <Section className="bg-gray-50 py-20 px-6 sm:px-10 md:px-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Animated Gradient Heading */}
@@ -186,7 +163,7 @@ const Contact = () => {
       </Section>
 
 
-      <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch">
+      <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch mt-6 sm:mt-0 px-2">
         {/* Left Card: Addresses, Image */}
         <div
           className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer"
