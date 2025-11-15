@@ -5,7 +5,7 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 
-import { allIcons} from "../CONSTANTS";
+import { allIcons } from "../CONSTANTS";
 import Button from "../components/Button";
 import Navbar from "../components/Navbar";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -67,7 +67,7 @@ const Home = () => {
     try {
       setHomeLoading(true);
       setHomeError(null);
-      
+
       // Reset all loading states
       setServicesLoading(true);
       setStatisticsLoading(true);
@@ -75,7 +75,7 @@ const Home = () => {
       setAboutUsLoading(true);
       setPhilosophyLoading(true);
       setTestimonialsLoading(true);
-      
+
       // Reset all error states
       setServicesError(null);
       setStatisticsError(null);
@@ -86,10 +86,10 @@ const Home = () => {
 
       const homeData = await getHome();
       console.log("Fetched Home Data:", homeData);
-      
+
       if (homeData) {
         setHomeData(homeData);
-        
+
         // Set services data
         if (homeData.service) {
           setServices(homeData.service);
@@ -105,7 +105,7 @@ const Home = () => {
           setServicesError("No services data available");
           setServicesLoading(false);
         }
-        
+
         // Set statistics data
         if (homeData.stats) {
           setStatistics(homeData.stats);
@@ -121,7 +121,7 @@ const Home = () => {
           setStatisticsError("No statistics data available");
           setStatisticsLoading(false);
         }
-        
+
         // Set about us data
         if (homeData.aboutUs && homeData.aboutUs.length > 0) {
           setAboutUs(homeData.aboutUs[0]);
@@ -131,7 +131,7 @@ const Home = () => {
           setAboutUsError("No about us data available");
           setAboutUsLoading(false);
         }
-        
+
         // Set why us data
         if (homeData.whyUs && homeData.whyUs.length > 0) {
           setWhyUs(homeData.whyUs);
@@ -149,7 +149,7 @@ const Home = () => {
           setWhyUsError("No why us data available");
           setWhyUsLoading(false);
         }
-        
+
         // Set philosophy data
         if (homeData.ourPhilosophy && homeData.ourPhilosophy.length > 0) {
           setOurPhilosophy(homeData.ourPhilosophy[0]);
@@ -159,7 +159,7 @@ const Home = () => {
           setPhilosophyError("No philosophy data available");
           setPhilosophyLoading(false);
         }
-        
+
         // Set testimonials data
         if (homeData.testimonials) {
           setTestimonials(homeData.testimonials);
@@ -173,7 +173,7 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching home data:", error);
       setHomeError("Failed to load page data");
-      
+
       // Set all loading states to false and error states
       setServicesLoading(false);
       setStatisticsLoading(false);
@@ -181,7 +181,7 @@ const Home = () => {
       setAboutUsLoading(false);
       setPhilosophyLoading(false);
       setTestimonialsLoading(false);
-      
+
       setServicesError("Failed to load services");
       setStatisticsError("Failed to load statistics");
       setWhyUsError("Failed to load why us data");
@@ -254,7 +254,7 @@ const Home = () => {
           </div>
 
           {/* Right Image */}
-          <div className="w-full md:w-[40%] max-w-md relative z-20 -mb-[80px]">
+          <div className="w-full md:w-[40%] max-w-md relative z-20 mb-4 md:mb-0">
             <img
               src={child}
               alt="Child smiling with a stack of books"
@@ -349,10 +349,10 @@ const Home = () => {
             <SkeletonLoader type="aboutus" count={1} />
           ) : aboutUsError ? (
             <div className="w-full text-center py-20">
-              <ErrorMessage 
-                message={aboutUsError} 
-                onRetry={fetchHomeData} 
-                className="w-full max-w-md mx-auto" 
+              <ErrorMessage
+                message={aboutUsError}
+                onRetry={fetchHomeData}
+                className="w-full max-w-md mx-auto"
               />
             </div>
           ) : aboutUs && aboutUs.title ? (
@@ -510,7 +510,7 @@ const Home = () => {
         id="why-us"
         className="relative flex items-center justify-center py-20 px-4 overflow-hidden"
       >
-        <img src={dots} alt="" className="absolute right-40 -z-10" />
+        <img src={dots} alt="" className="absolute right-40 -z-10 hidden md:block" />
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-20">
           {whyUsLoading ? (
             <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-20">
@@ -656,10 +656,10 @@ const Home = () => {
             </>
           ) : philosophyError ? (
             <div className="w-full text-center py-20">
-              <ErrorMessage 
-                message={philosophyError} 
+              <ErrorMessage
+                message={philosophyError}
                 onRetry={fetchHomeData}
-                className="w-full max-w-md mx-auto" 
+                className="w-full max-w-md mx-auto"
               />
             </div>
           ) : ourPhilosophy && ourPhilosophy.heading ? (
@@ -728,8 +728,8 @@ const Home = () => {
         aria-label="Testimonials from parents"
         className="relative overflow-hidden bg-lime-100"
       >
-        <img src={sphere} alt="" className="absolute left-10" />
-        <img src={capsule} alt="" className="absolute right-10" />
+        <img src={sphere} alt="" className="absolute left-10 hidden md:block" />
+        <img src={capsule} alt="" className="absolute right-10 hidden md:block" />
         <div className="w-screen z-10 flex flex-col items-center justify-center py-16 px-4 sm:px-6 md:px-12 mb-10">
           <div className="text-center">
             <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
@@ -748,8 +748,8 @@ const Home = () => {
             </div>
           ) : testimonialsError ? (
             <div className="w-full max-w-md mx-auto">
-              <ErrorMessage 
-                message={testimonialsError} 
+              <ErrorMessage
+                message={testimonialsError}
                 onRetry={fetchHomeData}
                 className="py-8"
               />
@@ -784,9 +784,9 @@ const Home = () => {
         id="book"
         className="bg-amber-100 relative overflow-hidden py-16 px-4 md:px-12"
       >
-        <img src={zigzag} alt="" className="absolute" />
-        <img src={circleHalf} alt="" className="absolute right-10 bottom-20" />
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+        <img src={zigzag} alt="" className="absolute hidden md:block" />
+        <img src={circleHalf} alt="" className="absolute right-10 bottom-20 hidden md:block" />
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 mt-10">
           {/* Left */}
           <div className="relative flex justify-center items-center">
             {/* Blob background */}
@@ -827,7 +827,7 @@ const Home = () => {
           </div>
 
           {/* Right - Form */}
-          <form className="bg-white shadow-lg rounded-xl p-8 space-y-5">
+          <form className="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Quick Appointment
             </h1>

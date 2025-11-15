@@ -52,36 +52,36 @@ const keyComponents = [
 ];
 
 const howWeDoIt = [
-    {
-        icon: <FaChalkboardTeacher className="text-indigo-500 text-2xl" />,
-        title: "Individual Educational Plan (IEP)",
-        description: "A customized plan is created for each child to address their unique strengths and challenges."
-    },
-    {
-        icon: <FaUserFriends className="text-yellow-500 text-2xl" />,
-        title: "Collaborative Approach",
-        description: "Our team of specialists, including teachers, occupational therapists, and speech therapists, work together on the IEP."
-    },
-    {
-        icon: <FaHandsHelping className="text-green-500 text-2xl" />,
-        title: "Harnessing Strengths",
-        description: "The personalized plan is designed to build on each child's strengths to help them achieve their goals."
-    }
+  {
+    icon: <FaChalkboardTeacher className="text-indigo-500 text-2xl" />,
+    title: "Individual Educational Plan (IEP)",
+    description: "A customized plan is created for each child to address their unique strengths and challenges."
+  },
+  {
+    icon: <FaUserFriends className="text-yellow-500 text-2xl" />,
+    title: "Collaborative Approach",
+    description: "Our team of specialists, including teachers, occupational therapists, and speech therapists, work together on the IEP."
+  },
+  {
+    icon: <FaHandsHelping className="text-green-500 text-2xl" />,
+    title: "Harnessing Strengths",
+    description: "The personalized plan is designed to build on each child's strengths to help them achieve their goals."
+  }
 ]
 
 const goals = [
-    {
-        icon: <FaUserGraduate className="text-indigo-500 text-2xl" />,
-        text: "Provide students with the skills to succeed in mainstream educational settings."
-    },
-    {
-        icon: <FaSchool className="text-pink-500 text-2xl" />,
-        text: "Promote a seamless transition to mainstream education."
-    },
-    {
-        icon: <FaPuzzlePiece className="text-green-500 text-2xl" />,
-        text: "Offer adaptable and flexible full-time and part-time programs."
-    }
+  {
+    icon: <FaUserGraduate className="text-indigo-500 text-2xl" />,
+    text: "Provide students with the skills to succeed in mainstream educational settings."
+  },
+  {
+    icon: <FaSchool className="text-pink-500 text-2xl" />,
+    text: "Promote a seamless transition to mainstream education."
+  },
+  {
+    icon: <FaPuzzlePiece className="text-green-500 text-2xl" />,
+    text: "Offer adaptable and flexible full-time and part-time programs."
+  }
 ]
 
 const ChildSchoolReadiness = () => {

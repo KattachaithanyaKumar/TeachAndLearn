@@ -41,11 +41,14 @@ const Physical = () => {
     <div>
       <Navbar />
       <Header color={"#EDE9FE"}>
-        <h1 className="text-4xl font-bold mb-4">
-          Adult <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Physical Therapy</span>
+        <h1 className="text-4xl font-bold mb-4 text-center">
+          Adult{" "}
+          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Physical Therapy
+          </span>
         </h1>
-        <div className="flex gap-2 items-center">
-          <p>
+        <div className="flex gap-2 items-center justify-center">
+          <p className="max-w-2xl text-lg sm:text-xl text-center">
             Restore function, reduce pain, and improve quality of life with expert physical therapy for adults.
           </p>
         </div>
