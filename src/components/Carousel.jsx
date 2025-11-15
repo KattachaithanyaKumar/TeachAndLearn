@@ -14,7 +14,7 @@ const Rating = ({ value }) => (
   </div>
 );
 
-const Carousel = ({ data, autoScroll = true, interval = 3000 }) => {
+const Carousel = ({ data, autoScroll = false, interval = 3000 }) => {
   const scrollRef = useRef(null);
   const itemRef = useRef(null);
   const scrollInterval = useRef(null);
@@ -99,13 +99,12 @@ const Carousel = ({ data, autoScroll = true, interval = 3000 }) => {
           <div
             key={index}
             ref={index === 4 ? itemRef : null} // ref for real first item
-            className="relative w-1/4 flex-shrink-0"
+            className="relative w-full sm:w-1/2 md:w-1/4 flex-shrink-0 px-4"
           >
-            <img src={bubble} alt="" className="w-full h-auto" />
-            <div className="absolute top-0 left-0 z-10 p-6 w-full h-full flex items-center justify-center flex-col">
-              <p className="text-black text-center">{item.review}</p>
+            <div className="bg-white shadow-lg rounded-xl p-6 w-full h-full flex items-center justify-center flex-col text-center">
+              <p className="text-black text-base leading-relaxed mb-3">{item.review}</p>
               <Rating value={item.rating} />
-              <p className="text-sm font-semibold mt-2">{item.author}</p>
+              <p className="text-sm font-semibold text-gray-700 mt-3">{item.author}</p>
             </div>
           </div>
         ))}
