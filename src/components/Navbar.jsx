@@ -21,8 +21,8 @@ const Navbar = () => {
   return (
     <div
       className={`fixed top-0 left-0 w-full h-24 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${scrolled
-          ? "bg-white shadow-md backdrop-blur-lg"
-          : "bg-transparent text-white"
+        ? "bg-white shadow-md backdrop-blur-lg"
+        : "bg-transparent text-white"
         }`}
     >
       {/* Logo */}
@@ -36,15 +36,15 @@ const Navbar = () => {
               key={index}
               to={item.path}
               className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-gray-700 ${scrolled
-                  ? " hover:bg-red-100 hover:text-red-600"
-                  : "hover:text-orange-500"
+                ? " hover:bg-red-100 hover:text-red-600"
+                : "hover:text-orange-500"
                 }`}
             >
               {item.label}
             </Link>
           ))}
         </div>
-        <Button variant="primary">Parent Login</Button>
+        <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
       </div>
 
       {/* Mobile Hamburger */}
@@ -71,7 +71,7 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-          <Button variant="primary">Parent Login</Button>
+          <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
         </div>
       )}
     </div>
