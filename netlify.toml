@@ -2,6 +2,21 @@
   command = "npm run build"
   publish = "dist"
 
+# Server-side secrets for `netlify/functions/api.mjs` (Site settings → Environment variables):
+# SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_VERSION, SANITY_API_WRITE_TOKEN, SESSION_SECRET,
+# COOKIE_SECURE=true, optional SANITY_AUTH_DATASET / ADMIN_API_KEY
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Run Express admin API on Netlify (`netlify/functions/api.mjs`). Must come before SPA fallback.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
 # SPA fallback for client-side routing (Vite/React Router)
 [[redirects]]
   from = "/*"

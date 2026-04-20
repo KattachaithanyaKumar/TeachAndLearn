@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-24 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${scrolled
+      className={`fixed top-0 left-0 w-full h-24 gap-3 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${scrolled
         ? "bg-white shadow-md backdrop-blur-lg"
         : "bg-transparent text-white"
         }`}
@@ -53,14 +53,14 @@ const Navbar = () => {
         />
       </Link>
 
-      {/* Desktop Nav — lg+ so tablets get the drawer */}
-      <div className="hidden items-center gap-2 xl:gap-4 lg:flex">
-        <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 xl:gap-x-0">
+      {/* Desktop Nav — lg+; nav scrolls horizontally if tight so Parent Login never clips */}
+      <div className="hidden min-w-0 flex-1 items-center justify-end gap-2 xl:gap-4 lg:flex">
+        <nav className="flex min-w-0 max-w-full flex-1 flex-nowrap items-center justify-end gap-x-1 overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden xl:gap-x-0">
           {navItems.map((item, index) => (
             <Link
               key={index}
               to={item.path}
-              className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-gray-700 ${scrolled
+              className={`shrink-0 whitespace-nowrap px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 text-gray-700 xl:px-4 xl:text-base ${scrolled
                 ? " hover:bg-red-100 hover:text-red-600"
                 : "hover:text-orange-500"
                 }`}
@@ -69,7 +69,13 @@ const Navbar = () => {
             </Link>
           ))}
         </nav>
-        <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
+        <Button
+          variant="primary"
+          className="shrink-0 whitespace-nowrap"
+          onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}
+        >
+          Parent Login
+        </Button>
       </div>
 
       {/* Mobile / tablet menu toggle */}
