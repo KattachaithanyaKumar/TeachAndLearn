@@ -68,7 +68,7 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
         <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
       </div>
 
