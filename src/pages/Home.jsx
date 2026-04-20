@@ -32,11 +32,31 @@ import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
 
-import { getHome } from "../network/api_service";
+import {
+  getHome,
+  getImageUrlFromRef,
+  submitContactSubmission,
+} from "../network/api_service";
 import Footer from "../components/Footer";
+
+const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
+
+const HERO_DEFAULTS = {
+  eyebrow: "Welcome to Teach & Learn",
+  titleLine1: "Empowering Children and Adults to",
+  highlight: "Reach Their Full Potential",
+  description:
+    "Comprehensive therapy services designed to support growth, learning, and development in a caring, professional environment.",
+  primaryCta: "Know More",
+  secondaryCta: "Book Appointment",
+  imageAlt: "Child smiling with a stack of books",
+};
 
 const Home = () => {
   // State for data
+  const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
+  const [bookMessage, setBookMessage] = useState(null);
+
   const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
   const [statistics, setStatistics] = useState([]);
@@ -203,6 +223,26 @@ const Home = () => {
     }
   };
 
+  const heroEyebrow =
+    homeData?.heroEyebrow?.trim() || HERO_DEFAULTS.eyebrow;
+  const heroTitleLine1 =
+    homeData?.heroTitleLine1?.trim() || HERO_DEFAULTS.titleLine1;
+  const heroTitleHighlight =
+    homeData?.heroTitleHighlight?.trim() || HERO_DEFAULTS.highlight;
+  const heroDescription =
+    homeData?.heroDescription?.trim() || HERO_DEFAULTS.description;
+  const heroPrimaryCtaLabel =
+    homeData?.heroPrimaryCtaLabel?.trim() || HERO_DEFAULTS.primaryCta;
+  const heroSecondaryCtaLabel =
+    homeData?.heroSecondaryCtaLabel?.trim() || HERO_DEFAULTS.secondaryCta;
+
+  const heroImageUrl =
+    homeData?.heroImage?.asset &&
+    getImageUrlFromRef(homeData.heroImage.asset);
+  const heroImageSrc = heroImageUrl || child;
+  const heroImageAlt =
+    homeData?.heroImage?.alt?.trim() || HERO_DEFAULTS.imageAlt;
+
   return (
     <div>
       <Navbar />
@@ -221,25 +261,25 @@ const Home = () => {
           {/* Left Content */}
           <div className="w-full md:w-1/2 flex flex-col gap-2">
             <p className="text-sm sm:text-base md:text-lg text-orange-500">
-              Welcome to Teach & Learn
+              {heroEyebrow}
             </p>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-snug md:leading-tight">
-              Empowering Children and Adults to{" "}
+              {heroTitleLine1}{" "}
               <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                Reach Their Full Potential
+                {heroTitleHighlight}
               </span>
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl text-gray-700">
-              Comprehensive therapy services designed to support growth,
-              learning, and development in a caring, professional environment.
+              {heroDescription}
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
               <Button>
                 <span className="flex items-center gap-1">
-                  Know More <IoIosArrowRoundForward size={24} />
+                  {heroPrimaryCtaLabel}{" "}
+                  <IoIosArrowRoundForward size={24} />
                 </span>
               </Button>
               <Button
@@ -247,7 +287,7 @@ const Home = () => {
                 className="flex gap-3"
                 onClick={() => scrollToId("book")}
               >
-                Book Appointment
+                {heroSecondaryCtaLabel}
                 <FiPhone size={16} />
               </Button>
             </div>
@@ -256,8 +296,8 @@ const Home = () => {
           {/* Right Image */}
           <div className="w-full md:w-[40%] max-w-md relative z-20 mb-4 md:mb-0">
             <img
-              src={child}
-              alt="Child smiling with a stack of books"
+              src={heroImageSrc}
+              alt={heroImageAlt}
               className="w-full md:block hidden scale-125"
             />
           </div>
@@ -827,43 +867,122 @@ const Home = () => {
           </div>
 
           {/* Right - Form */}
-          <form className="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5">
+          <form
+            className="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBookMessage(null);
+              if (!hasWriteToken) {
+                setBookSubmitStatus("error");
+                setBookMessage(
+                  "Appointments cannot be saved until VITE_SANITY_WRITE_TOKEN is set (see .env.example)."
+                );
+                return;
+              }
+              const form = e.target;
+              const payload = {
+                name: form.name.value.trim(),
+                contact: form.contact.value.trim(),
+                email: form.email.value.trim(),
+                message: form.message.value.trim(),
+                service: form.service.value.trim(),
+                source: "home_book",
+              };
+              setBookSubmitStatus("submitting");
+              try {
+                await submitContactSubmission(payload);
+                setBookSubmitStatus("success");
+                setBookMessage("Thanks! We will contact you shortly to confirm.");
+                form.reset();
+              } catch (err) {
+                setBookSubmitStatus("error");
+                if (err?.code === "MISSING_WRITE_TOKEN") {
+                  setBookMessage(
+                    "Configuration error: add VITE_SANITY_WRITE_TOKEN to your environment."
+                  );
+                } else if (err instanceof Error) {
+                  setBookMessage(err.message);
+                } else {
+                  setBookMessage(
+                    "Could not submit. Check Sanity CORS settings or try again."
+                  );
+                }
+              }
+            }}
+          >
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Quick Appointment
             </h1>
+            {!hasWriteToken ? (
+              <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs">
+                Set <code className="text-[11px]">VITE_SANITY_WRITE_TOKEN</code> to save requests to Sanity.
+              </p>
+            ) : null}
+            {bookMessage ? (
+              <p
+                className={
+                  bookSubmitStatus === "success"
+                    ? "text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm"
+                    : "text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm"
+                }
+                role="status"
+              >
+                {bookMessage}
+              </p>
+            ) : null}
 
             <input
               type="text"
+              name="name"
+              required
               placeholder="Your Name"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <input
-              type="text"
+              type="tel"
+              name="contact"
+              required
+              pattern="[0-9]{10,}"
               placeholder="Phone Number"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <input
-              type="text"
+              type="email"
+              name="email"
+              required
               placeholder="Email Address"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <select className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="">{servicesLoading ? "Loading services..." : "Select Service"}</option>
-              {!servicesLoading && services.map((item, index) => (
-                <option key={index} value={item.name}>
-                  {item.name}
-                </option>
-              ))}
+            <select
+              name="service"
+              required
+              defaultValue=""
+              className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="" disabled>
+                {servicesLoading ? "Loading services..." : "Select Service"}
+              </option>
+              {!servicesLoading &&
+                services.map((item, index) => (
+                  <option key={item._id ?? index} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
             </select>
             <textarea
+              name="message"
+              required
               placeholder="Your Message"
               className="w-full border border-gray-300 rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
             ></textarea>
             <Button
               type="submit"
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition duration-200"
+              disabled={bookSubmitStatus === "submitting"}
+              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <p className="text-center w-full">Book Appointment</p>
+              <p className="text-center w-full">
+                {bookSubmitStatus === "submitting" ? "Sending…" : "Book Appointment"}
+              </p>
             </Button>
           </form>
         </div>

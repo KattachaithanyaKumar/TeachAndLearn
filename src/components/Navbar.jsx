@@ -18,49 +18,83 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-24 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${scrolled
+      className={`fixed top-0 left-0 z-50 flex h-16 w-full max-w-full items-center justify-between px-4 transition-all duration-300 sm:h-20 sm:px-6 lg:h-24 lg:px-12 ${scrolled
           ? "bg-white shadow-md backdrop-blur-lg"
-          : "bg-transparent text-white"
+          : "bg-transparent"
         }`}
     >
-      {/* Logo */}
-      <img src={logo} alt="logo" className="w-[160px] md:w-[200px]" />
+      {/* Logo — links home */}
+      <Link
+        to="/"
+        className="flex shrink-0 items-center"
+        onClick={() => setMenuOpen(false)}
+        aria-label="Teach and Learn — Home"
+      >
+        <img
+          src={logo}
+          alt=""
+          className="h-8 w-auto max-w-[min(160px,42vw)] sm:h-9 sm:max-w-[180px] lg:h-11 lg:max-w-[200px]"
+        />
+      </Link>
 
-      {/* Desktop Nav */}
-      <div className="hidden md:flex gap-4 items-center">
-        <div className="flex items-center">
+      {/* Desktop Nav — lg+ so tablets get the drawer */}
+      <div className="hidden items-center gap-2 xl:gap-4 lg:flex">
+        <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 xl:gap-x-0">
           {navItems.map((item, index) => (
             <Link
               key={index}
               to={item.path}
-              className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-gray-700 ${scrolled
-                  ? " hover:bg-red-100 hover:text-red-600"
-                  : "hover:text-orange-500"
+              className={`rounded-full px-2 py-2 text-sm font-medium transition-all duration-200 xl:px-4 ${scrolled
+                  ? "text-gray-800 hover:bg-red-100 hover:text-red-600"
+                  : "text-gray-900 hover:bg-black/[0.06] hover:text-red-600"
                 }`}
             >
               {item.label}
             </Link>
           ))}
-        </div>
-        <Button variant="primary">Parent Login</Button>
+        </nav>
+        <Button variant="primary" className="shrink-0 text-sm xl:text-base">
+          Parent Login
+        </Button>
       </div>
 
-      {/* Mobile Hamburger */}
-      <div className="md:hidden flex items-center">
+      {/* Mobile / tablet menu toggle */}
+      <div className="flex items-center lg:hidden">
         <button
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav-menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen(!menuOpen)}
-          className={`text-3xl ${"text-red-600"
-            } transition-all duration-300`}
+          className={`text-2xl transition-all duration-300 sm:text-3xl ${scrolled ? "text-red-600" : "text-gray-900"
+            }`}
         >
           {menuOpen ? <HiX /> : <HiMenu />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu panel */}
       {menuOpen && (
-        <div className="absolute top-24 left-0 w-full bg-white shadow-md flex flex-col items-center gap-4 py-6 z-50 md:hidden">
+        <div
+          id="mobile-nav-menu"
+          className="absolute left-0 top-16 flex max-h-[calc(100dvh-4rem)] w-full flex-col items-center gap-3 overflow-y-auto bg-white py-5 shadow-md sm:top-20 sm:max-h-[calc(100dvh-5rem)] lg:hidden"
+        >
           {navItems.map((item, index) => (
             <Link
               key={index}

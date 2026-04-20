@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import { aboutUs, allIcons } from "../CONSTANTS";
+import { aboutUs as fallbackAboutUs, allIcons } from "../CONSTANTS";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoEyeOutline } from "react-icons/io5";
 import { TbTargetArrow } from "react-icons/tb";
@@ -11,7 +11,7 @@ import about from "../assets/teacher-and-student.JPG";
 import mask from "../assets/mask.png";
 import facility from "../assets/facility.jpg";
 import mask2 from "../assets/mask4.png";
-import { getStatistics } from "../network/api_service";
+import { getAboutSectionFromHome, getStatistics } from "../network/api_service";
 import Wave from "../components/Wave";
 import CTA from "../components/CTA";
 import Header from "../components/Header";
@@ -73,21 +73,40 @@ const CloudShape = ({ icon, title, children }) => {
 
 const About = () => {
   const [statistics, setStatistics] = useState([]);
-
-  const fetchStatistics = async () => {
-    try {
-      const statsData = await getStatistics();
-      setStatistics(statsData);
-      console.log("Fetched Statistics:", statsData);
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-    }
-  };
+  const [aboutSection, setAboutSection] = useState(null);
+  const [aboutLoading, setAboutLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch services data from the API
-    fetchStatistics();
+    let cancelled = false;
+    (async () => {
+      try {
+        const [statsData, aboutData] = await Promise.all([
+          getStatistics(),
+          getAboutSectionFromHome(),
+        ]);
+        if (cancelled) return;
+        setStatistics(statsData);
+        if (
+          aboutData &&
+          aboutData.title &&
+          Array.isArray(aboutData.items) &&
+          aboutData.items.length > 0
+        ) {
+          setAboutSection(aboutData);
+        }
+      } catch (error) {
+        if (!cancelled) console.error("Error fetching About page data:", error);
+      } finally {
+        if (!cancelled) setAboutLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const heroAbout = aboutSection ?? fallbackAboutUs;
+  const heroItems = heroAbout.items ?? [];
 
   return (
     <div>
@@ -134,31 +153,36 @@ const About = () => {
             <p className="text-sm sm:text-base md:text-lg text-orange-500 font-semibold mb-2">
               About us
             </p>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              {aboutUs.title}
-            </h1>
+            {aboutLoading ? (
+              <p className="text-gray-500 text-base mb-6">Loading…</p>
+            ) : (
+              <>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+                  {heroAbout.title}
+                </h1>
 
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
-              {aboutUs.description}
-            </p>
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6">
+                  {heroAbout.description}
+                </p>
 
-            {/* Feature Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {aboutUs.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-amber-300 bg-amber-50 rounded-lg px-4 py-4 shadow-sm flex flex-col gap-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <FaRegCircleCheck className="text-green-600 text-lg" />
-                    <p className="text-gray-800 text-sm md:text-base font-semibold">
-                      {item.title}
-                    </p>
-                  </div>
-                  <p className="text-gray-600 text-sm">{item.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {heroItems.map((item, index) => (
+                    <div
+                      key={item._id ?? index}
+                      className="border border-amber-300 bg-amber-50 rounded-lg px-4 py-4 shadow-sm flex flex-col gap-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FaRegCircleCheck className="text-green-600 text-lg" />
+                        <p className="text-gray-800 text-sm md:text-base font-semibold">
+                          {item.title}
+                        </p>
+                      </div>
+                      <p className="text-gray-600 text-sm">{item.description}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         </div>
 

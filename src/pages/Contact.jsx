@@ -7,7 +7,7 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { FaWhatsapp } from "react-icons/fa";
 import { allIcons } from "../CONSTANTS";
-import { getContactUs } from "../network/api_service";
+import { getContactUs, submitContactSubmission } from "../network/api_service";
 
 import teacherImg from "../assets/teacher-and-student.JPG";
 
@@ -22,10 +22,14 @@ const handleEmail = (email) => {
   window.open(`mailto:${email}`);
 };
 
+const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
+
 const Contact = () => {
   const [contactData, setContactData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [formStatus, setFormStatus] = useState("idle");
+  const [formFeedback, setFormFeedback] = useState(null);
 
   useEffect(() => {
     const fetchContactData = async () => {
@@ -33,7 +37,6 @@ const Contact = () => {
         setLoading(true);
         const data = await getContactUs();
         setContactData(data);
-        console.log("Fetched contact data:", data);
       } catch (err) {
         setError(err);
         console.error("Error fetching contact data:", err);
@@ -202,19 +205,65 @@ const Contact = () => {
         <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Send Us a Message</h2>
           <p className="text-gray-500 mb-8">Fill out the form below and our team will get in touch with you soon.</p>
+          {!hasWriteToken ? (
+            <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm mb-6">
+              Form submissions need <code className="text-xs">VITE_SANITY_WRITE_TOKEN</code> in{" "}
+              <code className="text-xs">.env</code> (see <code className="text-xs">.env.example</code>) and your
+              site origin under Sanity API → CORS.
+            </p>
+          ) : null}
+          {formFeedback ? (
+            <p
+              className={
+                formStatus === "success"
+                  ? "text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm mb-6"
+                  : "text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm mb-6"
+              }
+              role="status"
+            >
+              {formFeedback}
+            </p>
+          ) : null}
           <form
             className="space-y-6"
-            onSubmit={e => {
+            onSubmit={async (e) => {
               e.preventDefault();
+              setFormFeedback(null);
+              if (!hasWriteToken) {
+                setFormStatus("error");
+                setFormFeedback(
+                  "Contact form is not configured. Add VITE_SANITY_WRITE_TOKEN to your environment."
+                );
+                return;
+              }
               const form = e.target;
-              const data = {
-                name: form.name.value,
-                contact: form.contact.value,
-                email: form.email.value,
-                message: form.message.value,
+              const payload = {
+                name: form.name.value.trim(),
+                contact: form.contact.value.trim(),
+                email: form.email.value.trim(),
+                message: form.message.value.trim(),
+                source: "contact_page",
               };
-              alert(`Thank you for reaching out!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
-              form.reset();
+              setFormStatus("submitting");
+              try {
+                await submitContactSubmission(payload);
+                setFormStatus("success");
+                setFormFeedback("Thank you! We will get back to you soon.");
+                form.reset();
+              } catch (err) {
+                setFormStatus("error");
+                if (err?.code === "MISSING_WRITE_TOKEN") {
+                  setFormFeedback(
+                    "Contact form is not configured. Add VITE_SANITY_WRITE_TOKEN (see .env.example)."
+                  );
+                } else if (err instanceof Error) {
+                  setFormFeedback(err.message);
+                } else {
+                  setFormFeedback(
+                    "Could not send your message. Check CORS settings in Sanity or try again."
+                  );
+                }
+              }
             }}
           >
             <div className="flex flex-col md:flex-row gap-4">
@@ -239,10 +288,13 @@ const Contact = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl text-lg flex items-center justify-center gap-2 transition-none hover:transition-none"
+              disabled={formStatus === "submitting"}
+              className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl text-lg flex items-center justify-center gap-2 transition-none hover:transition-none disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ transition: "none" }}
             >
-              Send Message <span aria-hidden>→</span>
+              {formStatus === "submitting" ? "Sending…" : (
+                <>Send Message <span aria-hidden>→</span></>
+              )}
             </Button>
           </form>
         </div>
