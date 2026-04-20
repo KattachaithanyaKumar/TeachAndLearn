@@ -39,7 +39,6 @@ export const allIcons = {
   ...FiIcons,
 };
 
-export const projectId = "fsko8ofn";
 export const navItems = [
   {
     label: "Home",
