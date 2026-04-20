@@ -34,9 +34,9 @@ const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 z-50 flex h-16 w-full max-w-full items-center justify-between px-4 transition-all duration-300 sm:h-20 sm:px-6 lg:h-24 lg:px-12 ${scrolled
-          ? "bg-white shadow-md backdrop-blur-lg"
-          : "bg-transparent"
+      className={`fixed top-0 left-0 w-full h-24 px-6 md:px-12 flex items-center justify-between z-50 transition-all duration-300 ${scrolled
+        ? "bg-white shadow-md backdrop-blur-lg"
+        : "bg-transparent text-white"
         }`}
     >
       {/* Logo — links home */}
@@ -60,18 +60,16 @@ const Navbar = () => {
             <Link
               key={index}
               to={item.path}
-              className={`rounded-full px-2 py-2 text-sm font-medium transition-all duration-200 xl:px-4 ${scrolled
-                  ? "text-gray-800 hover:bg-red-100 hover:text-red-600"
-                  : "text-gray-900 hover:bg-black/[0.06] hover:text-red-600"
+              className={`px-4 py-2 rounded-full font-medium transition-all duration-200 text-gray-700 ${scrolled
+                ? " hover:bg-red-100 hover:text-red-600"
+                : "hover:text-orange-500"
                 }`}
             >
               {item.label}
             </Link>
           ))}
-        </nav>
-        <Button variant="primary" className="shrink-0 text-sm xl:text-base">
-          Parent Login
-        </Button>
+        </div>
+        <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
       </div>
 
       {/* Mobile / tablet menu toggle */}
@@ -105,7 +103,7 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-          <Button variant="primary">Parent Login</Button>
+          <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
         </div>
       )}
     </div>
