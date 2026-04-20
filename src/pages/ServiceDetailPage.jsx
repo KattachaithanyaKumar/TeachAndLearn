@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { useLocation, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CTA from "../components/CTA";
 import ServicePageBlockRenderer from "../components/servicePage/ServicePageBlockRenderer";
 import { getServiceListingPage } from "../network/api_service";
+import {
+  serviceListingDescription,
+  serviceListingTitle,
+} from "../seo/serviceListingMeta";
+import { SITE_NAME } from "../seo/staticMeta.js";
 
 export default function ServiceDetailPage({ audience }) {
   const { slug } = useParams();
+  const location = useLocation();
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,8 +87,29 @@ export default function ServiceDetailPage({ audience }) {
   const tagline = doc.heroTagline || doc.description || "";
   const showCta = doc.showCta !== false;
 
+  const siteBase = (import.meta.env.VITE_SITE_URL || "").replace(/\/$/, "");
+  const canonicalUrl = siteBase ? `${siteBase}${location.pathname}` : undefined;
+  const shareImage = siteBase ? `${siteBase}/og-default.jpg` : "/og-default.jpg";
+  const pageTitle = serviceListingTitle(doc);
+  const pageDescription = serviceListingDescription(doc);
+
   return (
     <div>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
+        <meta property="og:image" content={shareImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={shareImage} />
+      </Helmet>
       <Navbar />
       <Header color={headerColor}>
         <h1 className="text-4xl font-bold mb-4 text-center">

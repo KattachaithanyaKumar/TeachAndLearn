@@ -8,7 +8,7 @@
     "dev:with-server": "concurrently -k \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "vite",
     "dev:server": "node server/index.js",
-    "build": "tsc -p tsconfig.admin.json && vite build",
+    "build": "tsc -p tsconfig.admin.json && vite build && node scripts/generate-seo.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server/index.js",
@@ -29,6 +29,7 @@
     "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
     "tailwindcss": "^4.1.10"

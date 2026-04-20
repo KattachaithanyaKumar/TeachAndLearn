@@ -9,6 +9,7 @@ import Contact from "./pages/Contact";
 import ScrollToTop from "./components/ScrollToTop";
 import Facilities from "./pages/Facilities";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
+import RouteHead from "./components/RouteHead";
 
 const AdminModule = lazy(() => import("./admin/AdminModule"));
 
@@ -16,6 +17,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <RouteHead />
       <Routes>
         <Route
           path="/admin/*"
