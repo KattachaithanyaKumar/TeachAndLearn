@@ -1,7 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-
-const raw = import.meta.env.VITE_API_URL as string | undefined
-const base = typeof raw === 'string' && raw.trim() ? raw.trim().replace(/\/$/, '') : ''
+import {
+  clearStoredSession,
+  getStoredSession,
+  sanityPing,
+  setStoredSession,
+  verifyAdminPassword,
+} from '../api/sanityAdmin'
 
 type AuthUser = { username: string }
 
@@ -9,36 +13,22 @@ type AuthContextValue = {
   user: AuthUser | null
   loading: boolean
   login: (username: string, password: string) => Promise<void>
-  logout: () => Promise<void>
+  logout: () => void
   refresh: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function optionalAdminHeaders(): HeadersInit {
-  const h = new Headers()
-  const raw = import.meta.env.VITE_ADMIN_API_KEY
-  const key = typeof raw === 'string' ? raw.trim() : ''
-  if (key.length > 0) {
-    h.set('x-admin-key', key)
-  }
-  return h
-}
-
 async function fetchMe(): Promise<AuthUser | null> {
-  const res = await fetch(`${base}/api/auth/me`, {
-    credentials: 'include',
-    headers: optionalAdminHeaders(),
-  })
-  if (res.status === 401) return null
-  if (!res.ok) {
-    const t = await res.text()
-    throw new Error(t || res.statusText)
+  const session = getStoredSession()
+  if (!session) return null
+  try {
+    await sanityPing()
+    return { username: session.username }
+  } catch {
+    clearStoredSession()
+    return null
   }
-  const data = (await res.json()) as { user?: { username?: string } }
-  const u = data.user?.username
-  if (typeof u !== 'string') return null
-  return { username: u }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -73,35 +63,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = useCallback(async (username: string, password: string) => {
-    const res = await fetch(`${base}/api/auth/login`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-    if (!res.ok) {
-      const t = await res.text()
-      let msg = t || res.statusText
-      try {
-        const j = JSON.parse(t) as { error?: string }
-        if (j.error) msg = j.error
-      } catch {
-        /* use raw */
-      }
-      throw new Error(msg)
-    }
-    const data = (await res.json()) as { user?: { username?: string } }
-    const u = data.user?.username
-    if (typeof u !== 'string') throw new Error('Invalid response')
+    await verifyAdminPassword(username, password)
+    const u = username.trim()
+    setStoredSession({ username: u })
     setUser({ username: u })
   }, [])
 
-  const logout = useCallback(async () => {
-    await fetch(`${base}/api/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: optionalAdminHeaders(),
-    })
+  const logout = useCallback(() => {
+    clearStoredSession()
     setUser(null)
   }, [])
 

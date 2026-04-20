@@ -8,7 +8,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     apiGet<{ ok: boolean }>('/api/health')
-      .then(() => setHealth('API reachable'))
+      .then(() => setHealth('Sanity API reachable'))
       .catch((e) => setHealth(e instanceof Error ? e.message : 'unreachable'))
   }, [])
 
@@ -16,10 +16,10 @@ export default function DashboardPage() {
     <div className="page">
       <h1 className="page-title">Dashboard</h1>
       <p className="lead">
-        Sign in is backed by <code>admin_user</code> documents in Sanity (bcrypt hashes only) and a
-        server session cookie. The Sanity write token stays on the server. Optional{' '}
-        <code>ADMIN_API_KEY</code> / <code>VITE_ADMIN_API_KEY</code> still work for header-based
-        API access.
+        Sign-in checks your username and password against the <code>admin_user</code> document in
+        Sanity (bcrypt hash). The write token comes from <code>VITE_SANITY_WRITE_TOKEN</code> in the
+        build environment; this tab only stores your username in session storage after a successful
+        login.
       </p>
       <div className="card">
         <h2 className="card-title">Status</h2>

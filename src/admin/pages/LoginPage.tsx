@@ -41,7 +41,11 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-card">
         <h1 className="login-title">Teach &amp; Learn admin</h1>
-        <p className="login-sub muted">Sign in with your Sanity admin account.</p>
+        <p className="login-sub muted">
+          Sign in with credentials from your <code>admin_user</code> document in Sanity. The Sanity
+          write token is configured in the site environment (<code>VITE_SANITY_WRITE_TOKEN</code>),
+          not on this form.
+        </p>
         <form className="login-form" onSubmit={handleSubmit}>
           <label className="field">
             <span>Username</span>

@@ -1,0 +1,166 @@
+/** GROQ aligned with `server/queries.js` / marketing `api_service`. */
+
+export const contactUsQuery = `*[_type == "contact_us"][0]{
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  contactDetails[]->{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    label,
+    icon,
+    value,
+    isAction,
+    actionType
+  },
+  contactAddress[]->{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    title,
+    address
+  }
+}`
+
+export const franchiseQuery = `*[_type == "franchise"][0]{
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  title,
+  description,
+  requirements->{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    title,
+    requirements
+  },
+  steps[]->{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    index,
+    title,
+    description,
+    icon
+  },
+  contact[]->{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    title,
+    content,
+    icon
+  }
+}`
+
+export const homeQuery = `
+  *[_type == "home"][0]{
+    _id,
+    _type,
+    _createdAt,
+    _updatedAt,
+    heroEyebrow,
+    heroTitleLine1,
+    heroTitleHighlight,
+    heroDescription,
+    heroPrimaryCtaLabel,
+    heroSecondaryCtaLabel,
+    heroImage {
+      asset,
+      "assetUrl": asset->url,
+      alt,
+      hotspot,
+      crop
+    },
+    aboutUs[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      title,
+      description,
+      items[]->{
+        _id,
+        title,
+        description
+      }
+    },
+    service[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      name,
+      description,
+      icon
+    },
+    stats[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      number,
+      label,
+      icon,
+      bgColor,
+      iconColor
+    },
+    whyUs[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      heading,
+      description,
+      approaches[]->{
+        _id,
+        label,
+        icon
+      }
+    },
+    ourPhilosophy[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      heading,
+      description
+    },
+    testimonials[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      author,
+      review,
+      rating
+    }
+  }
+`
+
+export const aboutSectionQuery = `
+  *[_type == "home"][0]{
+    aboutUs[]->{
+      _id,
+      _type,
+      _createdAt,
+      _updatedAt,
+      title,
+      description,
+      items[]->{
+        _id,
+        title,
+        description
+      }
+    }
+  }
+`

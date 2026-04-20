@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k \"npm run dev:client\" \"npm run dev:server\"",
+    "dev": "vite",
+    "dev:with-server": "concurrently -k \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "vite",
     "dev:server": "node server/index.js",
     "build": "tsc -p tsconfig.admin.json && vite build",
@@ -30,7 +31,6 @@
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
-    "serverless-http": "^4.0.0",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
