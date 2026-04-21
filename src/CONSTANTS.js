@@ -74,10 +74,26 @@ export const navItems = [
   },
 ];
 
+/** Default About copy; also mirrored in `scripts/seed-about-us.mjs` for Sanity seeding (`npm run seed:about-us`). */
 export const aboutUs = {
   title: "Top Choice For Children",
   description:
     "Our team of experienced and dedicated therapists is here to provide the guidance, support, and encouragement needed to overcome challenges and build skills. With our help, individuals can reach their goals and thrive.",
+  aboutPageHeaderPrefix: "About",
+  aboutPageHeaderHighlight: "Teach & Learn",
+  aboutPageEyebrow: "About us",
+  aboutPageHeroImage: null,
+  promiseEyebrow: "Our Promise",
+  promiseHeading:
+    "Providing Exceptional Care & Support Every Step of the Way",
+  promiseBody:
+    "Our promise to you is to provide exceptional care and support every step of the way. We are committed to helping individuals reach their full potential and achieve success in all areas of their lives.",
+  visionTitle: "Our Vision",
+  visionBody:
+    "A world in which children with special needs recognize their abilities.",
+  missionTitle: "Our Mission",
+  missionBody:
+    "To nurture children with special needs in a safe, inclusive and supportive environment, which will enable them to function with dignity at their highest potential.",
   items: [
     {
       title: "Great Staff",

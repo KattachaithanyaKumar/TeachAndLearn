@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import { aboutUs as fallbackAboutUs, allIcons } from "../CONSTANTS";
 import { FaRegCircleCheck } from "react-icons/fa6";
@@ -11,70 +10,46 @@ import about from "../assets/teacher-and-student.JPG";
 import mask from "../assets/mask.png";
 import facility from "../assets/facility.jpg";
 import mask2 from "../assets/mask4.png";
-import { getAboutSectionFromHome, getStatistics } from "../network/api_service";
+import {
+  getAboutSectionFromHome,
+  getFacilities,
+  getImageUrlFromRef,
+  getStatistics,
+  urlForSanityImage,
+} from "../network/api_service";
 import Wave from "../components/Wave";
 import CTA from "../components/CTA";
-import Header from "../components/Header";
 
-const CloudShape = ({ icon, title, children }) => {
-  return (
-    <div className="relative w-full h-auto">
-      {/* Square-rounded shape for small screens */}
-      <div className="sm:hidden w-full h-auto">
-        <div className="w-full bg-white rounded-3xl shadow-md border border-gray-300 p-6 text-center flex flex-col items-center justify-center text-gray-800">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <span className="text-blue-500 text-3xl">{icon}</span>
-            <h2 className="text-lg font-bold">{title}</h2>
-          </div>
-          <p className="text-sm leading-relaxed">{children}</p>
-        </div>
-      </div>
+const gradientSectionHeadingCls =
+  "text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-[0_4px_14px_rgba(234,88,12,0.35)]";
+const gradientSectionHeadingSpanCls =
+  "bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent";
 
-      {/* Cloud shape for medium and above */}
-      <svg
-        viewBox="0 0 900 500"
-        preserveAspectRatio="xMidYMin meet"
-        className="hidden sm:block w-full h-[480px] sm:h-[520px] md:h-[560px]"
+const AboutHighlightCard = ({ icon, title, children }) => (
+  <div className="h-full flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 sm:p-8 text-left">
+    <div className="flex flex-row items-start gap-4 mb-4">
+      <div
+        className="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-sky-100 text-sky-600 text-2xl"
+        aria-hidden
       >
-        <path
-          d="
-            M280,400
-            C180,420 130,330 180,270
-            C80,250 120,150 230,180
-            C250,100 380,80 460,150
-            C550,80 700,120 680,220
-            C760,240 780,320 720,360
-            C700,420 550,440 460,400
-            C420,440 320,440 280,400
-            Z"
-          fill="#ffffff"
-          stroke="#d1d5db"
-          strokeWidth="2"
-          filter="drop-shadow(0 6px 12px rgba(0,0,0,0.1))"
-        />
-        <foreignObject x="160" y="140" width="580" height="240">
-          <div
-            xmlns="http://www.w3.org/1999/xhtml"
-            className="w-full h-full flex flex-col justify-center items-center text-center text-gray-800 px-6"
-          >
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <span className="text-blue-500 text-3xl sm:text-4xl">{icon}</span>
-              <h2 className="text-lg sm:text-xl font-bold">{title}</h2>
-            </div>
-            <p className="text-sm sm:text-base md:text-lg leading-relaxed max-w-[90%]">
-              {children}
-            </p>
-          </div>
-        </foreignObject>
-      </svg>
+        {icon}
+      </div>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
+        {title}
+      </h2>
     </div>
-  );
-};
+    <p className="text-gray-700 text-base sm:text-lg leading-relaxed flex-1">
+      {children}
+    </p>
+  </div>
+);
 
 const About = () => {
   const [statistics, setStatistics] = useState([]);
   const [aboutSection, setAboutSection] = useState(null);
   const [aboutLoading, setAboutLoading] = useState(true);
+  const [facilitiesWithImages, setFacilitiesWithImages] = useState([]);
+  const [facilitiesLoading, setFacilitiesLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,12 +61,7 @@ const About = () => {
         ]);
         if (cancelled) return;
         setStatistics(statsData);
-        if (
-          aboutData &&
-          aboutData.title &&
-          Array.isArray(aboutData.items) &&
-          aboutData.items.length > 0
-        ) {
+        if (aboutData) {
           setAboutSection(aboutData);
         }
       } catch (error) {
@@ -99,41 +69,67 @@ const About = () => {
       } finally {
         if (!cancelled) setAboutLoading(false);
       }
+
+      try {
+        const facilitiesData = await getFacilities();
+        const withUrls = (facilitiesData ?? []).map((f) => {
+          if (f.image?.asset?._ref) {
+            try {
+              const imageUrl = getImageUrlFromRef(f.image.asset);
+              return { ...f, imageUrl };
+            } catch (e) {
+              console.error("Error resolving facility image:", f.title, e);
+              return { ...f, imageUrl: null };
+            }
+          }
+          return { ...f, imageUrl: null };
+        });
+        if (!cancelled) setFacilitiesWithImages(withUrls);
+      } catch (error) {
+        if (!cancelled) console.error("Error fetching facilities:", error);
+      } finally {
+        if (!cancelled) setFacilitiesLoading(false);
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const heroAbout = aboutSection ?? fallbackAboutUs;
+  const heroAbout = aboutSection
+    ? {
+        ...fallbackAboutUs,
+        ...aboutSection,
+        items:
+          Array.isArray(aboutSection.items) && aboutSection.items.length > 0
+            ? aboutSection.items
+            : fallbackAboutUs.items,
+        title: aboutSection.title || fallbackAboutUs.title,
+        description: aboutSection.description || fallbackAboutUs.description,
+      }
+    : fallbackAboutUs;
   const heroItems = heroAbout.items ?? [];
+
+  const heroImgField = heroAbout.aboutPageHeroImage;
+  const heroImageSrc =
+    heroImgField?.assetUrl ||
+    urlForSanityImage(heroImgField) ||
+    (heroImgField?.asset && getImageUrlFromRef(heroImgField.asset)) ||
+    about;
+  const heroImageAlt =
+    heroImgField?.alt || "teacher and student in a study session";
 
   return (
     <div>
       <Navbar />
-      <Header color={"#FEF3C6"}>
-        <h1 className="text-4xl font-bold  mb-4">
-          About{" "}
-          <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-            Teach & Learn
-          </span>
-        </h1>
-        <div className="flex gap-2 items-center ">
-          <Link to="/" className="hover:underline ">
-            Home
-          </Link>
-          <span>/</span>
-          <span>About</span>
-        </div>
-      </Header>
 
-      <section className="relative bg-white px-6 py-20 flex justify-center items-center overflow-hidden">
+      <section className="relative bg-white px-6 pt-24 sm:pt-28 md:pt-32 pb-20 flex justify-center items-center overflow-hidden">
         <div className="flex flex-col md:flex-row gap-16 w-full max-w-7xl items-center pb-40">
           {/* Image */}
           <div className="flex-shrink-0">
             <img
-              src={about}
-              alt="teacher and student in a study session"
+              src={heroImageSrc}
+              alt={heroImageAlt}
               className="w-[300px] md:w-[480px] h-auto object-cover"
               style={{
                 WebkitMaskImage: `url(${mask})`,
@@ -150,8 +146,10 @@ const About = () => {
 
           {/* Text Content */}
           <div className="w-full max-w-2xl">
-            <p className="text-sm sm:text-base md:text-lg text-orange-500 font-semibold mb-2">
-              About us
+            <p className={`${gradientSectionHeadingCls} mb-2`}>
+              <span className={gradientSectionHeadingSpanCls}>
+                {heroAbout.aboutPageEyebrow}
+              </span>
             </p>
             {aboutLoading ? (
               <p className="text-gray-500 text-base mb-6">Loading…</p>
@@ -193,31 +191,30 @@ const About = () => {
         <div className="flex flex-col text-center items-center pb-20">
           {/* Header Content */}
           <div className="max-w-3xl">
-            <p className="text-sm sm:text-base md:text-lg text-orange-500 font-semibold mb-2">
-              Our Promise
+            <p className={`${gradientSectionHeadingCls} mb-2`}>
+              <span className={gradientSectionHeadingSpanCls}>
+                {heroAbout.promiseEyebrow}
+              </span>
             </p>
             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              Providing Exceptional Care & Support Every Step of the Way
+              {heroAbout.promiseHeading}
             </h1>
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-              Our promise to you is to provide exceptional care and support
-              every step of the way. We are committed to helping individuals
-              reach their full potential and achieve success in all areas of
-              their lives.
+            <p className="text-gray-700 text-base md:text-lg leading-relaxed whitespace-pre-line">
+              {heroAbout.promiseBody}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 sm:gap-2">
-            <CloudShape icon={<IoEyeOutline />} title="Our Vision">
-              A world in which children with special needs recognize their
-              abilities.
-            </CloudShape>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full max-w-7xl mt-10 md:mt-12">
+            <AboutHighlightCard icon={<IoEyeOutline />} title={heroAbout.visionTitle}>
+              {heroAbout.visionBody}
+            </AboutHighlightCard>
 
-            <CloudShape icon={<TbTargetArrow />} title="Our Mission">
-              To nurture children with special needs in a safe, inclusive and
-              supportive environment, which will enable them to function with
-              dignity at their highest potential.
-            </CloudShape>
+            <AboutHighlightCard
+              icon={<TbTargetArrow />}
+              title={heroAbout.missionTitle}
+            >
+              {heroAbout.missionBody}
+            </AboutHighlightCard>
           </div>
         </div>
 
@@ -225,45 +222,55 @@ const About = () => {
       </section>
 
       <section className="relative flex items-center justify-center py-16 px-4 sm:px-6 md:px-12 overflow-hidden bg-lime-100">
-        <div className="flex flex-col-reverse md:flex-row items-center gap-12 max-w-7xl w-full pb-40">
-          {/* Left content (you can add text or leave empty) */}
-          <div className="flex-1">
-            <p className="text-sm sm:text-base md:text-lg text-orange-500 font-semibold mb-2">
-              Facilities
-            </p>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              Therapy Rooms
-            </h1>
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-              Our therapy rooms are purpose-built to create an optimal
-              environment for delivering therapy services that cater to the
-              unique needs of each child. Our highly trained therapists leverage
-              these resources to deliver a wide range of services, including
-              behavioral therapy, speech therapy, physical therapy, and
-              occupational therapy, all tailored to meet the unique needs of
-              each child. In addition, we offer private therapy rooms for
-              families who seek a more personalized approach to care.
-            </p>
-          </div>
+        <div className="flex flex-col max-w-7xl w-full pb-40 gap-16 md:gap-20">
+          <h2
+            className={`${gradientSectionHeadingCls} text-center max-w-3xl mx-auto mb-2`}
+          >
+            <span className={gradientSectionHeadingSpanCls}>Facilities</span>
+          </h2>
 
-          {/* Right: Image */}
-          <div className="flex-shrink-0">
-            <img
-              src={facility}
-              alt="teacher and student in a study session"
-              className="w-[320px] sm:w-[400px] md:w-[500px] h-auto object-cover"
-              style={{
-                WebkitMaskImage: `url(${mask2})`,
-                maskImage: `url(${mask2})`,
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }}
-            />
-          </div>
+          {facilitiesLoading ? (
+            <p className="text-gray-600 text-center">Loading…</p>
+          ) : facilitiesWithImages.length === 0 ? (
+            <p className="text-gray-600 text-center">
+              Facility details will appear here when available.
+            </p>
+          ) : (
+            facilitiesWithImages.map((f, idx) => (
+              <div
+                key={f._id ?? f.title ?? idx}
+                className={`flex flex-col-reverse md:flex-row items-center gap-12 ${
+                  idx % 2 === 1 ? "md:flex-row-reverse" : ""
+                }`}
+              >
+                <div className="flex-1 w-full min-w-0">
+                  <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                    {f.title}
+                  </h3>
+                  <p className="text-gray-700 text-base md:text-lg leading-relaxed whitespace-pre-line">
+                    {f.description}
+                  </p>
+                </div>
+                <div className="flex-shrink-0 flex justify-center w-full md:w-auto">
+                  <img
+                    src={f.imageUrl || facility}
+                    alt={f.title || "Facility"}
+                    className="w-[320px] sm:w-[400px] md:w-[500px] h-auto object-cover max-w-full"
+                    style={{
+                      WebkitMaskImage: `url(${mask2})`,
+                      maskImage: `url(${mask2})`,
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskSize: "contain",
+                      maskSize: "contain",
+                      WebkitMaskPosition: "center",
+                      maskPosition: "center",
+                    }}
+                  />
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         <Wave color={"#fff"} />

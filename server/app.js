@@ -303,14 +303,25 @@ export function createApp() {
       return res.status(400).json({ error: 'Body must include { fields: { ... } }' })
     }
     const reserved = new Set(['_id', '_type', '_createdAt', '_rev', '_updatedAt'])
-    const patch = {}
+    const toSet = {}
+    const toUnset = []
     for (const [k, v] of Object.entries(fields)) {
-      if (!reserved.has(k)) {
-        patch[k] = v
-      }
+      if (reserved.has(k)) continue
+      if (v === null) toUnset.push(k)
+      else toSet[k] = v
     }
     try {
-      const result = await client.patch(id).set(patch).commit()
+      if (Object.keys(toSet).length === 0 && toUnset.length === 0) {
+        const doc = await client.fetch('*[_id == $id][0]', { id })
+        if (!doc) {
+          return res.status(404).json({ error: 'Not found' })
+        }
+        return res.json(doc)
+      }
+      let pb = client.patch(id)
+      if (Object.keys(toSet).length > 0) pb = pb.set(toSet)
+      if (toUnset.length > 0) pb = pb.unset(toUnset)
+      const result = await pb.commit()
       res.json(result)
     } catch (e) {
       res.status(500).json({ error: e instanceof Error ? e.message : 'patch failed' })

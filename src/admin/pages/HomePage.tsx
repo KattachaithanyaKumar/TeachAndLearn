@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
 import HeroHomeEditor from '../components/HeroHomeEditor'
 import ReferenceListSection from '../components/ReferenceListSection'
+import ServiceLinkedListingPicker from '../components/ServiceLinkedListingPicker'
 import { apiGet } from '../api/client'
 
 type RefDoc = { _id: string; [k: string]: unknown }
@@ -172,21 +173,37 @@ export default function HomePage() {
         field="service"
         itemType="service"
         items={home.service ?? []}
-        defaultCreateFields={{ name: '', description: '', icon: '' }}
+        defaultCreateFields={{
+          name: '',
+          description: '',
+          icon: '',
+        }}
         onChanged={load}
         addButtonLabel="Add service"
-        firstEntryNote="Order matches the service cards on the public home page."
-        renderItem={(s) => (
-          <DocumentForm
-            docId={s._id}
-            title={`Service — ${String(s.name ?? s._id)}`}
-            fields={{
-              name: String(s.name ?? ''),
-              description: String(s.description ?? ''),
-              icon: String(s.icon ?? ''),
-            }}
-          />
-        )}
+        firstEntryNote="Order matches the service cards on the public home page. Use “Link to full service page” below to pick an existing child or adult listing for “Read More”; leave unlinked to hide Read More."
+        renderItem={(s) => {
+          const linked = s.linkedListingItem as
+            | { _id: string; title?: string; pathSegment?: string }
+            | undefined
+          return (
+            <>
+              <DocumentForm
+                docId={s._id}
+                title={`Service — ${String(s.name ?? s._id)}`}
+                fields={{
+                  name: String(s.name ?? ''),
+                  description: String(s.description ?? ''),
+                  icon: String(s.icon ?? ''),
+                }}
+              />
+              <ServiceLinkedListingPicker
+                serviceDocId={s._id}
+                linked={linked}
+                onUpdated={load}
+              />
+            </>
+          )
+        }}
       />
 
       <ReferenceListSection

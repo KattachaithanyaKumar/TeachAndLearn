@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
@@ -41,6 +42,16 @@ import Footer from "../components/Footer";
 
 const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
 
+/** When set, home service cards link “Read More” to this detail route. */
+function serviceDetailPath(item) {
+  const seg = String(item?.pathSegment ?? "").trim();
+  const aud = item?.audience;
+  if ((aud === "child" || aud === "adult") && seg) {
+    return `/${aud}-services/${encodeURIComponent(seg)}`;
+  }
+  return null;
+}
+
 const HERO_DEFAULTS = {
   eyebrow: "Welcome to Teach & Learn",
   titleLine1: "Empowering Children and Adults to",
@@ -53,6 +64,8 @@ const HERO_DEFAULTS = {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
+
   // State for data
   const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
   const [bookMessage, setBookMessage] = useState(null);
@@ -276,7 +289,7 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
-              <Button>
+              <Button onClick={() => navigate("/about-us")}>
                 <span className="flex items-center gap-1">
                   {heroPrimaryCtaLabel}{" "}
                   <IoIosArrowRoundForward size={24} />
@@ -444,7 +457,7 @@ const Home = () => {
                   ))}
                 </div>
 
-                <Button>Know More</Button>
+                <Button onClick={() => navigate("/about-us")}>Know More</Button>
               </div>
             </>
           ) : (
@@ -496,6 +509,9 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
               {services.map((item, index) => {
                 const Icon = allIcons[item.icon];
+                const readMoreTo = serviceDetailPath(item);
+                const linkClass =
+                  "text-orange-500 font-semibold text-sm hover:underline transition-all duration-200";
                 return (
                   <div
                     key={index}
@@ -516,12 +532,11 @@ const Home = () => {
                     <p className="text-gray-600 text-sm leading-relaxed mb-4">
                       {item.description}
                     </p>
-                    <a
-                      href="#"
-                      className="text-orange-500 font-semibold text-sm hover:underline transition-all duration-200"
-                    >
-                      Read More →
-                    </a>
+                    {readMoreTo ? (
+                      <Link to={readMoreTo} className={linkClass}>
+                        Read More →
+                      </Link>
+                    ) : null}
                   </div>
                 );
               })}

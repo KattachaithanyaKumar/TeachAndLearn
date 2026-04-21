@@ -181,19 +181,21 @@ const Franchises = () => {
                     {item.icon}
                   </div>
                   <div>
-                    <div className="text-white text-sm font-medium opacity-80">{item.label}</div>
-                    <div className={`text-lg font-bold ${item.highlight ? "text-white" : "text-orange-900"}`}>{item.value}</div>
+                    <div className="text-orange-900/95 text-sm font-semibold">{item.label}</div>
+                    <div className={`text-lg font-bold ${item.highlight ? "text-red-900" : "text-orange-900"}`}>{item.value}</div>
                   </div>
                 </div>
               ))}
 
               <div className="mt-6">
-                <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md mb-2">{reqData.title}</h2>
-                {reqData.requirements.map((item, idx) => (
-                  <ul className="list-disc list-inside text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm space-y-1 pl-2">
-                    <li>{item}</li>
-                  </ul>
-                ))}
+                <h2 className="text-red-900 text-2xl md:text-2xl font-extrabold drop-shadow-sm mb-2">{reqData.title}</h2>
+                <ul className="list-disc list-outside pl-5 sm:pl-6 text-red-900 text-base md:text-lg font-semibold leading-relaxed space-y-2 marker:text-orange-800">
+                  {(reqData.requirements ?? []).map((item, idx) => (
+                    <li key={idx} className="ps-1">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 

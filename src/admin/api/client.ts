@@ -113,12 +113,23 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
     throw new Error('Body must include { fields: { ... } }')
   }
   const reserved = new Set(['_id', '_type', '_createdAt', '_rev', '_updatedAt'])
-  const patch: Record<string, unknown> = {}
+  const toSet: Record<string, unknown> = {}
+  const toUnset: string[] = []
   for (const [k, v] of Object.entries(fields)) {
-    if (!reserved.has(k)) patch[k] = v
+    if (reserved.has(k)) continue
+    if (v === null) toUnset.push(k)
+    else toSet[k] = v
   }
   const c = client()
-  const result = await c.patch(id).set(patch).commit()
+  if (Object.keys(toSet).length === 0 && toUnset.length === 0) {
+    const doc = await c.fetch('*[_id == $id][0]', { id })
+    if (!doc) throw new Error('Not found')
+    return doc as T
+  }
+  let patchBuilder = c.patch(id)
+  if (Object.keys(toSet).length > 0) patchBuilder = patchBuilder.set(toSet)
+  if (toUnset.length > 0) patchBuilder = patchBuilder.unset(toUnset)
+  const result = await patchBuilder.commit()
   return result as T
 }
 

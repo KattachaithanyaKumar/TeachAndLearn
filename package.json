@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "start": "node server/index.js",
     "hash-password": "node scripts/hash-password.mjs",
-    "import-service-pages": "node scripts/import-service-detail-pages.mjs"
+    "import-service-pages": "node scripts/import-service-detail-pages.mjs",
+    "seed:about-us": "node scripts/seed-about-us.mjs"
   },
   "dependencies": {
     "@sanity/client": "^7.13.2",

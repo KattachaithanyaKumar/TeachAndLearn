@@ -88,6 +88,23 @@ export const homeQuery = `
       _updatedAt,
       title,
       description,
+      aboutPageHeaderPrefix,
+      aboutPageHeaderHighlight,
+      aboutPageEyebrow,
+      aboutPageHeroImage {
+        asset,
+        "assetUrl": asset->url,
+        alt,
+        hotspot,
+        crop
+      },
+      promiseEyebrow,
+      promiseHeading,
+      promiseBody,
+      visionTitle,
+      visionBody,
+      missionTitle,
+      missionBody,
       items[]->{
         _id,
         title,
@@ -101,7 +118,15 @@ export const homeQuery = `
       _updatedAt,
       name,
       description,
-      icon
+      icon,
+      linkedListingItem->{
+        _id,
+        title,
+        audience,
+        pathSegment
+      },
+      "audience": linkedListingItem->audience,
+      "pathSegment": linkedListingItem->pathSegment
     },
     stats[]->{
       _id,
@@ -156,6 +181,23 @@ export const aboutSectionQuery = `
       _updatedAt,
       title,
       description,
+      aboutPageHeaderPrefix,
+      aboutPageHeaderHighlight,
+      aboutPageEyebrow,
+      aboutPageHeroImage {
+        asset,
+        "assetUrl": asset->url,
+        alt,
+        hotspot,
+        crop
+      },
+      promiseEyebrow,
+      promiseHeading,
+      promiseBody,
+      visionTitle,
+      visionBody,
+      missionTitle,
+      missionBody,
       items[]->{
         _id,
         title,

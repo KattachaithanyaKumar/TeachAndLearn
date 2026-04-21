@@ -16,6 +16,7 @@ import {
   serviceListingDescription,
   serviceListingTitle,
 } from "../src/seo/serviceListingMeta.js";
+import { buildSitemapXml } from "./buildSitemapXml.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -66,15 +67,6 @@ function escapeHtmlText(s) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-}
-
-function escapeXml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
 }
 
 function pathToDistHtml(routePath) {
@@ -163,10 +155,6 @@ async function main() {
 
   const template = await readFile(indexPath, "utf8");
   const defaultImageUrl = `${siteUrl}/og-default.jpg`;
-  const buildDate = new Date().toISOString().slice(0, 10);
-
-  /** @type {{ loc: string; lastmod: string }[]} */
-  const sitemapUrls = [];
 
   for (const row of STATIC_SEO_ROUTES) {
     const path = row.path;
@@ -180,7 +168,6 @@ async function main() {
     const outFile = pathToDistHtml(path);
     await mkdir(dirname(outFile), { recursive: true });
     await writeFile(outFile, html, "utf8");
-    sitemapUrls.push({ loc: canonicalUrl, lastmod: buildDate });
   }
 
   let serviceDocs = [];
@@ -200,10 +187,6 @@ async function main() {
     const title = serviceListingTitle(doc);
     const description = serviceListingDescription(doc);
     const canonicalUrl = `${siteUrl}${routePath}`;
-    const lastmod =
-      typeof doc._updatedAt === "string"
-        ? doc._updatedAt.slice(0, 10)
-        : buildDate;
 
     const html = injectIntoHtml(template, {
       title,
@@ -214,24 +197,9 @@ async function main() {
     const outFile = pathToDistHtml(routePath);
     await mkdir(dirname(outFile), { recursive: true });
     await writeFile(outFile, html, "utf8");
-    sitemapUrls.push({ loc: canonicalUrl, lastmod });
   }
 
-  sitemapUrls.sort((a, b) => a.loc.localeCompare(b.loc));
-
-  const urlset = sitemapUrls
-    .map(
-      (u) =>
-        `  <url>\n    <loc>${escapeXml(u.loc)}</loc>\n    <lastmod>${escapeXml(u.lastmod)}</lastmod>\n  </url>`,
-    )
-    .join("\n");
-
-  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urlset}
-</urlset>
-`;
-
+  const sitemapXml = await buildSitemapXml(siteUrl, { allowPartial: false, serviceDocs });
   await writeFile(join(dist, "sitemap.xml"), sitemapXml, "utf8");
 
   const robots = `User-agent: *

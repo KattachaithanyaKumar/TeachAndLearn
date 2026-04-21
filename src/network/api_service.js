@@ -261,6 +261,23 @@ export async function getHome() {
           _updatedAt,
           title,
           description,
+          aboutPageHeaderPrefix,
+          aboutPageHeaderHighlight,
+          aboutPageEyebrow,
+          aboutPageHeroImage {
+            asset,
+            "assetUrl": asset->url,
+            alt,
+            hotspot,
+            crop
+          },
+          promiseEyebrow,
+          promiseHeading,
+          promiseBody,
+          visionTitle,
+          visionBody,
+          missionTitle,
+          missionBody,
           items[]->{
             _id,
             title,
@@ -274,7 +291,9 @@ export async function getHome() {
           _updatedAt,
           name,
           description,
-          icon
+          icon,
+          "audience": linkedListingItem->audience,
+          "pathSegment": linkedListingItem->pathSegment
         },
         stats[]->{
           _id,
@@ -399,6 +418,23 @@ export async function getAboutSectionFromHome() {
           _updatedAt,
           title,
           description,
+          aboutPageHeaderPrefix,
+          aboutPageHeaderHighlight,
+          aboutPageEyebrow,
+          aboutPageHeroImage {
+            asset,
+            "assetUrl": asset->url,
+            alt,
+            hotspot,
+            crop
+          },
+          promiseEyebrow,
+          promiseHeading,
+          promiseBody,
+          visionTitle,
+          visionBody,
+          missionTitle,
+          missionBody,
           items[]->{
             _id,
             title,
