@@ -7,6 +7,7 @@ import { getSanityClient } from './sanity.js'
 import {
   aboutSectionQuery,
   contactUsQuery,
+  footerSettingsQuery,
   franchiseQuery,
   homeQuery,
 } from './queries.js'
@@ -84,6 +85,17 @@ export function createApp() {
     if (!client) return
     try {
       const doc = await client.fetch(contactUsQuery)
+      res.json(doc)
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
+    }
+  })
+
+  api.get('/footer-settings', async (_req, res) => {
+    const client = clientOrError(res)
+    if (!client) return
+    try {
+      const doc = await client.fetch(footerSettingsQuery)
       res.json(doc)
     } catch (e) {
       res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
@@ -232,6 +244,7 @@ export function createApp() {
     'approach',
     'service_listing_landing',
     'service_listing_item',
+    'footer_settings',
   ])
 
   api.post('/documents', async (req, res) => {

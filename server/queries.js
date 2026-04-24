@@ -1,5 +1,20 @@
 /** GROQ aligned with TeachAndLearn `src/network/api_service.js` */
 
+export const footerSettingsQuery = `*[_type == "footer_settings"][0]{
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  brandTitle,
+  brandSubtitle,
+  brandDescription,
+  phone,
+  email,
+  locationLabel,
+  locationLink,
+  hoursText
+}`
+
 export const contactUsQuery = `*[_type == "contact_us"][0]{
   _id,
   _type,

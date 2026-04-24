@@ -1,16 +1,55 @@
 import logo from "../assets/logo.png";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getFooterSettings } from "../network/api_service";
 import { getServiceItemsWithFallback } from "../network/serviceListing";
 import {
   fallbackChildServiceItems,
   fallbackAdultServiceItems,
 } from "../utils/serviceListingFallbacks";
 
+const FOOTER_FALLBACK = {
+  brandTitle: "Teach & Learn",
+  brandSubtitle: "Therapy Center",
+  brandDescription:
+    "Empowering children and adults to reach their full potential through comprehensive therapy services.",
+  phone: "+91 9876543210",
+  email: "info@teachandlearn.com",
+  locationLabel: "Hyderabad, India",
+  locationLink: "/contact-us",
+};
+
+const FALLBACK_HOUR_LINES = [
+  "Mon - Fri: 9:00 AM - 6:00 PM",
+  "Sat: 9:00 AM - 2:00 PM",
+  "Sun: Closed",
+];
+
+function pickStr(cms, fallback) {
+  const t = typeof cms === "string" ? cms.trim() : "";
+  return t || fallback;
+}
+
+function telHref(displayPhone) {
+  const raw = pickStr(displayPhone, "");
+  if (!raw) return "#";
+  return `tel:${raw.replace(/\s+/g, "").replace(/-/g, "")}`;
+}
+
+function hourLinesFromText(text) {
+  if (!text || typeof text !== "string") return null;
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  return lines.length ? lines : null;
+}
+
 const Footer = ({ color }) => {
   const [childServices, setChildServices] = useState([]);
   const [adultServices, setAdultServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [footerCfg, setFooterCfg] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +78,44 @@ const Footer = ({ color }) => {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const doc = await getFooterSettings();
+        if (!cancelled && doc?._id) setFooterCfg(doc);
+      } catch (e) {
+        console.error("Footer: failed to load footer settings", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const brandTitle = pickStr(footerCfg?.brandTitle, FOOTER_FALLBACK.brandTitle);
+  const brandSubtitle = pickStr(
+    footerCfg?.brandSubtitle,
+    FOOTER_FALLBACK.brandSubtitle,
+  );
+  const brandDescription = pickStr(
+    footerCfg?.brandDescription,
+    FOOTER_FALLBACK.brandDescription,
+  );
+  const phone = pickStr(footerCfg?.phone, FOOTER_FALLBACK.phone);
+  const email = pickStr(footerCfg?.email, FOOTER_FALLBACK.email);
+  const locationLabel = pickStr(
+    footerCfg?.locationLabel,
+    FOOTER_FALLBACK.locationLabel,
+  );
+  const locationLink = pickStr(
+    footerCfg?.locationLink,
+    FOOTER_FALLBACK.locationLink,
+  );
+  const hourLines =
+    hourLinesFromText(footerCfg?.hoursText) ?? FALLBACK_HOUR_LINES;
+  const locationIsExternal = /^https?:\/\//i.test(locationLink);
+
   return (
     <footer style={{ backgroundColor: color }} className="pt-16 px-4 md:px-12">
       {/* Main Content */}
@@ -46,16 +123,17 @@ const Footer = ({ color }) => {
         {/* Logo and Description */}
         <div>
           <div className="flex items-center gap-4 mb-4">
-            <img src={logo} alt="Logo" className="h-12 w-12 object-contain" />
+            <img
+              src={logo}
+              alt={`${brandTitle} logo`}
+              className="h-12 w-12 object-contain"
+            />
             <div>
-              <h1 className="text-xl font-semibold">Teach & Learn</h1>
-              <p className="text-sm text-gray-600">Therapy Center</p>
+              <h1 className="text-xl font-semibold">{brandTitle}</h1>
+              <p className="text-sm text-gray-600">{brandSubtitle}</p>
             </div>
           </div>
-          <p className="text-gray-700 text-sm">
-            Empowering children and adults to reach their full potential through
-            comprehensive therapy services.
-          </p>
+          <p className="text-gray-700 text-sm">{brandDescription}</p>
         </div>
 
         {/* Child services — own column */}
@@ -106,27 +184,38 @@ const Footer = ({ color }) => {
           <ul className="text-sm text-gray-700 space-y-1">
             <li>
               <a
-                href="tel:+919876543210"
+                href={telHref(phone)}
                 className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
               >
-                +91 9876543210
+                {phone}
               </a>
             </li>
             <li>
               <a
-                href="mailto:info@teachandlearn.com"
+                href={`mailto:${email}`}
                 className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
               >
-                info@teachandlearn.com
+                {email}
               </a>
             </li>
             <li>
-              <Link
-                to="/contact-us"
-                className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
-              >
-                Hyderabad, India
-              </Link>
+              {locationIsExternal ? (
+                <a
+                  href={locationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                >
+                  {locationLabel}
+                </a>
+              ) : (
+                <Link
+                  to={locationLink}
+                  className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                >
+                  {locationLabel}
+                </Link>
+              )}
             </li>
           </ul>
         </div>
@@ -135,9 +224,12 @@ const Footer = ({ color }) => {
         <div>
           <h2 className="text-lg font-semibold mb-3">Hours</h2>
           <p className="text-sm text-gray-700 leading-relaxed">
-            Mon - Fri: 9:00 AM - 6:00 PM <br />
-            Sat: 9:00 AM - 2:00 PM <br />
-            Sun: Closed
+            {hourLines.map((line, i) => (
+              <React.Fragment key={i}>
+                {i > 0 ? <br /> : null}
+                {line}
+              </React.Fragment>
+            ))}
           </p>
         </div>
       </div>

@@ -1,5 +1,11 @@
 import { getAdminSanityClient } from './sanityAdmin'
-import { aboutSectionQuery, contactUsQuery, franchiseQuery, homeQuery } from './queries'
+import {
+  aboutSectionQuery,
+  contactUsQuery,
+  footerSettingsQuery,
+  franchiseQuery,
+  homeQuery,
+} from './queries'
 
 const CREATABLE_DOCUMENT_TYPES = new Set([
   'stats',
@@ -12,6 +18,7 @@ const CREATABLE_DOCUMENT_TYPES = new Set([
   'approach',
   'service_listing_landing',
   'service_listing_item',
+  'footer_settings',
 ])
 
 const DELETABLE_DOCUMENT_TYPES = new Set(['service_listing_item'])
@@ -43,6 +50,9 @@ export async function apiGet<T>(path: string): Promise<T> {
   }
   if (path === '/api/contact') {
     return c.fetch(contactUsQuery) as Promise<T>
+  }
+  if (path === '/api/footer-settings') {
+    return c.fetch(footerSettingsQuery) as Promise<T>
   }
   if (path === '/api/franchise') {
     return c.fetch(franchiseQuery) as Promise<T>

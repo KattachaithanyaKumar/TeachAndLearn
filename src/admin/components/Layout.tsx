@@ -114,6 +114,9 @@ export default function Layout() {
           <NavLink to={adminPath('contact')} className={linkClass}>
             Contact
           </NavLink>
+          <NavLink to={adminPath('footer-settings')} className={linkClass}>
+            Footer config
+          </NavLink>
           <NavLink to={adminPath('home')} className={linkClass}>
             Home
           </NavLink>

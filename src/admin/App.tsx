@@ -6,6 +6,7 @@ import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import DashboardPage from './pages/DashboardPage'
 import FacilitiesPage from './pages/FacilitiesPage'
+import FooterSettingsPage from './pages/FooterSettingsPage'
 import FranchisePage from './pages/FranchisePage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -31,6 +32,7 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="submissions" element={<SubmissionsPage />} />
         <Route path="contact" element={<ContactPage />} />
+        <Route path="footer-settings" element={<FooterSettingsPage />} />
         <Route path="home" element={<HomePage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="franchise" element={<FranchisePage />} />

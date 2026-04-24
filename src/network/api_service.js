@@ -106,6 +106,21 @@ export async function submitContactSubmission({
   return writeClient.create(doc);
 }
 
+export function getFooterSettings() {
+  return client.fetch(`*[_type == "footer_settings"][0]{
+    _id,
+    _type,
+    brandTitle,
+    brandSubtitle,
+    brandDescription,
+    phone,
+    email,
+    locationLabel,
+    locationLink,
+    hoursText
+  }`);
+}
+
 export function getContactUs() {
   return client.fetch(`*[_type == "contact_us"][0]{
     _id,
