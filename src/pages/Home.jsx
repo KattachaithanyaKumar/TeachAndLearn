@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FiPhone } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
@@ -65,6 +65,7 @@ const HERO_DEFAULTS = {
 
 const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // State for data
   const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
@@ -228,6 +229,14 @@ const Home = () => {
   useEffect(() => {
     fetchHomeData();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname !== "/" || location.hash !== "#book") return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname, location.hash]);
 
   const scrollToId = (id) => {
     const el = document.getElementById(id);
