@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { apiUpload } from '../api/client'
+import FileChooseButton from './FileChooseButton'
 import type { SanityImage } from '../types/servicePageBlocks'
 
 type Props = {
@@ -33,13 +34,13 @@ export default function ImageUploadField({ label = 'Image', value, onChange }: P
   return (
     <div className="field">
       {label ? <span className="field-label">{label}</span> : null}
-      <input
-        type="file"
-        accept="image/*"
-        className="input"
+      <FileChooseButton
         disabled={busy}
-        onChange={(e) => onPick(e.target.files)}
-      />
+        onChange={(e) => void onPick(e.target.files)}
+        aria-label={label ? `${label}: choose image` : 'Choose image'}
+      >
+        Choose image
+      </FileChooseButton>
       {value?.asset?._ref ? (
         <p className="muted small">
           Asset: <code>{value.asset._ref}</code>

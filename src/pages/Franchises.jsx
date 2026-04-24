@@ -3,7 +3,7 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFileSignature, FaBuilding } f
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
-import { getFranchise } from "../network/api_service";
+import { getFranchise, urlForSanityImage } from "../network/api_service";
 import { useApiStates } from "../hooks/useApiStates";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -99,6 +99,11 @@ const Franchises = () => {
     })) : [];
 
   const reqData = franchiseData.requirements;
+
+  const supportCardImageSrc =
+    franchiseData.supportCardImage?.assetUrl ||
+    urlForSanityImage(franchiseData.supportCardImage) ||
+    teacherImg;
 
   return (
     <div className="overflow-hidden px-4 sm:px-6">
@@ -201,7 +206,7 @@ const Franchises = () => {
 
             <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
               <img
-                src={teacherImg}
+                src={supportCardImageSrc}
                 alt="Franchise support"
                 className="object-cover w-full h-full rounded-b-2xl"
               />

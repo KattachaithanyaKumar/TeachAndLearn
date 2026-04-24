@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react'
 import DocumentForm from '../components/DocumentForm'
-import { apiGet, apiPatch } from '../api/client'
+import FileChooseButton from '../components/FileChooseButton'
+import { apiGet, apiPatch, apiUpload } from '../api/client'
 
 type Step = {
   _id: string
@@ -23,13 +24,114 @@ type FranchiseReq = {
   requirements?: string[]
 }
 
+type SupportCardImage = {
+  _type?: string
+  asset?: { _type?: string; _ref?: string }
+  assetUrl?: string | null
+} | null
+
 type Franchise = {
   _id: string
   title?: string
   description?: string
+  supportCardImage?: SupportCardImage
   requirements?: FranchiseReq | null
   steps?: Step[] | null
   contact?: FContact[] | null
+}
+
+function FranchiseSupportCardImageEditor({
+  franchiseId,
+  image,
+  onUpdated,
+}: {
+  franchiseId: string
+  image?: SupportCardImage
+  onUpdated: () => void
+}) {
+  const [uploading, setUploading] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const assetRef = image?.asset?._ref
+  const previewUrl = image?.assetUrl
+
+  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setMsg(null)
+    try {
+      const res = await apiUpload(file)
+      await apiPatch(`/api/documents/${franchiseId}`, {
+        fields: {
+          supportCardImage: {
+            _type: 'image',
+            asset: res.asset,
+          },
+        },
+      })
+      setMsg('Image updated.')
+      onUpdated()
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const clearImage = async () => {
+    if (!assetRef) return
+    setClearing(true)
+    setMsg(null)
+    try {
+      await apiPatch(`/api/documents/${franchiseId}`, { fields: { supportCardImage: null } })
+      setMsg('Image removed — public page will use the default photo.')
+      onUpdated()
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Clear failed')
+    } finally {
+      setClearing(false)
+    }
+  }
+
+  return (
+    <section className="card hero-image-card">
+      <h3 className="card-title">Franchises page — contact card image</h3>
+      <p className="muted small">
+        Bottom of the orange card (contact details and requirements) on the public{' '}
+        <code>/franchises</code> page.
+      </p>
+      {previewUrl ? (
+        <div className="hero-preview">
+          <img src={previewUrl} alt="" className="hero-preview-img" />
+        </div>
+      ) : (
+        <p className="muted">No image in Sanity yet — the site uses the built-in fallback.</p>
+      )}
+      <div className="field">
+        <span className="field-label">Replace image</span>
+        <FileChooseButton disabled={uploading || clearing} onChange={onFile}>
+          Choose image
+        </FileChooseButton>
+      </div>
+      <div className="row">
+        {assetRef ? (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            disabled={uploading || clearing}
+            onClick={() => void clearImage()}
+          >
+            {clearing ? 'Removing…' : 'Remove image'}
+          </button>
+        ) : null}
+        {uploading ? <span className="muted">Uploading…</span> : null}
+        {msg ? <span className="text-muted">{msg}</span> : null}
+      </div>
+    </section>
+  )
 }
 
 function RequirementsEditor({ doc }: { doc: FranchiseReq }) {
@@ -82,11 +184,16 @@ export default function FranchisePage() {
   const [data, setData] = useState<Franchise | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setError(null)
     apiGet<Franchise>('/api/franchise')
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
   }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   if (error) {
     return (
@@ -112,6 +219,12 @@ export default function FranchisePage() {
       <p className="muted">
         Document <code>{data._id}</code>
       </p>
+
+      <FranchiseSupportCardImageEditor
+        franchiseId={data._id}
+        image={data.supportCardImage ?? undefined}
+        onUpdated={load}
+      />
 
       <DocumentForm
         docId={data._id}

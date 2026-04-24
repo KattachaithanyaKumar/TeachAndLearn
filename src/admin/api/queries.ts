@@ -48,6 +48,12 @@ export const franchiseQuery = `*[_type == "franchise"][0]{
   _updatedAt,
   title,
   description,
+  supportCardImage {
+    asset,
+    "assetUrl": asset->url,
+    hotspot,
+    crop
+  },
   requirements->{
     _id,
     _type,

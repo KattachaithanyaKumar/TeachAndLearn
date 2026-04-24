@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react'
 import DocumentForm from '../components/DocumentForm'
+import FileChooseButton from '../components/FileChooseButton'
 import { apiGet, apiPatch, apiUpload } from '../api/client'
 
 type Item = {
@@ -115,10 +116,12 @@ function AboutPageHeroImageEditor({
       ) : (
         <p className="muted">No image in Sanity yet — the site uses the built-in fallback.</p>
       )}
-      <label className="field">
+      <div className="field">
         <span className="field-label">Replace image</span>
-        <input type="file" accept="image/*" disabled={uploading} onChange={onFile} />
-      </label>
+        <FileChooseButton disabled={uploading} onChange={onFile}>
+          Choose image
+        </FileChooseButton>
+      </div>
       <label className="field">
         <span className="field-label">Alt text</span>
         <input

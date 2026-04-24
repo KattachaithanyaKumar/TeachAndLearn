@@ -61,7 +61,17 @@ export async function apiGet<T>(path: string): Promise<T> {
     return c.fetch(homeQuery) as Promise<T>
   }
   if (path === '/api/facilities') {
-    return c.fetch('*[_type == "facility"]') as Promise<T>
+    return c.fetch(
+      `*[_type == "facility"]{
+        _id,
+        _type,
+        title,
+        description,
+        bg,
+        image,
+        "imageUrl": image.asset->url
+      }`,
+    ) as Promise<T>
   }
   if (path === '/api/contact-submissions') {
     return c.fetch(CONTACT_SUBMISSIONS_QUERY) as Promise<T>

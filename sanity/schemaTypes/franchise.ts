@@ -14,6 +14,15 @@ export const franchise = defineType({
             type: 'text',
         }),
         defineField({
+            name: 'supportCardImage',
+            title: 'Contact card image',
+            description: 'Photo at the bottom of the orange contact/requirements card on the public Franchises page.',
+            type: 'image',
+            options: {
+                hotspot: true,
+            },
+        }),
+        defineField({
             name: 'steps',
             type: 'array',
             of: [{ type: 'reference', to: [{ type: 'franchiseSteps' }] }],

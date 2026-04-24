@@ -212,6 +212,12 @@ export async function getFranchise() {
       _updatedAt,
       title,
       description,
+      supportCardImage {
+        asset,
+        "assetUrl": asset->url,
+        hotspot,
+        crop
+      },
       requirements->{
         _id,
         _type,

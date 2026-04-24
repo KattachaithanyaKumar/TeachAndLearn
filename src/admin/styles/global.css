@@ -251,6 +251,39 @@ code {
   cursor: not-allowed;
 }
 
+/* File control: looks like `.btn`; native "Choose file" is hidden under a transparent overlay */
+.file-choose-wrap {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.file-choose-wrap .file-choose-fake {
+  display: inline-block;
+  pointer-events: none;
+}
+
+.file-choose-wrap .file-choose-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 0;
+}
+
+.file-choose-wrap .file-choose-input:disabled {
+  cursor: not-allowed;
+}
+
+.file-choose-wrap--disabled .file-choose-fake {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .row {
   display: flex;
   align-items: center;

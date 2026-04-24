@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import DocumentForm from './DocumentForm'
+import FileChooseButton from './FileChooseButton'
 import { apiPatch, apiUpload } from '../api/client'
 
 export type HeroFields = {
@@ -112,10 +113,12 @@ export default function HeroHomeEditor({ homeId, hero, onUpdated }: Props) {
         ) : (
           <p className="muted">No image in Sanity yet — the site uses the built-in fallback.</p>
         )}
-        <label className="field">
+        <div className="field">
           <span className="field-label">Replace image</span>
-          <input type="file" accept="image/*" disabled={uploading} onChange={onFile} />
-        </label>
+          <FileChooseButton disabled={uploading} onChange={onFile}>
+            Choose image
+          </FileChooseButton>
+        </div>
         <label className="field">
           <span className="field-label">Alt text</span>
           <input
