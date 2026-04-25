@@ -1,6 +1,7 @@
 import React from "react";
 import { FaMicrophone } from "react-icons/fa";
 import Section from "../Section";
+import MarkdownContent from "../MarkdownContent";
 import { urlForSanityImage } from "../../network/api_service";
 import { allIcons } from "../../CONSTANTS";
 import blob3 from "../../assets/blob3.png";
@@ -72,7 +73,7 @@ export default function ServicePageBlockRenderer({ blocks }) {
   );
 }
 
-function Block({ block, index }) {
+function Block({ block }) {
   const t = block?._type;
   switch (t) {
     case "service_page_block_intro_split":
@@ -122,9 +123,9 @@ function IntroSplit({ block }) {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{block.heading}</h1>
           ) : null}
           {block.body ? (
-            <p className="text-gray-700 leading-relaxed text-base md:text-lg whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-700 leading-relaxed text-base md:text-lg">
               {block.body}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
       </div>

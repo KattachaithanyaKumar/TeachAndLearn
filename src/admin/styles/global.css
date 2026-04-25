@@ -235,6 +235,41 @@ code {
   min-height: 2.5rem;
 }
 
+/* Full markdown editor (admin only) */
+[data-color-mode='dark'] .w-md-editor,
+[data-color-mode='dark'] .w-md-editor-text,
+[data-color-mode='dark'] .w-md-editor-preview,
+[data-color-mode='dark'] .wmde-markdown {
+  background: var(--bg);
+  color: var(--text);
+}
+
+[data-color-mode='dark'] .w-md-editor {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+[data-color-mode='dark'] .w-md-editor-toolbar {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-color-mode='dark'] .w-md-editor-toolbar li button {
+  color: var(--text);
+}
+
+[data-color-mode='dark'] .w-md-editor-toolbar li button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-color-mode='dark'] .w-md-editor-text-pre > code,
+[data-color-mode='dark'] .wmde-markdown code,
+[data-color-mode='dark'] .wmde-markdown pre {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .btn {
   font: inherit;
   cursor: pointer;

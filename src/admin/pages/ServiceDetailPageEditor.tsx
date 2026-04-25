@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { adminPath } from '../utils/adminPath'
 import ImageUploadField from '../components/ImageUploadField'
 import ServiceBlockTypePreview from '../components/ServiceBlockTypePreview'
+import MarkdownEditor from '../components/MarkdownEditor'
 import { apiGet, apiPatch } from '../api/client'
 import {
   BLOCK_TYPE_OPTIONS,
@@ -362,15 +363,10 @@ function IntroSplitFields({
           onChange={(e) => onChange({ ...block, heading: e.target.value })}
         />
       </label>
-      <label className="field">
-        <span className="field-label">body</span>
-        <textarea
-          className="textarea"
-          rows={6}
-          value={block.body ?? ''}
-          onChange={(e) => onChange({ ...block, body: e.target.value })}
-        />
-      </label>
+      <div className="field">
+        <span className="field-label">body (markdown)</span>
+        <MarkdownEditor value={block.body ?? ''} onChange={(v) => onChange({ ...block, body: v })} rows={6} />
+      </div>
       <label className="field">
         <span className="field-label">maskStyle</span>
         <select
