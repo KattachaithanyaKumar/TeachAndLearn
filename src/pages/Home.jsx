@@ -951,7 +951,6 @@ const Home = () => {
               type="email"
               name="email"
               required
-              pattern="^[^\\s@]+@[^\\s@]+\\.com$"
               placeholder="Email Address"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
               onInvalid={(e) => setValidity(e.currentTarget, "Enter a valid email address")}
