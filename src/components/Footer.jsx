@@ -1,19 +1,14 @@
-import logo from "../assets/logo.png";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
+import { FaClock, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 import { getFooterSettings } from "../network/api_service";
 import { getServiceItemsWithFallback } from "../network/serviceListing";
 import {
   fallbackChildServiceItems,
-  fallbackAdultServiceItems,
 } from "../utils/serviceListingFallbacks";
 
 const FOOTER_FALLBACK = {
   brandTitle: "Teach & Learn",
-  brandSubtitle: "Therapy Center",
-  brandDescription:
-    "Empowering children and adults to reach their full potential through comprehensive therapy services.",
   phone: "+91 9876543210",
   email: "info@teachandlearn.com",
   locationLabel: "Hyderabad, India",
@@ -48,7 +43,6 @@ function hourLinesFromText(text) {
 
 const Footer = ({ color }) => {
   const [childServices, setChildServices] = useState([]);
-  const [adultServices, setAdultServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [footerCfg, setFooterCfg] = useState(null);
 
@@ -56,19 +50,14 @@ const Footer = ({ color }) => {
     let cancelled = false;
     (async () => {
       try {
-        const [child, adult] = await Promise.all([
-          getServiceItemsWithFallback("child"),
-          getServiceItemsWithFallback("adult"),
-        ]);
+        const child = await getServiceItemsWithFallback("child");
         if (!cancelled) {
           setChildServices(child);
-          setAdultServices(adult);
         }
       } catch (e) {
         console.error("Footer: failed to load service listings", e);
         if (!cancelled) {
           setChildServices(fallbackChildServiceItems());
-          setAdultServices(fallbackAdultServiceItems());
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -95,14 +84,6 @@ const Footer = ({ color }) => {
   }, []);
 
   const brandTitle = pickStr(footerCfg?.brandTitle, FOOTER_FALLBACK.brandTitle);
-  const brandSubtitle = pickStr(
-    footerCfg?.brandSubtitle,
-    FOOTER_FALLBACK.brandSubtitle,
-  );
-  const brandDescription = pickStr(
-    footerCfg?.brandDescription,
-    FOOTER_FALLBACK.brandDescription,
-  );
   const phone = pickStr(footerCfg?.phone, FOOTER_FALLBACK.phone);
   const email = pickStr(footerCfg?.email, FOOTER_FALLBACK.email);
   const locationLabel = pickStr(
@@ -118,25 +99,15 @@ const Footer = ({ color }) => {
   const locationIsExternal = /^https?:\/\//i.test(locationLink);
   const year = new Date().getFullYear();
 
+  const toServiceDetail = (audience, item) => {
+    const seg = String(item?.pathSegment ?? "").trim();
+    return seg ? `/${audience}-services/${encodeURIComponent(seg)}` : `/${audience}-services`;
+  };
+
   return (
     <footer style={{ backgroundColor: color }} className="pt-16 px-4 md:px-12">
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-        {/* Logo and Description */}
-        <div>
-          <div className="flex items-center gap-4 mb-4">
-            <img
-              src={logo}
-              alt={`${brandTitle} logo`}
-              className="h-12 w-12 object-contain"
-            />
-            <div>
-              <h1 className="text-xl font-semibold">{brandTitle}</h1>
-              <p className="text-sm text-gray-600">{brandSubtitle}</p>
-            </div>
-          </div>
-          <p className="text-gray-700 text-sm">{brandDescription}</p>
-        </div>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
         {/* Child services — own column */}
         <div>
@@ -146,30 +117,9 @@ const Footer = ({ color }) => {
           ) : (
             <ul className="text-sm text-gray-700 space-y-1">
               {childServices.map((item) => (
-                <li key={item._id}>
+                <li key={item._id ?? item.pathSegment ?? item.title}>
                   <Link
-                    to={`/child-services/${encodeURIComponent(String(item.pathSegment ?? "").trim())}`}
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Adult services — own column */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
-          {loading ? (
-            <p className="text-sm text-gray-500">Loading…</p>
-          ) : (
-            <ul className="text-sm text-gray-700 space-y-1">
-              {adultServices.map((item) => (
-                <li key={item._id}>
-                  <Link
-                    to={`/adult-services/${encodeURIComponent(String(item.pathSegment ?? "").trim())}`}
+                    to={toServiceDetail("child", item)}
                     className="hover:text-orange-600 hover:underline"
                   >
                     {item.title}
@@ -227,7 +177,10 @@ const Footer = ({ color }) => {
 
         {/* Hours */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Hours</h2>
+          <h2 className="text-lg font-semibold mb-3 inline-flex items-center gap-2">
+            <FaClock className="text-orange-600" aria-hidden="true" />
+            Working Hours
+          </h2>
           <p className="text-sm text-gray-700 leading-relaxed">
             {hourLines.map((line, i) => (
               <React.Fragment key={i}>

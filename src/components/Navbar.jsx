@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { HiMenu, HiX } from "react-icons/hi";
-import logo from "../assets/logo-full.png";
+import logoMark from "../assets/bg logo .png";
 import { navItems } from "../CONSTANTS";
 import Button from "./Button";
 
@@ -42,15 +42,26 @@ const Navbar = () => {
       {/* Logo — links home */}
       <Link
         to="/"
-        className="flex shrink-0 items-center"
+        className="flex shrink-0 items-center gap-2 sm:gap-3"
         onClick={() => setMenuOpen(false)}
-        aria-label="Teach and Learn — Home"
+        aria-label="Teach And Learn — Home"
       >
         <img
-          src={logo}
+          src={logoMark}
           alt=""
-          className="h-8 w-auto max-w-[min(160px,42vw)] sm:h-9 sm:max-w-[180px] lg:h-11 lg:max-w-[200px]"
+          width={44}
+          height={44}
+          className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10 lg:h-11 lg:w-11"
         />
+        <span
+          className={`font-bold tracking-tight text-base sm:text-lg lg:text-xl ${
+            scrolled
+              ? "bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent opacity-100"
+              : "bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent opacity-70"
+          }`}
+        >
+          Teach And Learn
+        </span>
       </Link>
 
       {/* Desktop Nav — lg+; nav scrolls horizontally if tight so Parent Login never clips */}

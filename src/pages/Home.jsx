@@ -831,51 +831,21 @@ const Home = () => {
         id="book"
         className="bg-amber-100 relative overflow-hidden py-16 px-4 md:px-12"
       >
-        <img src={zigzag} alt="" className="absolute hidden md:block" />
-        <img src={circleHalf} alt="" className="absolute right-10 bottom-20 hidden md:block" />
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 mt-10">
-          {/* Left */}
-          <div className="relative flex justify-center items-center">
-            {/* Blob background */}
-            <img
-              src={blob2}
-              alt="decorative blob"
-              className="w-full h-full scale-90 object-cover opacity-30 absolute top-0 left-0 z-0"
-            />
-
-            <div className="relative w-full max-w-md p-8 flex flex-col gap-10 z-10">
-              {/* Location */}
-              <div className="flex gap-4 items-start">
-                <IoLocationOutline className="text-orange-600 w-8 h-8 mt-1 shrink-0" />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Hafeezpet Branch
-                  </h2>
-                  <p className="text-gray-600 text-sm">
-                    Satvika Residency, Vinayaka Nagar, Hafeezpet, Hyderabad,
-                    Telangana 50004.
-                  </p>
-                </div>
-              </div>
-
-              {/* Timing */}
-              <div className="flex gap-4 items-start">
-                <IoMdTime className="text-orange-600 w-8 h-8 mt-1 shrink-0" />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Opening Hours
-                  </h2>
-                  <p className="text-gray-600 text-sm">
-                    09:00 a.m. – 8:00 p.m.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right - Form */}
+        <img
+          src={zigzag}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute hidden opacity-30 md:block -z-10"
+        />
+        <img
+          src={circleHalf}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-6 bottom-6 hidden opacity-25 md:block -z-10"
+        />
+        <div className="relative z-10 max-w-6xl mx-auto mb-10 mt-10 flex justify-center">
           <form
-            className="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5"
+            className="w-full max-w-2xl bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5"
             onSubmit={async (e) => {
               e.preventDefault();
               setBookMessage(null);
