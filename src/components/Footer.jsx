@@ -1,6 +1,7 @@
 import logo from "../assets/logo.png";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 import { getFooterSettings } from "../network/api_service";
 import { getServiceItemsWithFallback } from "../network/serviceListing";
 import {
@@ -115,6 +116,7 @@ const Footer = ({ color }) => {
   const hourLines =
     hourLinesFromText(footerCfg?.hoursText) ?? FALLBACK_HOUR_LINES;
   const locationIsExternal = /^https?:\/\//i.test(locationLink);
+  const year = new Date().getFullYear();
 
   return (
     <footer style={{ backgroundColor: color }} className="pt-16 px-4 md:px-12">
@@ -138,7 +140,7 @@ const Footer = ({ color }) => {
 
         {/* Child services — own column */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Child services</h2>
+          <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
           {loading ? (
             <p className="text-sm text-gray-500">Loading…</p>
           ) : (
@@ -159,7 +161,7 @@ const Footer = ({ color }) => {
 
         {/* Adult services — own column */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Adult services</h2>
+          <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
           {loading ? (
             <p className="text-sm text-gray-500">Loading…</p>
           ) : (
@@ -179,39 +181,42 @@ const Footer = ({ color }) => {
         </div>
 
         {/* Contact */}
-        <div>
+        <div className="min-w-0">
           <h2 className="text-lg font-semibold mb-3">Contact</h2>
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>
+          <ul className="text-sm text-gray-700 space-y-2">
+            <li className="flex min-w-0 items-start gap-2">
+              <FaPhoneAlt className="mt-0.5 shrink-0 text-orange-600" aria-hidden="true" />
               <a
                 href={telHref(phone)}
-                className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                className="min-w-0 max-w-full flex-1 break-words text-left hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm cursor-pointer"
               >
                 {phone}
               </a>
             </li>
-            <li>
+            <li className="flex min-w-0 items-start gap-2">
+              <FaEnvelope className="mt-0.5 shrink-0 text-orange-600" aria-hidden="true" />
               <a
                 href={`mailto:${email}`}
-                className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                className="min-w-0 max-w-full flex-1 break-all text-left hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm cursor-pointer"
               >
                 {email}
               </a>
             </li>
-            <li>
+            <li className="flex min-w-0 items-start gap-2">
+              <FaMapMarkerAlt className="mt-0.5 shrink-0 text-orange-600" aria-hidden="true" />
               {locationIsExternal ? (
                 <a
                   href={locationLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                  className="min-w-0 max-w-full flex-1 break-words text-left hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm cursor-pointer"
                 >
                   {locationLabel}
                 </a>
               ) : (
                 <Link
                   to={locationLink}
-                  className="hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm inline-block"
+                  className="min-w-0 max-w-full flex-1 break-words text-left hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm cursor-pointer"
                 >
                   {locationLabel}
                 </Link>
@@ -255,6 +260,10 @@ const Footer = ({ color }) => {
           Flaticon
         </a>
         .
+      </div>
+
+      <div className="mt-3 pb-8 text-center text-xs text-gray-600">
+        © {year} {brandTitle}. All rights reserved.
       </div>
     </footer>
   );

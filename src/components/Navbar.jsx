@@ -69,13 +69,6 @@ const Navbar = () => {
             </Link>
           ))}
         </nav>
-        <Button
-          variant="primary"
-          className="shrink-0 whitespace-nowrap"
-          onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}
-        >
-          Parent Login
-        </Button>
       </div>
 
       {/* Mobile / tablet menu toggle */}
@@ -109,7 +102,6 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-          <Button variant="primary" onClick={() => window.open("https://www.silverriver.schoolbridge.in", "_blank")}>Parent Login</Button>
         </div>
       )}
     </div>

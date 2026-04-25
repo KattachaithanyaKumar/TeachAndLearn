@@ -7,9 +7,27 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { FaWhatsapp } from "react-icons/fa";
 import { allIcons } from "../CONSTANTS";
-import { getContactUs, submitContactSubmission } from "../network/api_service";
+import { getContactUs, getFooterSettings, submitContactSubmission } from "../network/api_service";
 
 import teacherImg from "../assets/teacher-and-student.JPG";
+
+const FOOTER_FALLBACK_PHONE = "+91 9876543210";
+
+function pickStr(cms, fallback) {
+  const t = typeof cms === "string" ? cms.trim() : "";
+  return t || fallback;
+}
+
+/** Digits-only international number for WhatsApp `phone` query param (no +). */
+function whatsappPhoneParamFromDisplay(displayPhone) {
+  const raw = pickStr(displayPhone, "");
+  if (!raw) return "";
+  const digits = raw.replace(/\D+/g, "");
+  if (!digits) return "";
+  if (digits.length === 10 && /^[6-9]/.test(digits)) return `91${digits}`;
+  if (digits.length === 11 && digits.startsWith("0")) return digits.slice(1);
+  return digits;
+}
 
 // Functions to handle call and email actions
 const handleCall = (phoneNumber) => {
@@ -26,6 +44,7 @@ const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
 
 const Contact = () => {
   const [contactData, setContactData] = useState(null);
+  const [footerPhone, setFooterPhone] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formStatus, setFormStatus] = useState("idle");
@@ -35,8 +54,12 @@ const Contact = () => {
     const fetchContactData = async () => {
       try {
         setLoading(true);
-        const data = await getContactUs();
+        const [data, footerCfg] = await Promise.all([
+          getContactUs(),
+          getFooterSettings().catch(() => null),
+        ]);
         setContactData(data);
+        setFooterPhone(pickStr(footerCfg?.phone, FOOTER_FALLBACK_PHONE));
       } catch (err) {
         setError(err);
         console.error("Error fetching contact data:", err);
@@ -116,6 +139,19 @@ const Contact = () => {
 
   const addresses = contactData?.contactAddress || fallbackAddresses;
   const whatsapp = contactData?.contactDetails?.find(detail => detail.label === "Whatsapp");
+  const whatsappPhoneParam =
+    whatsappPhoneParamFromDisplay(footerPhone) ||
+    whatsappPhoneParamFromDisplay(whatsapp?.value) ||
+    whatsappPhoneParamFromDisplay(FOOTER_FALLBACK_PHONE);
+  const whatsappHref = whatsappPhoneParam
+    ? `https://api.whatsapp.com/send/?phone=${encodeURIComponent(whatsappPhoneParam)}&text&type=phone_number&app_absent=0`
+    : null;
+
+  const setValidity = (el, message) => {
+    if (el && typeof el.setCustomValidity === "function") el.setCustomValidity(message);
+  };
+
+  const digitsOnlyMax10 = (value) => String(value ?? "").replace(/\D+/g, "").slice(0, 10);
   return (
     <div className="overflow-hidden">
       <Navbar />
@@ -269,22 +305,70 @@ const Contact = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Full Name*</label>
-                <input type="text" id="name" name="name" required placeholder="Full Name" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  pattern="^[A-Za-z][A-Za-z\\s]*$"
+                  placeholder="Full Name"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  onChange={(e) => {
+                    const next = String(e.currentTarget.value ?? "")
+                      .replace(/[^A-Za-z\s]+/g, "")
+                      .replace(/\s{2,}/g, " ");
+                    if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                  }}
+                  onInvalid={(e) => {
+                    const v = e.currentTarget.value.trim();
+                    if (!v || !/^[A-Za-z][A-Za-z\s]*$/.test(v)) {
+                      setValidity(e.currentTarget, "Enter a valid full name");
+                    }
+                  }}
+                  onInput={(e) => setValidity(e.currentTarget, "")}
+                />
               </div>
               <div className="flex-1">
                 <label htmlFor="contact" className="block text-gray-700 font-medium mb-1">Contact Number*</label>
-                <input type="tel" id="contact" name="contact" required pattern="[0-9]{10,}" placeholder="Contact Number" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                <input
+                  type="tel"
+                  id="contact"
+                  name="contact"
+                  required
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  maxLength={10}
+                  pattern="^[0-9]{10}$"
+                  placeholder="Contact Number"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  onChange={(e) => {
+                    const next = digitsOnlyMax10(e.currentTarget.value);
+                    if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                  }}
+                  onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
+                  onInput={(e) => setValidity(e.currentTarget, "")}
+                />
               </div>
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email*</label>
-                <input type="email" id="email" name="email" required placeholder="Email" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  pattern="^[^\\s@]+@[^\\s@]+\\.com$"
+                  placeholder="Email"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  onInvalid={(e) => setValidity(e.currentTarget, "Enter a valid email address")}
+                  onInput={(e) => setValidity(e.currentTarget, "")}
+                />
               </div>
             </div>
             <div>
               <label htmlFor="message" className="block text-gray-700 font-medium mb-1">Message*</label>
-              <textarea id="message" name="message" rows={4} required placeholder="Write your message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
+              <textarea id="message" name="message" rows={4} required maxLength={500} placeholder="Write your message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
             </div>
             <Button
               type="submit"
@@ -299,16 +383,18 @@ const Contact = () => {
           </form>
         </div>
       </div>
-      {/* Floating WhatsApp Button */}
-      <a
-        href={`https://api.whatsapp.com/send/?phone=${whatsapp?.value || ''}&text&type=phone_number&app_absent=0`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center"
-        aria-label="Chat on WhatsApp"
-      >
-        <FaWhatsapp className="w-6 h-6" />
-      </a>
+      {/* Floating WhatsApp Button — uses same phone source as footer (`footer_settings.phone`) */}
+      {whatsappHref ? (
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300 ease-in-out flex items-center justify-center"
+          aria-label="Chat on WhatsApp"
+        >
+          <FaWhatsapp className="w-6 h-6" />
+        </a>
+      ) : null}
 
       <Footer />
     </div>

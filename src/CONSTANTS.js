@@ -69,7 +69,7 @@ export const navItems = [
     path: "/franchises",
   },
   {
-    label: "Contact",
+    label: "Contact Us",
     path: "/contact-us",
   },
 ];

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import { FiPhone } from "react-icons/fi";
+import { FiCalendar } from "react-icons/fi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
@@ -53,7 +53,6 @@ function serviceDetailPath(item) {
 }
 
 const HERO_DEFAULTS = {
-  eyebrow: "Welcome to Teach & Learn",
   titleLine1: "Empowering Children and Adults to",
   highlight: "Reach Their Full Potential",
   description:
@@ -70,6 +69,7 @@ const Home = () => {
   // State for data
   const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
   const [bookMessage, setBookMessage] = useState(null);
+  const [bookFormText, setBookFormText] = useState("");
 
   const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
@@ -245,8 +245,6 @@ const Home = () => {
     }
   };
 
-  const heroEyebrow =
-    homeData?.heroEyebrow?.trim() || HERO_DEFAULTS.eyebrow;
   const heroTitleLine1 =
     homeData?.heroTitleLine1?.trim() || HERO_DEFAULTS.titleLine1;
   const heroTitleHighlight =
@@ -265,6 +263,12 @@ const Home = () => {
   const heroImageAlt =
     homeData?.heroImage?.alt?.trim() || HERO_DEFAULTS.imageAlt;
 
+  const setValidity = (el, message) => {
+    if (el && typeof el.setCustomValidity === "function") el.setCustomValidity(message);
+  };
+
+  const digitsOnlyMax10 = (value) => String(value ?? "").replace(/\D+/g, "").slice(0, 10);
+
   return (
     <div>
       <Navbar />
@@ -282,10 +286,6 @@ const Home = () => {
         <div className="flex flex-col md:flex-row items-center justify-center w-full px-4 md:px-12 py-16 gap-8 relative z-10">
           {/* Left Content */}
           <div className="w-full md:w-1/2 flex flex-col gap-2">
-            <p className="text-sm sm:text-base md:text-lg text-orange-500">
-              {heroEyebrow}
-            </p>
-
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-snug md:leading-tight">
               {heroTitleLine1}{" "}
               <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
@@ -298,7 +298,7 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
-              <Button onClick={() => navigate("/about-us")}>
+              <Button onClick={() => navigate("/child-services")}>
                 <span className="flex items-center gap-1">
                   {heroPrimaryCtaLabel}{" "}
                   <IoIosArrowRoundForward size={24} />
@@ -310,7 +310,7 @@ const Home = () => {
                 onClick={() => scrollToId("book")}
               >
                 {heroSecondaryCtaLabel}
-                <FiPhone size={16} />
+                <FiCalendar size={16} />
               </Button>
             </div>
           </div>
@@ -440,10 +440,6 @@ const Home = () => {
 
               {/* Text Content */}
               <div className="max-w-xl text-center md:text-left z-10">
-                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-                  About Us
-                </p>
-
                 <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
                   {aboutUs.title}
                 </h1>
@@ -499,11 +495,8 @@ const Home = () => {
       >
         <img src={circles} alt="" className="absolute scale-200" />
         <div className="max-w-6xl w-full z-10">
-          <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2 text-center">
-            Our Services
-          </p>
           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-10 text-center">
-            What Service We Offer
+            Services We Offer
           </h1>
 
           {servicesLoading ? (
@@ -599,10 +592,6 @@ const Home = () => {
             <>
               {/* Text Content */}
               <div className="flex flex-col justify-center max-w-xl text-center md:text-left">
-                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-                  Why Choose Us
-                </p>
-
                 <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
                   {whyUs[0].heading}
                 </h1>
@@ -752,9 +741,6 @@ const Home = () => {
 
               {/* Text Block */}
               <div className="flex flex-col justify-center max-w-xl text-center md:text-left gap-2">
-                <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-                  Our Philosophy
-                </p>
                 <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
                   {ourPhilosophy.heading}
                 </h1>
@@ -796,11 +782,8 @@ const Home = () => {
         <img src={capsule} alt="" className="absolute right-10 hidden md:block" />
         <div className="w-screen z-10 flex flex-col items-center justify-center py-16 px-4 sm:px-6 md:px-12 mb-10">
           <div className="text-center">
-            <p className="text-orange-500 font-semibold text-sm md:text-base uppercase tracking-wide mb-2">
-              Testimonials
-            </p>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-10">
-              What Parents Say
+              What Our Parents Say
             </h2>
           </div>
 
@@ -918,6 +901,7 @@ const Home = () => {
                 setBookSubmitStatus("success");
                 setBookMessage("Thanks! We will contact you shortly to confirm.");
                 form.reset();
+                setBookFormText("");
               } catch (err) {
                 setBookSubmitStatus("error");
                 if (err?.code === "MISSING_WRITE_TOKEN") {
@@ -959,23 +943,49 @@ const Home = () => {
               type="text"
               name="name"
               required
+              pattern="^[A-Za-z][A-Za-z\s]*$"
               placeholder="Your Name"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(e) => {
+                const next = String(e.currentTarget.value ?? "")
+                  .replace(/[^A-Za-z\s]+/g, "")
+                  .replace(/\s{2,}/g, " ");
+                if (e.currentTarget.value !== next) e.currentTarget.value = next;
+              }}
+              onInvalid={(e) => {
+                const v = e.currentTarget.value.trim();
+                if (!v || !/^[A-Za-z][A-Za-z\s]*$/.test(v)) {
+                  setValidity(e.currentTarget, "Enter a valid full name");
+                }
+              }}
+              onInput={(e) => setValidity(e.currentTarget, "")}
             />
             <input
               type="tel"
               name="contact"
               required
-              pattern="[0-9]{10,}"
+              inputMode="numeric"
+              autoComplete="tel"
+              maxLength={10}
+              pattern="^[0-9]{10}$"
               placeholder="Phone Number"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(e) => {
+                const next = digitsOnlyMax10(e.currentTarget.value);
+                if (e.currentTarget.value !== next) e.currentTarget.value = next;
+              }}
+              onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
+              onInput={(e) => setValidity(e.currentTarget, "")}
             />
             <input
               type="email"
               name="email"
               required
+              pattern="^[^\\s@]+@[^\\s@]+\\.com$"
               placeholder="Email Address"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onInvalid={(e) => setValidity(e.currentTarget, "Enter a valid email address")}
+              onInput={(e) => setValidity(e.currentTarget, "")}
             />
             <select
               name="service"
@@ -983,7 +993,7 @@ const Home = () => {
               defaultValue=""
               className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="" disabled>
+              <option value="" disabled hidden>
                 {servicesLoading ? "Loading services..." : "Select Service"}
               </option>
               {!servicesLoading &&
@@ -997,8 +1007,14 @@ const Home = () => {
               name="message"
               required
               placeholder="Your Message"
+              maxLength={500}
               className="w-full border border-gray-300 rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+              value={bookFormText}
+              onChange={(e) => setBookFormText(e.currentTarget.value.slice(0, 500))}
             ></textarea>
+            <p className="text-xs text-gray-500 -mt-3 text-left" aria-live="polite">
+              {bookFormText.length}/500
+            </p>
             <Button
               type="submit"
               disabled={bookSubmitStatus === "submitting"}
