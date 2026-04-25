@@ -143,7 +143,8 @@ const Contact = () => {
     };
   }).filter(Boolean) || fallbackContactDetails;
 
-  const addresses = contactData?.contactAddress || fallbackAddresses;
+  const cmsAddresses = Array.isArray(contactData?.contactAddress) ? contactData.contactAddress : null;
+  const addresses = cmsAddresses && cmsAddresses.length > 0 ? cmsAddresses : fallbackAddresses;
   const whatsapp = contactData?.contactDetails?.find(detail => detail.label === "Whatsapp");
   const whatsappPhoneParam =
     whatsappPhoneParamFromDisplay(footerPhone) ||
@@ -233,7 +234,7 @@ const Contact = () => {
                     {address.title}
                   </h2>
                   <div className="flex items-start gap-3 mt-2">
-                    <FaMapMarkerAlt className="text-2xl md:text-3xl text-white mt-1 drop-shadow-sm" />
+                    <FaMapMarkerAlt className="w-7 h-7 md:w-8 md:h-8 text-white mt-1 drop-shadow-sm shrink-0" />
                     <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
                       {address.address}
                     </span>

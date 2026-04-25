@@ -36,6 +36,7 @@ import Carousel from "../components/Carousel";
 import {
   getHome,
   getImageUrlFromRef,
+  getContactUs,
   submitContactSubmission,
 } from "../network/api_service";
 import Footer from "../components/Footer";
@@ -72,6 +73,10 @@ const Home = () => {
   const [bookFormText, setBookFormText] = useState("");
   const [bookEmailError, setBookEmailError] = useState("");
   const [bookContactError, setBookContactError] = useState("");
+  const [bookBranchError, setBookBranchError] = useState("");
+
+  const [branches, setBranches] = useState([]);
+  const [branchesLoading, setBranchesLoading] = useState(true);
 
   const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
@@ -230,6 +235,26 @@ const Home = () => {
   };
   useEffect(() => {
     fetchHomeData();
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setBranchesLoading(true);
+        const contact = await getContactUs();
+        const list = Array.isArray(contact?.contactAddress) ? contact.contactAddress : [];
+        if (alive) setBranches(list);
+      } catch (e) {
+        // Silent failure: the form still works; the branch dropdown will show “No branches available”.
+        if (alive) setBranches([]);
+      } finally {
+        if (alive) setBranchesLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -854,6 +879,7 @@ const Home = () => {
               setBookMessage(null);
               setBookEmailError("");
               setBookContactError("");
+              setBookBranchError("");
               if (!hasWriteToken) {
                 setBookSubmitStatus("error");
                 setBookMessage(
@@ -885,11 +911,17 @@ const Home = () => {
                 form.email?.focus?.();
                 return;
               }
+              const branchValue = String(form.branch?.value ?? "").trim();
+              if (!branchValue) {
+                setBookBranchError("Please select a branch");
+                form.branch?.focus?.();
+                return;
+              }
               const payload = {
                 name: form.name.value.trim(),
                 contact: contactValue,
                 email: emailValue,
-                message: form.message.value.trim(),
+                message: `${form.message.value.trim()}\n\nPreferred branch: ${branchValue}`.trim(),
                 service: form.service.value.trim(),
                 source: "home_book",
               };
@@ -1016,6 +1048,41 @@ const Home = () => {
                   </option>
                 ))}
             </select>
+            <select
+              name="branch"
+              required
+              defaultValue=""
+              className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              aria-invalid={bookBranchError ? "true" : "false"}
+              onChange={() => {
+                if (bookBranchError) setBookBranchError("");
+              }}
+              onInvalid={(e) => setValidity(e.currentTarget, "Please select a branch")}
+              onInput={(e) => setValidity(e.currentTarget, "")}
+            >
+              <option value="" disabled hidden>
+                {branchesLoading
+                  ? "Loading branches..."
+                  : branches.length > 0
+                    ? "Select Branch"
+                    : "No branches available"}
+              </option>
+              {!branchesLoading &&
+                branches.map((b, index) => (
+                  <option
+                    key={b._id ?? index}
+                    value={`${String(b.title ?? "Branch").trim()} — ${String(b.address ?? "").trim()}`.trim()}
+                  >
+                    {String(b.title ?? "Branch").trim()}
+                    {b.address ? ` — ${String(b.address).trim()}` : ""}
+                  </option>
+                ))}
+            </select>
+            {bookBranchError ? (
+              <p className="text-sm text-red-700 -mt-3" role="alert">
+                {bookBranchError}
+              </p>
+            ) : null}
             <textarea
               name="message"
               required

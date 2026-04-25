@@ -245,6 +245,7 @@ export function createApp() {
     'service_listing_landing',
     'service_listing_item',
     'footer_settings',
+    'contact_address',
   ])
 
   api.post('/documents', async (req, res) => {

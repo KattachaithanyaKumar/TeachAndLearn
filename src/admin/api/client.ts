@@ -19,6 +19,7 @@ const CREATABLE_DOCUMENT_TYPES = new Set([
   'service_listing_landing',
   'service_listing_item',
   'footer_settings',
+  'contact_address',
 ])
 
 const DELETABLE_DOCUMENT_TYPES = new Set(['service_listing_item'])
