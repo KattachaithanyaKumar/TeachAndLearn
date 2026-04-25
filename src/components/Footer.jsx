@@ -120,7 +120,7 @@ const Footer = ({ color }) => {
                 <li key={item._id ?? item.pathSegment ?? item.title}>
                   <Link
                     to={toServiceDetail("child", item)}
-                    className="hover:text-orange-600 hover:underline"
+                    className="cursor-pointer font-medium text-orange-600 transition-colors hover:text-orange-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm"
                   >
                     {item.title}
                   </Link>

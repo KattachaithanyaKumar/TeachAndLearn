@@ -70,6 +70,8 @@ const Home = () => {
   const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
   const [bookMessage, setBookMessage] = useState(null);
   const [bookFormText, setBookFormText] = useState("");
+  const [bookEmailError, setBookEmailError] = useState("");
+  const [bookContactError, setBookContactError] = useState("");
 
   const [homeData, setHomeData] = useState(null);
   const [services, setServices] = useState([]);
@@ -846,9 +848,12 @@ const Home = () => {
         <div className="relative z-10 max-w-6xl mx-auto mb-10 mt-10 flex justify-center">
           <form
             className="w-full max-w-2xl bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5"
+            noValidate
             onSubmit={async (e) => {
               e.preventDefault();
               setBookMessage(null);
+              setBookEmailError("");
+              setBookContactError("");
               if (!hasWriteToken) {
                 setBookSubmitStatus("error");
                 setBookMessage(
@@ -857,10 +862,33 @@ const Home = () => {
                 return;
               }
               const form = e.target;
+              const contactValue = digitsOnlyMax10(form.contact?.value ?? "");
+              if (!contactValue) {
+                setBookContactError("Phone number is required");
+                form.contact?.focus?.();
+                return;
+              }
+              if (contactValue.length !== 10) {
+                setBookContactError("Phone number must be exactly 10 digits");
+                form.contact?.focus?.();
+                return;
+              }
+              const emailValue = String(form.email?.value ?? "").trim();
+              if (!emailValue) {
+                setBookEmailError("Email is required");
+                form.email?.focus?.();
+                return;
+              }
+              // Basic email shape check; avoids browser bubble that echoes user input.
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                setBookEmailError("Enter a valid email address");
+                form.email?.focus?.();
+                return;
+              }
               const payload = {
                 name: form.name.value.trim(),
-                contact: form.contact.value.trim(),
-                email: form.email.value.trim(),
+                contact: contactValue,
+                email: emailValue,
                 message: form.message.value.trim(),
                 service: form.service.value.trim(),
                 source: "home_book",
@@ -940,22 +968,38 @@ const Home = () => {
               pattern="^[0-9]{10}$"
               placeholder="Phone Number"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              aria-invalid={bookContactError ? "true" : "false"}
               onChange={(e) => {
                 const next = digitsOnlyMax10(e.currentTarget.value);
                 if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                if (bookContactError) setBookContactError("");
               }}
               onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
               onInput={(e) => setValidity(e.currentTarget, "")}
             />
+            {bookContactError ? (
+              <p className="text-sm text-red-700 -mt-3" role="alert">
+                {bookContactError}
+              </p>
+            ) : null}
             <input
               type="email"
               name="email"
               required
               placeholder="Email Address"
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              onInvalid={(e) => setValidity(e.currentTarget, "Enter a valid email address")}
-              onInput={(e) => setValidity(e.currentTarget, "")}
+              aria-invalid={bookEmailError ? "true" : "false"}
+              onChange={(e) => {
+                if (bookEmailError) setBookEmailError("");
+                // Keep other existing behaviors consistent.
+                setValidity(e.currentTarget, "");
+              }}
             />
+            {bookEmailError ? (
+              <p className="text-sm text-red-700 -mt-3" role="alert">
+                {bookEmailError}
+              </p>
+            ) : null}
             <select
               name="service"
               required

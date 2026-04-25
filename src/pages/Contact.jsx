@@ -52,6 +52,9 @@ const Contact = () => {
   const [error, setError] = useState(null);
   const [formStatus, setFormStatus] = useState("idle");
   const [formFeedback, setFormFeedback] = useState(null);
+  const [emailError, setEmailError] = useState("");
+  const [contactError, setContactError] = useState("");
+  const [messageText, setMessageText] = useState("");
 
   useEffect(() => {
     const fetchContactData = async () => {
@@ -274,9 +277,12 @@ const Contact = () => {
           ) : null}
           <form
             className="space-y-6"
+            noValidate
             onSubmit={async (e) => {
               e.preventDefault();
               setFormFeedback(null);
+              setEmailError("");
+              setContactError("");
               if (!hasWriteToken) {
                 setFormStatus("error");
                 setFormFeedback(
@@ -285,10 +291,32 @@ const Contact = () => {
                 return;
               }
               const form = e.target;
+              const contactValue = digitsOnlyMax10(form.contact?.value ?? "");
+              if (!contactValue) {
+                setContactError("Phone number is required");
+                form.contact?.focus?.();
+                return;
+              }
+              if (contactValue.length !== 10) {
+                setContactError("Phone number must be exactly 10 digits");
+                form.contact?.focus?.();
+                return;
+              }
+              const emailValue = String(form.email?.value ?? "").trim();
+              if (!emailValue) {
+                setEmailError("Email is required");
+                form.email?.focus?.();
+                return;
+              }
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                setEmailError("Enter a valid email address");
+                form.email?.focus?.();
+                return;
+              }
               const payload = {
                 name: form.name.value.trim(),
-                contact: form.contact.value.trim(),
-                email: form.email.value.trim(),
+                contact: contactValue,
+                email: emailValue,
                 message: form.message.value.trim(),
                 source: "contact_page",
               };
@@ -298,6 +326,7 @@ const Contact = () => {
                 setFormStatus("success");
                 setFormFeedback("Thank you! We will get back to you soon.");
                 form.reset();
+                setMessageText("");
               } catch (err) {
                 setFormStatus("error");
                 if (err?.code === "MISSING_WRITE_TOKEN") {
@@ -353,13 +382,20 @@ const Contact = () => {
                   pattern="^[0-9]{10}$"
                   placeholder="Contact Number"
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={contactError ? "true" : "false"}
                   onChange={(e) => {
                     const next = digitsOnlyMax10(e.currentTarget.value);
                     if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                    if (contactError) setContactError("");
                   }}
                   onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
                   onInput={(e) => setValidity(e.currentTarget, "")}
                 />
+                {contactError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {contactError}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="flex flex-col md:flex-row gap-4">
@@ -373,14 +409,35 @@ const Contact = () => {
                   pattern="^[^\\s@]+@[^\\s@]+\\.com$"
                   placeholder="Email"
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
-                  onInvalid={(e) => setValidity(e.currentTarget, "Enter a valid email address")}
-                  onInput={(e) => setValidity(e.currentTarget, "")}
+                  aria-invalid={emailError ? "true" : "false"}
+                  onChange={(e) => {
+                    if (emailError) setEmailError("");
+                    setValidity(e.currentTarget, "");
+                  }}
                 />
+                {emailError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {emailError}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div>
               <label htmlFor="message" className="block text-gray-700 font-medium mb-1">Message*</label>
-              <textarea id="message" name="message" rows={4} required maxLength={500} placeholder="Write your message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
+              <textarea
+                id="message"
+                name="message"
+                rows={4}
+                required
+                maxLength={500}
+                placeholder="Write your message"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"
+                value={messageText}
+                onChange={(e) => setMessageText(e.currentTarget.value.slice(0, 500))}
+              />
+              <p className="text-xs text-gray-500 mt-2 text-left" aria-live="polite">
+                {messageText.length}/500
+              </p>
             </div>
             <Button
               type="submit"
