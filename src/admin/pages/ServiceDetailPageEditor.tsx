@@ -408,15 +408,10 @@ function AlternatingFields({
           onChange={(e) => onChange({ ...block, heading: e.target.value })}
         />
       </label>
-      <label className="field">
-        <span className="field-label">body</span>
-        <textarea
-          className="textarea"
-          rows={8}
-          value={block.body ?? ''}
-          onChange={(e) => onChange({ ...block, body: e.target.value })}
-        />
-      </label>
+      <div className="field">
+        <span className="field-label">body (markdown)</span>
+        <MarkdownEditor value={block.body ?? ''} onChange={(v) => onChange({ ...block, body: v })} rows={8} />
+      </div>
       <ImageUploadField
         label="Image"
         value={block.image}
@@ -855,15 +850,10 @@ function TwoColFields({
           onChange={(e) => onChange({ ...block, heading: e.target.value })}
         />
       </label>
-      <label className="field">
-        <span className="field-label">body</span>
-        <textarea
-          className="textarea"
-          rows={6}
-          value={block.body ?? ''}
-          onChange={(e) => onChange({ ...block, body: e.target.value })}
-        />
-      </label>
+      <div className="field">
+        <span className="field-label">body (markdown)</span>
+        <MarkdownEditor value={block.body ?? ''} onChange={(v) => onChange({ ...block, body: v })} rows={8} />
+      </div>
       <label className="field row">
         <input
           type="checkbox"

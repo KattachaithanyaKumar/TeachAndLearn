@@ -163,9 +163,9 @@ function AlternatingMedia({ block }) {
         <div className="w-full md:w-1/2 text-center md:text-left">
           {block.heading ? <h2 className={headingClass}>{block.heading}</h2> : null}
           {block.body ? (
-            <p className="text-gray-700 text-base md:text-lg leading-relaxed whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-700 text-base md:text-lg leading-relaxed">
               {block.body}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
       </div>
@@ -187,9 +187,9 @@ function IconCardGrid({ block }) {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800">{block.sectionTitle}</h2>
           ) : null}
           {block.sectionSubtitle ? (
-            <p className="text-gray-600 mt-2 text-base sm:text-lg max-w-2xl mx-auto whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-600 mt-2 text-base sm:text-lg max-w-2xl mx-auto">
               {block.sectionSubtitle}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
         <div className={`grid ${cols} gap-8`}>
@@ -284,9 +284,9 @@ function SplitDisorders({ block }) {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{block.introTitle}</h2>
           ) : null}
           {block.introBody ? (
-            <p className="text-gray-700 text-base max-w-3xl mx-auto whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-700 text-base max-w-3xl mx-auto">
               {block.introBody}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
@@ -347,9 +347,9 @@ function MediaSideIconList({ block }) {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{block.sectionTitle}</h2>
           ) : null}
           {block.sectionSubtitle ? (
-            <p className="text-gray-600 text-base max-w-3xl mx-auto whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-600 text-base max-w-3xl mx-auto">
               {block.sectionSubtitle}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
         <div className={`flex ${row} gap-12`}>
@@ -407,9 +407,9 @@ function GoalsSplit({ block }) {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{block.sectionTitle}</h2>
           ) : null}
           {block.sectionSubtitle ? (
-            <p className="text-gray-600 text-base max-w-3xl mx-auto whitespace-pre-wrap">
+            <MarkdownContent className="text-gray-600 text-base max-w-3xl mx-auto">
               {block.sectionSubtitle}
-            </p>
+            </MarkdownContent>
           ) : null}
         </div>
         <div className={`flex ${row} gap-12`}>
@@ -455,9 +455,9 @@ function TwoColumnPlain({ block }) {
         </h2>
       ) : null}
       {block.body ? (
-        <p className="text-gray-700 leading-relaxed text-base md:text-lg whitespace-pre-wrap">
+        <MarkdownContent className="text-gray-700 leading-relaxed text-base md:text-lg">
           {block.body}
-        </p>
+        </MarkdownContent>
       ) : null}
     </div>
   );
