@@ -45,6 +45,25 @@ export const contactAddress = defineType({
             name: 'address',
             type: 'text',
         }),
+        defineField({
+            name: 'mapScreenshot',
+            title: 'Map screenshot',
+            description: 'Optional image shown on the public Contact page for this branch (e.g. map capture).',
+            type: 'image',
+            options: { hotspot: true },
+        }),
+        defineField({
+            name: 'latitude',
+            title: 'Latitude',
+            type: 'number',
+            description: 'Optional (WGS84). With longitude, improves Google Maps directions links.',
+        }),
+        defineField({
+            name: 'longitude',
+            title: 'Longitude',
+            type: 'number',
+            description: 'Optional (WGS84). With latitude, improves Google Maps directions links.',
+        }),
     ]
 });
 

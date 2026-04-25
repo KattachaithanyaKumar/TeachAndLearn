@@ -3,18 +3,15 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
 import Button from "../components/Button";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { FaWhatsapp } from "react-icons/fa";
 import { allIcons } from "../CONSTANTS";
 import { getContactUs, getFooterSettings, submitContactSubmission } from "../network/api_service";
-
-import teacherImg from "../assets/teacher-and-student.JPG";
-import mapImg from "../assets/teach_and_learn_cdc_location.png";
+import { directionsUrlForBranch } from "../utils/mapUrls";
+import hafeezpetMapFallback from "../assets/teach_and_learn_cdc_location.png";
 
 const FOOTER_FALLBACK_PHONE = "+91 9876543210";
-const CDC_DIRECTIONS_URL =
-  "https://www.google.com/maps/dir//Teach+and+Learn+Child+Development+Center+(CDC)-+Best+Behavioral,+Occupational,+Speech+Therapy+Near+Me+in+Hafeezpet,+Hyderabad,+Sathvika+Residency,+Vinayaka+Nagar,+Hafeezpet,+Hyderabad,+Telangana+500049/@17.4861907,78.3575348,17z/data=!4m16!1m7!3m6!1s0x3bcb932ff00d96cf:0xc1e969b057623410!2sTeach+and+Learn+Child+Development+Center+(CDC)-+Best+Behavioral,+Occupational,+Speech+Therapy+Near+Me+in+Hafeezpet,+Hyderabad!8m2!3d17.4862224!4d78.357255!16s%2Fg%2F11j8k7mrj3!4m7!1m0!1m5!1m1!1s0x3bcb932ff00d96cf:0xc1e969b057623410!2m2!1d78.357255!2d17.4862224?entry=ttu&g_ep=EgoyMDI2MDQyMi4wIKXMDSoASAFQAw%3D%3D";
 
 function pickStr(cms, fallback) {
   const t = typeof cms === "string" ? cms.trim() : "";
@@ -117,13 +114,19 @@ const Contact = () => {
 
   const fallbackAddresses = [
     {
-      title: "Main Office",
+      title: "Hafeezpet CDC",
       address: "Satvika Residency, Vinayaka Nagar, Hafeezpet, Hyderabad, Telangana 500049",
+      latitude: 17.4862224,
+      longitude: 78.357255,
+      mapScreenshotUrl: hafeezpetMapFallback,
     },
     {
-      title: "Our Branch",
-      address: "Sai Sigma 2, Madhava Hills Road No. 1, Opp. Arbor International School, Kondapur, Hyderabad, Telangana 500084",
-    }
+      title: "Kondapur CDC",
+      address:
+        "Sai Sigma 2, Madhava Hills Road No. 1, Opp. Arbor International School, Kondapur, Hyderabad, Telangana 500084",
+      latitude: 17.4628,
+      longitude: 78.3542,
+    },
   ];
 
   // Prepare contact details with icons and actions
@@ -162,7 +165,7 @@ const Contact = () => {
   return (
     <div className="overflow-hidden">
       <Navbar />
-      <Section className="bg-gray-50 py-20 px-6 sm:px-10 md:px-20">
+      <Section className="bg-gray-50 pt-36 pb-20 px-6 sm:px-10 md:px-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Animated Gradient Heading */}
           <h1 className="text-5xl font-bold mb-10">
@@ -209,52 +212,85 @@ const Contact = () => {
       </Section>
 
 
-      <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch mt-6 sm:mt-0 px-2">
-        {/* Left Card: Addresses, Image */}
-        <div
-          className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer"
-          style={{
-            background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
-          }}
-          onClick={() => window.open(CDC_DIRECTIONS_URL, "_blank", "noopener,noreferrer")}
-          role="link"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              window.open(CDC_DIRECTIONS_URL, "_blank", "noopener,noreferrer");
-            }
-          }}
-        >
-          <div className="p-8 flex flex-col gap-6 flex-grow">
-            <div className="mt-6 space-y-6">
-              {addresses.map((address, index) => (
-                <div key={index}>
-                  <h2 className="text-white text-2xl md:text-2xl font-extrabold drop-shadow-md">
-                    {address.title}
-                  </h2>
-                  <div className="flex items-start gap-3 mt-2">
-                    <FaMapMarkerAlt className="w-7 h-7 md:w-8 md:h-8 text-white mt-1 drop-shadow-sm shrink-0" />
-                    <span className="text-white text-base md:text-lg font-semibold leading-relaxed drop-shadow-sm">
-                      {address.address}
-                    </span>
+      <div className="max-w-6xl mx-auto py-12 mt-6 sm:mt-0 px-2 space-y-12">
+        <section aria-labelledby="locations-heading">
+          <h2
+            id="locations-heading"
+            className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center"
+          >
+            Our locations
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {addresses.map((branch, index) => {
+              const key = branch._id ?? `branch-${index}`;
+              const mapSrc =
+                typeof branch.mapScreenshotUrl === "string" && branch.mapScreenshotUrl.trim()
+                  ? branch.mapScreenshotUrl.trim()
+                  : null;
+              const dirUrl = directionsUrlForBranch(branch);
+              const mapPlaceholder =
+                "Upload a map screenshot for this branch in the admin or Sanity Studio (Map screenshot field).";
+              const mapImg = (
+                <img
+                  src={mapSrc}
+                  alt={`Map image for ${branch.title?.trim() || "branch"}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              );
+              return (
+                <article
+                  key={key}
+                  className="rounded-2xl shadow-lg bg-white border border-gray-200 overflow-hidden flex h-full min-h-0 flex-col"
+                >
+                  <div className="flex h-full min-h-0 flex-col gap-4 p-6">
+                    <h3 className="shrink-0 text-xl font-bold text-gray-900">
+                      {branch.title?.trim() || "Location"}
+                    </h3>
+                    <p className="shrink-0 text-gray-700 text-sm leading-relaxed">{branch.address}</p>
+                    <div className="mt-auto flex w-full shrink-0 flex-col gap-4">
+                      <div className="aspect-video w-full shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-100">
+                        {mapSrc && dirUrl ? (
+                          <a
+                            href={dirUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+                            aria-label={`Map of ${branch.title?.trim() || "location"} — open directions`}
+                          >
+                            {mapImg}
+                          </a>
+                        ) : mapSrc ? (
+                          <div className="block h-full w-full">{mapImg}</div>
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm leading-snug text-gray-500">
+                            {mapPlaceholder}
+                          </div>
+                        )}
+                      </div>
+                      {dirUrl ? (
+                        <a
+                          href={dirUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-red-500 to-orange-500 py-2.5 px-4 text-center text-sm font-semibold text-white transition-opacity hover:opacity-95"
+                        >
+                          Directions in Google Maps
+                        </a>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                </article>
+              );
+            })}
           </div>
+        </section>
 
-          <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
-            <img
-              src={mapImg || teacherImg}
-              alt="Teach and Learn location map"
-              className="object-cover w-full h-full rounded-b-2xl"
-            />
-          </div>
-        </div>
-
-        {/* Right Card: Contact Form */}
-        <div className="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center">
+        <div
+          id="contact-form"
+          className="max-w-2xl mx-auto w-full bg-white rounded-2xl shadow-xl p-8 flex flex-col justify-center scroll-mt-24"
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Send Us a Message</h2>
           <p className="text-gray-500 mb-8">Fill out the form below and our team will get in touch with you soon.</p>
           {!hasWriteToken ? (

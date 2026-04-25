@@ -1,42 +1,86 @@
-import React, { useEffect, useState } from "react";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFileSignature, FaBuilding } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { FaCheck } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
-import { getFranchise, urlForSanityImage } from "../network/api_service";
+import { getFranchise } from "../network/api_service";
 import { useApiStates } from "../hooks/useApiStates";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import { INDIAN_STATES, EDUCATION_LEVELS } from "../constants/indianStates";
+import { mergeFranchisePageBody } from "../data/franchisePageCopy";
 
-import teacherImg from "../assets/teacher-and-student.JPG";
+const COMMENTS_MAX = 500;
+
+function setValidity(el, message) {
+  if (el && typeof el.setCustomValidity === "function") el.setCustomValidity(message);
+}
+
+function digitsOnlyMax10(value) {
+  return String(value ?? "").replace(/\D+/g, "").slice(0, 10);
+}
+
+function formatAlertLine(key, value) {
+  const label = key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (s) => s.toUpperCase())
+    .trim();
+  return `${label}: ${value}`;
+}
+
+const franchiseSelectClass =
+  "w-full appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-10 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200";
+
+function SelectChevron() {
+  return (
+    <span
+      className="pointer-events-none absolute right-3 top-1/2 z-[1] -translate-y-1/2 text-gray-500"
+      aria-hidden
+    >
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </span>
+  );
+}
 
 const Franchises = () => {
   const { states, setLoading, setError, setData } = useApiStates({
-    franchise: { loading: false, error: null, data: null }
+    franchise: { loading: false, error: null, data: null },
   });
 
   const [franchiseData, setFranchiseData] = useState(null);
+  const [commentsValue, setCommentsValue] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [dobError, setDobError] = useState("");
+  const [educationError, setEducationError] = useState("");
+  const [stateError, setStateError] = useState("");
+  const [districtError, setDistrictError] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [commentsError, setCommentsError] = useState("");
+
+  const maxDob = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
     const fetchFranchiseData = async () => {
-      setLoading('franchise', true);
+      setLoading("franchise", true);
       try {
         const data = await getFranchise();
         setFranchiseData(data);
-        console.log('Fetched franchise data:', data);
-
-        setData('franchise', data);
-        setLoading('franchise', false);
+        setData("franchise", data);
+        setLoading("franchise", false);
       } catch (error) {
-        console.error('Error fetching franchise data:', error);
-        setError('franchise', error.message);
+        console.error("Error fetching franchise data:", error);
+        setError("franchise", error.message);
       }
     };
 
     fetchFranchiseData();
   }, [setLoading, setError, setData]);
 
-  // Show loading spinner while fetching data
   if (states.franchise?.loading) {
     return (
       <div className="bg-white min-h-screen">
@@ -49,10 +93,8 @@ const Franchises = () => {
     );
   }
 
-  // Show error message if there's an error (but still show fallback data)
   const showError = states.franchise?.error && !states.franchise?.data;
 
-  // If there's an error and no data, show error page
   if (showError) {
     return (
       <div className="bg-white min-h-screen">
@@ -68,7 +110,6 @@ const Franchises = () => {
     );
   }
 
-  // If no data available, show empty state
   if (!franchiseData) {
     return (
       <div className="bg-white min-h-screen">
@@ -81,35 +122,22 @@ const Franchises = () => {
     );
   }
 
-  const steps = franchiseData.steps ?
-    franchiseData.steps
-      .sort((a, b) => (a.index || 0) - (b.index || 0))
-      .map((step) => ({
-        icon: <FaBuilding className="text-xl text-white" />,
-        title: step.title,
-        description: step.description,
-      })) : [];
+  const sortedSteps = franchiseData.steps
+    ? [...franchiseData.steps].sort((a, b) => (a.index || 0) - (b.index || 0))
+    : [];
 
-  const contactInfo = franchiseData.contact ?
-    franchiseData.contact.map((contact) => ({
-      icon: <FaPhoneAlt className="text-2xl text-white" />,
-      label: contact.title,
-      value: contact.content,
-      highlight: true,
-    })) : [];
+  const stepsForUi = sortedSteps.map((step) => ({
+    _id: step._id,
+    title: step.title,
+    description: step.description,
+  }));
 
-  const reqData = franchiseData.requirements;
-
-  const supportCardImageSrc =
-    franchiseData.supportCardImage?.assetUrl ||
-    urlForSanityImage(franchiseData.supportCardImage) ||
-    teacherImg;
+  const pb = mergeFranchisePageBody(franchiseData.pageBody);
 
   return (
     <div className="overflow-hidden px-4 sm:px-6">
       <Navbar />
 
-      {/* Show error message if API failed but we have data */}
       {states.franchise?.error && (
         <div className="max-w-4xl mx-auto px-4 pt-24 mb-8">
           <ErrorMessage
@@ -119,149 +147,518 @@ const Franchises = () => {
         </div>
       )}
 
-      {/* Intro Section */}
-      <Section
-        className="relative px-2 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden mt-6"
-      >
-        <div className="relative z-10 max-w-4xl mx-auto text-center py-16 sm:py-20 md:py-24 flex flex-col items-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
-            Welcome to Our Franchise Opportunities!
+      <Section className="relative px-2 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden mt-6">
+        <div className="relative z-10 max-w-3xl mx-auto py-12 sm:py-16 md:py-20 flex flex-col items-stretch text-left">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg leading-tight">
+            {pb.heroTitle}
           </h1>
-          <p className="text-gray-700 text-base sm:text-lg md:text-xl mb-5 leading-relaxed max-w-2xl mx-auto">
-            We are committed to providing a <span className="font-semibold text-orange-600">safe, nurturing, and inclusive environment</span> where every child can thrive. Our team of experienced and qualified educators use <span className="font-semibold text-orange-600">research-backed teaching methods</span> to support children’s physical, social, emotional, and cognitive development. We also offer a range of specialized therapy services for children and adults, including <span className="font-semibold text-orange-600">physical therapy, behavioral therapy, and occupational therapy</span>.
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-8">
+            {pb.heroLead}
           </p>
-          <p className="text-gray-700 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-            Our <span className="font-semibold text-orange-600">School Readiness Program</span> prepares children for academic success and provides them with the foundational skills they need to succeed in school and beyond. At <span className="font-semibold text-orange-600">Teach and Learn</span>, we prioritize quality education and strong franchise support, making us the ideal partner for individuals looking to build a successful and rewarding business in early childhood education.
+
+          <ul className="space-y-3 mb-8">
+            {pb.valueChecks.map((line, i) => (
+              <li key={`${i}-${line}`} className="flex items-start gap-3 text-gray-800 font-medium">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs">
+                  <FaCheck className="text-[10px]" aria-hidden />
+                </span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+            <a
+              href="#franchise-inquiry"
+              className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-red-500 to-orange-500 px-6 py-3 text-center text-base font-bold text-white shadow-md transition hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            >
+              {pb.ctaApplyLabel}
+            </a>
+            <Link
+              to="/contact-us#contact-form"
+              className="inline-flex items-center justify-center rounded-xl border-2 border-orange-400 bg-white px-6 py-3 text-center text-base font-bold text-orange-600 shadow-sm transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
+            >
+              {pb.ctaTalkLabel}
+            </Link>
+          </div>
+
+          <p className="text-gray-700 mb-12">
+            <span className="mr-2" aria-hidden>
+              📞
+            </span>
+            Call:{" "}
+            <a href={pb.phoneTel} className="font-semibold text-orange-600 underline-offset-2 hover:underline">
+              {pb.phoneDisplay}
+            </a>
           </p>
+
+          <div className="space-y-10 text-gray-700 leading-relaxed">
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                {pb.sectionWhyTitle}
+              </h2>
+              <p>{pb.sectionWhyBody}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                {pb.sectionImpactTitle}
+              </h2>
+              <p>{pb.sectionImpactBody}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                {pb.sectionTrustTitle}
+              </h2>
+              <p className="mb-3">{pb.sectionTrustBody}</p>
+              <p>{pb.sectionTrustPartner}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                {pb.sectionFacilityTitle}
+              </h2>
+              <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
+                {pb.facilityLines.map((line, i) => (
+                  <li key={`${i}-${line}`}>{line}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                {pb.sectionJoinTitle}
+              </h2>
+              <p>{pb.sectionJoinBody}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 text-gray-900">{pb.sectionPartnersTitle}</h2>
+              <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
+                {pb.partnerCriteria.map((line, i) => (
+                  <li key={`${i}-${line}`}>{line}</li>
+                ))}
+              </ul>
+            </section>
+          </div>
         </div>
       </Section>
 
-      {/* Steps Section */}
-      {steps && steps.length > 0 && (
-        <Section className="mt-10 px-2 sm:px-6">
-          <div className="max-w-7xl mx-auto py-8 px-2">
-            <div className="flex flex-col md:flex-row items-stretch justify-between w-full gap-x-0 gap-y-8">
-              {steps.map((step, idx) => (
-                <React.Fragment key={idx}>
-                  {/* Step */}
-                  <div className="flex-1 flex flex-col items-center text-center px-2 py-4 md:py-0 md:px-6 min-w-0">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-xl mb-4 bg-gradient-to-br from-red-500 to-orange-500 mx-auto">
-                      {step.icon}
-                    </div>
-                    <div className="text-sm font-semibold text-gray-700 mb-1">Step {idx + 1}</div>
-                    <div className="text-base md:text-lg font-bold mb-1 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                      {step.title}
-                    </div>
-                    <div className="text-xs md:text-sm text-gray-500 max-w-xs mx-auto">
-                      {step.description}
-                    </div>
-                  </div>
-                  {/* Dashed line between steps (desktop only) */}
-                  {idx < steps.length - 1 && (
-                    <div className="hidden md:flex items-center justify-center h-0 relative w-0">
-                      <div className="border-t-2 border-dashed border-orange-300 w-32 md:w-40 lg:w-56 xl:w-72" style={{ marginTop: '-32px' }} />
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-        </Section>
-      )}
+      <div className="max-w-6xl mx-auto py-12 flex flex-col flex-wrap gap-8 items-start px-2 sm:px-4 lg:flex-row">
+        <div
+          id="franchise-inquiry"
+          className={`min-w-0 ${stepsForUi.length > 0 ? "flex-1" : "w-full max-w-2xl mx-auto"} w-full bg-white rounded-2xl shadow-xl p-4 sm:p-8 flex flex-col justify-center scroll-mt-24`}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+            Ready To Get Started?
+          </h2>
+          <p className="text-gray-500 mb-8">
+            Contact us today to learn more about our services and how we can support you or your loved one’s growth and
+            development.
+          </p>
+          <form
+            className="space-y-6"
+            noValidate
+            onSubmit={(e) => {
+              e.preventDefault();
+              setNameError("");
+              setEmailError("");
+              setMobileError("");
+              setDobError("");
+              setEducationError("");
+              setStateError("");
+              setDistrictError("");
+              setLocationError("");
+              setCommentsError("");
 
-      {contactInfo && contactInfo.length > 0 && (
-        <div className="max-w-6xl mx-auto py-12 flex flex-row flex-wrap gap-8 items-stretch px-2 sm:px-4">
+              const form = e.target;
+              const nameTrim = String(form.name?.value ?? "").trim();
+              if (!nameTrim || !/^[A-Za-z][A-Za-z\s]*$/.test(nameTrim)) {
+                setNameError("Enter a valid full name (letters and spaces only).");
+                form.name?.focus?.();
+                return;
+              }
 
-          {/* Left Card: Contact Info, Requirements, Image */}
-          <div
-            className="flex-1 flex flex-col rounded-2xl shadow-xl overflow-hidden min-w-[320px] cursor-pointer p-4 sm:p-0"
-            style={{
-              background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
+              const emailValue = String(form.email?.value ?? "").trim();
+              if (!emailValue) {
+                setEmailError("Email is required");
+                form.email?.focus?.();
+                return;
+              }
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                setEmailError("Enter a valid email address");
+                form.email?.focus?.();
+                return;
+              }
+
+              const mobileDigits = digitsOnlyMax10(form.mobile?.value ?? "");
+              if (!mobileDigits) {
+                setMobileError("Phone number is required");
+                form.mobile?.focus?.();
+                return;
+              }
+              if (mobileDigits.length !== 10) {
+                setMobileError("Phone number must be exactly 10 digits");
+                form.mobile?.focus?.();
+                return;
+              }
+
+              const dobVal = String(form.dob?.value ?? "").trim();
+              if (!dobVal) {
+                setDobError("Date of birth is required");
+                form.dob?.focus?.();
+                return;
+              }
+
+              const educationValue = String(form.education?.value ?? "").trim();
+              if (!educationValue) {
+                setEducationError("Please select your highest level of education");
+                form.education?.focus?.();
+                return;
+              }
+
+              const stateVal = String(form.currentState?.value ?? "").trim();
+              if (!stateVal) {
+                setStateError("Please select your state");
+                form.currentState?.focus?.();
+                return;
+              }
+
+              const districtTrim = String(form.currentDistrict?.value ?? "").trim();
+              if (districtTrim.length < 2) {
+                setDistrictError("Enter a valid district (at least 2 characters).");
+                form.currentDistrict?.focus?.();
+                return;
+              }
+
+              const locationTrim = String(form.location?.value ?? "").trim();
+              if (locationTrim.length < 2) {
+                setLocationError("Preferred location is required (at least 2 characters).");
+                form.location?.focus?.();
+                return;
+              }
+
+              const commentsTrim = commentsValue.trim();
+              if (!commentsTrim) {
+                setCommentsError("Message is required");
+                document.getElementById("comments")?.focus?.();
+                return;
+              }
+
+              const educationLabel =
+                EDUCATION_LEVELS.find((o) => o.value === educationValue)?.label ?? educationValue;
+              const data = {
+                name: nameTrim,
+                email: emailValue,
+                mobile: mobileDigits,
+                dob: dobVal,
+                currentState: stateVal,
+                currentDistrict: districtTrim,
+                education: educationLabel,
+                location: locationTrim,
+                comments: commentsTrim,
+              };
+              alert(
+                `Thank you for your interest!\n\n${Object.entries(data)
+                  .map(([k, v]) => formatAlertLine(k, v))
+                  .join("\n")}`,
+              );
+              form.reset();
+              setCommentsValue("");
             }}
           >
-            <div className="p-8 flex flex-col gap-6 flex-grow">
-              {contactInfo.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4 border-b border-orange-200 pb-6 mb-2 last:border-b-0 last:pb-0 last:mb-0">
-                  <div className="bg-orange-500 rounded-full p-3 flex items-center justify-center">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <div className="text-orange-900/95 text-sm font-semibold">{item.label}</div>
-                    <div className={`text-lg font-bold ${item.highlight ? "text-red-900" : "text-orange-900"}`}>{item.value}</div>
-                  </div>
-                </div>
-              ))}
-
-              <div className="mt-6">
-                <h2 className="text-red-900 text-2xl md:text-2xl font-extrabold drop-shadow-sm mb-2">{reqData.title}</h2>
-                <ul className="list-disc list-outside pl-5 sm:pl-6 text-red-900 text-base md:text-lg font-semibold leading-relaxed space-y-2 marker:text-orange-800">
-                  {(reqData.requirements ?? []).map((item, idx) => (
-                    <li key={idx} className="ps-1">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
+                  Your Name*
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  pattern="^[A-Za-z][A-Za-z\\s]*$"
+                  placeholder="Your Name"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={nameError ? "true" : "false"}
+                  onChange={(e) => {
+                    const next = String(e.currentTarget.value ?? "")
+                      .replace(/[^A-Za-z\s]+/g, "")
+                      .replace(/\s{2,}/g, " ");
+                    if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                    if (nameError) setNameError("");
+                    setValidity(e.currentTarget, "");
+                  }}
+                  onInvalid={(ev) => {
+                    const v = ev.currentTarget.value.trim();
+                    if (!v || !/^[A-Za-z][A-Za-z\s]*$/.test(v)) {
+                      setValidity(ev.currentTarget, "Enter a valid full name");
+                    }
+                  }}
+                  onInput={(e) => setValidity(e.currentTarget, "")}
+                />
+                {nameError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {nameError}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex-1">
+                <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
+                  Your Email*
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="Your Email"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={emailError ? "true" : "false"}
+                  onChange={(e) => {
+                    if (emailError) setEmailError("");
+                    setValidity(e.currentTarget, "");
+                  }}
+                />
+                {emailError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {emailError}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
-              <img
-                src={supportCardImageSrc}
-                alt="Franchise support"
-                className="object-cover w-full h-full rounded-b-2xl"
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="dob" className="block text-gray-700 font-medium mb-1">
+                  Date of birth*
+                </label>
+                <input
+                  type="date"
+                  id="dob"
+                  name="dob"
+                  required
+                  max={maxDob}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={dobError ? "true" : "false"}
+                  onChange={() => {
+                    if (dobError) setDobError("");
+                  }}
+                />
+                {dobError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {dobError}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex-1">
+                <label htmlFor="education" className="block text-gray-700 font-medium mb-1">
+                  Highest level of education*
+                </label>
+                <div className="relative">
+                  <select
+                    id="education"
+                    name="education"
+                    required
+                    defaultValue=""
+                    className={franchiseSelectClass}
+                    aria-invalid={educationError ? "true" : "false"}
+                    onChange={() => {
+                      if (educationError) setEducationError("");
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select education
+                    </option>
+                    {EDUCATION_LEVELS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <SelectChevron />
+                </div>
+                {educationError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {educationError}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="currentState" className="block text-gray-700 font-medium mb-1">
+                  Current location — State*
+                </label>
+                <div className="relative">
+                  <select
+                    id="currentState"
+                    name="currentState"
+                    required
+                    defaultValue=""
+                    className={franchiseSelectClass}
+                    aria-invalid={stateError ? "true" : "false"}
+                    onChange={() => {
+                      if (stateError) setStateError("");
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select state
+                    </option>
+                    {INDIAN_STATES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <SelectChevron />
+                </div>
+                {stateError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {stateError}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex-1">
+                <label htmlFor="currentDistrict" className="block text-gray-700 font-medium mb-1">
+                  Current location — District*
+                </label>
+                <input
+                  type="text"
+                  id="currentDistrict"
+                  name="currentDistrict"
+                  required
+                  placeholder="District"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={districtError ? "true" : "false"}
+                  onChange={() => {
+                    if (districtError) setDistrictError("");
+                  }}
+                />
+                {districtError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {districtError}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="mobile" className="block text-gray-700 font-medium mb-1">
+                  Mobile*
+                </label>
+                <input
+                  type="tel"
+                  id="mobile"
+                  name="mobile"
+                  required
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  maxLength={10}
+                  pattern="^[0-9]{10}$"
+                  placeholder="Mobile Number"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={mobileError ? "true" : "false"}
+                  onChange={(e) => {
+                    const next = digitsOnlyMax10(e.currentTarget.value);
+                    if (e.currentTarget.value !== next) e.currentTarget.value = next;
+                    if (mobileError) setMobileError("");
+                    setValidity(e.currentTarget, "");
+                  }}
+                  onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
+                  onInput={(e) => setValidity(e.currentTarget, "")}
+                />
+                {mobileError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {mobileError}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex-1">
+                <label htmlFor="location" className="block text-gray-700 font-medium mb-1">
+                  Preferred Location*
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  required
+                  placeholder="Preferred Location"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none"
+                  aria-invalid={locationError ? "true" : "false"}
+                  onChange={() => {
+                    if (locationError) setLocationError("");
+                  }}
+                />
+                {locationError ? (
+                  <p className="text-sm text-red-700 mt-2" role="alert">
+                    {locationError}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="comments" className="block text-gray-700 font-medium mb-1">
+                Write Message*
+              </label>
+              <textarea
+                id="comments"
+                rows={4}
+                required
+                maxLength={COMMENTS_MAX}
+                value={commentsValue}
+                onChange={(e) => {
+                  setCommentsValue(e.target.value.slice(0, COMMENTS_MAX));
+                  if (commentsError) setCommentsError("");
+                }}
+                placeholder="Write Message"
+                aria-describedby="comments-counter"
+                aria-invalid={commentsError ? "true" : "false"}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"
               />
+              <p id="comments-counter" className="text-xs text-gray-500 mt-2 text-left tabular-nums" aria-live="polite">
+                {commentsValue.length}/{COMMENTS_MAX}
+              </p>
+              {commentsError ? (
+                <p className="text-sm text-red-700 mt-2" role="alert">
+                  {commentsError}
+                </p>
+              ) : null}
             </div>
-          </div>
-
-          {/* Right Card: Heading, Subheading, Form */}
-          <div className="flex-1 bg-white rounded-2xl shadow-xl p-4 sm:p-8 flex flex-col justify-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Ready To Get Started?</h1>
-            <p className="text-gray-500 mb-8">Contact us today to learn more about our services and how we can support you or your loved one’s growth and development.</p>
-            <form
-              className="space-y-6"
-              onSubmit={e => {
-                e.preventDefault();
-                const form = e.target;
-                const data = {
-                  name: form.name.value,
-                  email: form.email.value,
-                  mobile: form.mobile.value,
-                  location: form.location.value,
-                  comments: form.comments.value,
-                };
-                alert(`Thank you for your interest!\n\n${Object.entries(data).map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`).join("\n")}`);
-                form.reset();
-              }}
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2"
             >
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Your Name*</label>
-                  <input type="text" id="name" name="name" required placeholder="Your Name" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Your Email*</label>
-                  <input type="email" id="email" name="email" required placeholder="Your Email" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label htmlFor="mobile" className="block text-gray-700 font-medium mb-1">Mobile*</label>
-                  <input type="tel" id="mobile" name="mobile" required pattern="[0-9]{10,}" placeholder="Mobile Number" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="location" className="block text-gray-700 font-medium mb-1">Preferred Location*</label>
-                  <input type="text" id="location" name="location" required placeholder="Preferred Location" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none" />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="comments" className="block text-gray-700 font-medium mb-1">Write Message*</label>
-                <textarea id="comments" name="comments" rows={4} required placeholder="Write Message" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-200 outline-none resize-none"></textarea>
-              </div>
-              <button type="submit" className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2">Send Message <span aria-hidden>→</span></button>
-            </form>
-          </div>
+              Send Message <span aria-hidden>→</span>
+            </button>
+          </form>
         </div>
-      )}
+
+        {stepsForUi.length > 0 ? (
+          <aside className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl lg:max-w-md">
+            <div className="flex flex-col p-6 sm:p-8">
+              <h3 className="mb-6 border-b border-orange-100 pb-3 text-lg font-bold text-gray-900">
+                Franchise journey
+              </h3>
+              <ol className="m-0 flex min-w-0 list-none flex-col space-y-8 overflow-x-hidden p-0">
+                {stepsForUi.map((step, idx) => (
+                  <li key={step._id ?? idx} className="min-w-0 [overflow-wrap:anywhere]">
+                    <div className="mb-1 text-xs font-semibold text-gray-500">Step {idx + 1}</div>
+                    <div className="mb-1 break-words text-base font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                      {step.title}
+                    </div>
+                    <p className="break-words text-sm leading-relaxed text-gray-600">{step.description}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </aside>
+        ) : null}
+      </div>
 
       <Footer />
     </div>

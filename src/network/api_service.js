@@ -117,7 +117,8 @@ export function getFooterSettings() {
     email,
     locationLabel,
     locationLink,
-    hoursText
+    hoursText,
+    socialLinks[]{ _key, platform, url }
   }`);
 }
 
@@ -148,6 +149,10 @@ export function getContactUs() {
       _updatedAt,
       title,
       address,
+      latitude,
+      longitude,
+      mapScreenshot,
+      "mapScreenshotUrl": mapScreenshot.asset->url
     }
   }`);
 }
@@ -215,6 +220,28 @@ export async function getFranchise() {
       _updatedAt,
       title,
       description,
+      pageBody {
+        heroTitle,
+        heroLead,
+        valueChecks,
+        phoneDisplay,
+        phoneTel,
+        ctaApplyLabel,
+        ctaTalkLabel,
+        sectionWhyTitle,
+        sectionWhyBody,
+        sectionImpactTitle,
+        sectionImpactBody,
+        sectionTrustTitle,
+        sectionTrustBody,
+        sectionTrustPartner,
+        sectionFacilityTitle,
+        facilityLines,
+        sectionJoinTitle,
+        sectionJoinBody,
+        sectionPartnersTitle,
+        partnerCriteria
+      },
       supportCardImage {
         asset,
         "assetUrl": asset->url,

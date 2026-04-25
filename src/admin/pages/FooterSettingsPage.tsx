@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
+import FooterSocialLinksEditor, {
+  type FooterSocialLinkRow,
+} from '../components/FooterSocialLinksEditor'
 import { apiGet, apiPost } from '../api/client'
 
 type FooterSettings = {
@@ -12,6 +15,7 @@ type FooterSettings = {
   locationLabel?: string
   locationLink?: string
   hoursText?: string
+  socialLinks?: FooterSocialLinkRow[]
 }
 
 const DEFAULT_CREATE_FIELDS = {
@@ -26,6 +30,7 @@ const DEFAULT_CREATE_FIELDS = {
   hoursText: `Mon - Fri: 9:00 AM - 6:00 PM
 Sat: 9:00 AM - 2:00 PM
 Sun: Closed`,
+  socialLinks: [] as FooterSocialLinkRow[],
 }
 
 export default function FooterSettingsPage() {
@@ -83,7 +88,7 @@ export default function FooterSettingsPage() {
       <h1 className="page-title">Footer config</h1>
       <p className="muted">
         Single Sanity document (<code>footer_settings</code>) used for the public site footer: brand
-        column, contact line, and hours.
+        column, contact line, hours, and social links.
       </p>
       {error ? <p className="text-error">{error}</p> : null}
       {!data ? (
@@ -115,6 +120,11 @@ export default function FooterSettingsPage() {
               locationLink: data.locationLink ?? '',
               hoursText: data.hoursText ?? '',
             }}
+          />
+          <FooterSocialLinksEditor
+            docId={data._id}
+            initialLinks={data.socialLinks}
+            onSaved={load}
           />
         </>
       )}

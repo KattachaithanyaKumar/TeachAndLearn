@@ -32,6 +32,9 @@ import zigzag from "../assets/zigzag.png";
 import circleHalf from "../assets/circle-half.png";
 
 import Carousel from "../components/Carousel";
+import Modal from "../components/Modal";
+import QuickAppointmentForm from "../components/QuickAppointmentForm";
+import QuickAppointmentPeek from "../components/QuickAppointmentPeek";
 
 import {
   getHome,
@@ -68,6 +71,7 @@ const Home = () => {
   const location = useLocation();
 
   // State for data
+  const [quickApptOpen, setQuickApptOpen] = useState(false);
   const [bookSubmitStatus, setBookSubmitStatus] = useState("idle");
   const [bookMessage, setBookMessage] = useState(null);
   const [bookFormText, setBookFormText] = useState("");
@@ -259,10 +263,8 @@ const Home = () => {
 
   useEffect(() => {
     if (location.pathname !== "/" || location.hash !== "#book") return;
-    const frame = requestAnimationFrame(() => {
-      document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
-    });
-    return () => cancelAnimationFrame(frame);
+    // Old flow scrolled to section `#book`; new flow opens the popup.
+    setQuickApptOpen(true);
   }, [location.pathname, location.hash]);
 
   const scrollToId = (id) => {
@@ -299,6 +301,22 @@ const Home = () => {
   return (
     <div>
       <Navbar />
+      <QuickAppointmentPeek onClick={() => setQuickApptOpen(true)} />
+      <Modal
+        open={quickApptOpen}
+        onClose={() => setQuickApptOpen(false)}
+        title="Quick Appointment"
+        initialFocus="first"
+      >
+        <QuickAppointmentForm
+          services={services}
+          servicesLoading={servicesLoading}
+          branches={branches}
+          branchesLoading={branchesLoading}
+          title={null}
+          embedded
+        />
+      </Modal>
       {/* Section with child image and text */}
       <section
         className="relative z-10 bg-amber-100 overflow-hidden pt-24"
@@ -334,7 +352,7 @@ const Home = () => {
               <Button
                 variant="secondary"
                 className="flex gap-3"
-                onClick={() => scrollToId("book")}
+                onClick={() => setQuickApptOpen(true)}
               >
                 {heroSecondaryCtaLabel}
                 <FiCalendar size={16} />
@@ -848,276 +866,6 @@ const Home = () => {
             <path
               fill="#fef3c6"
               d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z"
-            />
-          </svg>
-        </div>
-      </section>
-
-      {/* BOOK APPOINTMENT */}
-      <section
-        id="book"
-        className="bg-amber-100 relative overflow-hidden py-16 px-4 md:px-12"
-      >
-        <img
-          src={zigzag}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute hidden opacity-30 md:block -z-10"
-        />
-        <img
-          src={circleHalf}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute right-6 bottom-6 hidden opacity-25 md:block -z-10"
-        />
-        <div className="relative z-10 max-w-6xl mx-auto mb-10 mt-10 flex justify-center">
-          <form
-            className="w-full max-w-2xl bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-5"
-            noValidate
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBookMessage(null);
-              setBookEmailError("");
-              setBookContactError("");
-              setBookBranchError("");
-              if (!hasWriteToken) {
-                setBookSubmitStatus("error");
-                setBookMessage(
-                  "Appointments cannot be saved until VITE_SANITY_WRITE_TOKEN is set (see .env.example)."
-                );
-                return;
-              }
-              const form = e.target;
-              const contactValue = digitsOnlyMax10(form.contact?.value ?? "");
-              if (!contactValue) {
-                setBookContactError("Phone number is required");
-                form.contact?.focus?.();
-                return;
-              }
-              if (contactValue.length !== 10) {
-                setBookContactError("Phone number must be exactly 10 digits");
-                form.contact?.focus?.();
-                return;
-              }
-              const emailValue = String(form.email?.value ?? "").trim();
-              if (!emailValue) {
-                setBookEmailError("Email is required");
-                form.email?.focus?.();
-                return;
-              }
-              // Basic email shape check; avoids browser bubble that echoes user input.
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-                setBookEmailError("Enter a valid email address");
-                form.email?.focus?.();
-                return;
-              }
-              const branchValue = String(form.branch?.value ?? "").trim();
-              if (!branchValue) {
-                setBookBranchError("Please select a branch");
-                form.branch?.focus?.();
-                return;
-              }
-              const payload = {
-                name: form.name.value.trim(),
-                contact: contactValue,
-                email: emailValue,
-                message: `${form.message.value.trim()}\n\nPreferred branch: ${branchValue}`.trim(),
-                service: form.service.value.trim(),
-                source: "home_book",
-              };
-              setBookSubmitStatus("submitting");
-              try {
-                await submitContactSubmission(payload);
-                setBookSubmitStatus("success");
-                setBookMessage("Thanks! We will contact you shortly to confirm.");
-                form.reset();
-                setBookFormText("");
-              } catch (err) {
-                setBookSubmitStatus("error");
-                if (err?.code === "MISSING_WRITE_TOKEN") {
-                  setBookMessage(
-                    "Configuration error: add VITE_SANITY_WRITE_TOKEN to your environment."
-                  );
-                } else if (err instanceof Error) {
-                  setBookMessage(err.message);
-                } else {
-                  setBookMessage(
-                    "Could not submit. Check Sanity CORS settings or try again."
-                  );
-                }
-              }
-            }}
-          >
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              Quick Appointment
-            </h1>
-            {!hasWriteToken ? (
-              <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs">
-                Set <code className="text-[11px]">VITE_SANITY_WRITE_TOKEN</code> to save requests to Sanity.
-              </p>
-            ) : null}
-            {bookMessage ? (
-              <p
-                className={
-                  bookSubmitStatus === "success"
-                    ? "text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm"
-                    : "text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm"
-                }
-                role="status"
-              >
-                {bookMessage}
-              </p>
-            ) : null}
-
-            <input
-              type="text"
-              name="name"
-              required
-              pattern="^[A-Za-z][A-Za-z\s]*$"
-              placeholder="Your Name"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              onChange={(e) => {
-                const next = String(e.currentTarget.value ?? "")
-                  .replace(/[^A-Za-z\s]+/g, "")
-                  .replace(/\s{2,}/g, " ");
-                if (e.currentTarget.value !== next) e.currentTarget.value = next;
-              }}
-              onInvalid={(e) => {
-                const v = e.currentTarget.value.trim();
-                if (!v || !/^[A-Za-z][A-Za-z\s]*$/.test(v)) {
-                  setValidity(e.currentTarget, "Enter a valid full name");
-                }
-              }}
-              onInput={(e) => setValidity(e.currentTarget, "")}
-            />
-            <input
-              type="tel"
-              name="contact"
-              required
-              inputMode="numeric"
-              autoComplete="tel"
-              maxLength={10}
-              pattern="^[0-9]{10}$"
-              placeholder="Phone Number"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              aria-invalid={bookContactError ? "true" : "false"}
-              onChange={(e) => {
-                const next = digitsOnlyMax10(e.currentTarget.value);
-                if (e.currentTarget.value !== next) e.currentTarget.value = next;
-                if (bookContactError) setBookContactError("");
-              }}
-              onInvalid={(e) => setValidity(e.currentTarget, "Enter valid contact number")}
-              onInput={(e) => setValidity(e.currentTarget, "")}
-            />
-            {bookContactError ? (
-              <p className="text-sm text-red-700 -mt-3" role="alert">
-                {bookContactError}
-              </p>
-            ) : null}
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Email Address"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              aria-invalid={bookEmailError ? "true" : "false"}
-              onChange={(e) => {
-                if (bookEmailError) setBookEmailError("");
-                // Keep other existing behaviors consistent.
-                setValidity(e.currentTarget, "");
-              }}
-            />
-            {bookEmailError ? (
-              <p className="text-sm text-red-700 -mt-3" role="alert">
-                {bookEmailError}
-              </p>
-            ) : null}
-            <select
-              name="service"
-              required
-              defaultValue=""
-              className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="" disabled hidden>
-                {servicesLoading ? "Loading services..." : "Select Service"}
-              </option>
-              {!servicesLoading &&
-                services.map((item, index) => (
-                  <option key={item._id ?? index} value={item.name}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-            <select
-              name="branch"
-              required
-              defaultValue=""
-              className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-              aria-invalid={bookBranchError ? "true" : "false"}
-              onChange={() => {
-                if (bookBranchError) setBookBranchError("");
-              }}
-              onInvalid={(e) => setValidity(e.currentTarget, "Please select a branch")}
-              onInput={(e) => setValidity(e.currentTarget, "")}
-            >
-              <option value="" disabled hidden>
-                {branchesLoading
-                  ? "Loading branches..."
-                  : branches.length > 0
-                    ? "Select Branch"
-                    : "No branches available"}
-              </option>
-              {!branchesLoading &&
-                branches.map((b, index) => (
-                  <option
-                    key={b._id ?? index}
-                    value={`${String(b.title ?? "Branch").trim()} — ${String(b.address ?? "").trim()}`.trim()}
-                  >
-                    {String(b.title ?? "Branch").trim()}
-                    {b.address ? ` — ${String(b.address).trim()}` : ""}
-                  </option>
-                ))}
-            </select>
-            {bookBranchError ? (
-              <p className="text-sm text-red-700 -mt-3" role="alert">
-                {bookBranchError}
-              </p>
-            ) : null}
-            <textarea
-              name="message"
-              required
-              placeholder="Your Message"
-              maxLength={500}
-              className="w-full border border-gray-300 rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
-              value={bookFormText}
-              onChange={(e) => setBookFormText(e.currentTarget.value.slice(0, 500))}
-            ></textarea>
-            <p className="text-xs text-gray-500 -mt-3 text-left" aria-live="polite">
-              {bookFormText.length}/500
-            </p>
-            <Button
-              type="submit"
-              disabled={bookSubmitStatus === "submitting"}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <p className="text-center w-full">
-                {bookSubmitStatus === "submitting" ? "Sending…" : "Book Appointment"}
-              </p>
-            </Button>
-          </form>
-        </div>
-
-        {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 w-full z-0">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 180"
-            className="w-full h-[80px]"
-            preserveAspectRatio="none"
-          >
-            <path
-              fill="#E0F2FE"
-              d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,180L1405.7,180C1371.4,180,1303,180,1234,180C1165.7,180,1097,180,1029,180C960,180,891,180,823,180C754.3,180,686,180,617,180C548.6,180,480,180,411,180C342.9,180,274,180,206,180C137.1,180,69,180,34,180L0,180Z"
             />
           </svg>
         </div>
