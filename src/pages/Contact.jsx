@@ -10,8 +10,11 @@ import { allIcons } from "../CONSTANTS";
 import { getContactUs, getFooterSettings, submitContactSubmission } from "../network/api_service";
 
 import teacherImg from "../assets/teacher-and-student.JPG";
+import mapImg from "../assets/teach_and_learn_cdc_location.png";
 
 const FOOTER_FALLBACK_PHONE = "+91 9876543210";
+const CDC_DIRECTIONS_URL =
+  "https://www.google.com/maps/dir//Teach+and+Learn+Child+Development+Center+(CDC)-+Best+Behavioral,+Occupational,+Speech+Therapy+Near+Me+in+Hafeezpet,+Hyderabad,+Sathvika+Residency,+Vinayaka+Nagar,+Hafeezpet,+Hyderabad,+Telangana+500049/@17.4861907,78.3575348,17z/data=!4m16!1m7!3m6!1s0x3bcb932ff00d96cf:0xc1e969b057623410!2sTeach+and+Learn+Child+Development+Center+(CDC)-+Best+Behavioral,+Occupational,+Speech+Therapy+Near+Me+in+Hafeezpet,+Hyderabad!8m2!3d17.4862224!4d78.357255!16s%2Fg%2F11j8k7mrj3!4m7!1m0!1m5!1m1!1s0x3bcb932ff00d96cf:0xc1e969b057623410!2m2!1d78.357255!2d17.4862224?entry=ttu&g_ep=EgoyMDI2MDQyMi4wIKXMDSoASAFQAw%3D%3D";
 
 function pickStr(cms, fallback) {
   const t = typeof cms === "string" ? cms.trim() : "";
@@ -209,6 +212,15 @@ const Contact = () => {
           style={{
             background: "linear-gradient(135deg, #fdba74 0%, #f87171 100%)",
           }}
+          onClick={() => window.open(CDC_DIRECTIONS_URL, "_blank", "noopener,noreferrer")}
+          role="link"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              window.open(CDC_DIRECTIONS_URL, "_blank", "noopener,noreferrer");
+            }
+          }}
         >
           <div className="p-8 flex flex-col gap-6 flex-grow">
             <div className="mt-6 space-y-6">
@@ -230,8 +242,8 @@ const Contact = () => {
 
           <div className="w-full h-48 md:h-56 bg-white flex items-end justify-center overflow-hidden">
             <img
-              src={teacherImg}
-              alt="Contact support"
+              src={mapImg || teacherImg}
+              alt="Teach and Learn location map"
               className="object-cover w-full h-full rounded-b-2xl"
             />
           </div>

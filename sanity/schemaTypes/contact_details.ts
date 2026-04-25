@@ -53,6 +53,22 @@ export const contactUs = defineType({
     title: 'Contact Us',
     type: 'document',
     fields: [
+        defineField({
+            name: 'mapLatitude',
+            title: 'Map Latitude',
+            type: 'number',
+        }),
+        defineField({
+            name: 'mapLongitude',
+            title: 'Map Longitude',
+            type: 'number',
+        }),
+        defineField({
+            name: 'mapZoom',
+            title: 'Map Zoom',
+            type: 'number',
+            initialValue: 15,
+        }),
         // list of contact details
         defineField({
             name: 'contactDetails',

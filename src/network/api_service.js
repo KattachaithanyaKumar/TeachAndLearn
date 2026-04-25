@@ -127,6 +127,9 @@ export function getContactUs() {
     _type,
     _createdAt,
     _updatedAt,
+    mapLatitude,
+    mapLongitude,
+    mapZoom,
     contactDetails[]->{
       _id,
       _type,
