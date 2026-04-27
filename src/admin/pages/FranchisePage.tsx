@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
-import FranchisePageBodyEditor, { type FranchisePageBody } from '../components/FranchisePageBodyEditor'
+import FranchisePageBodyEditor from '../components/FranchisePageBodyEditor'
 import { apiGet, apiPatch } from '../api/client'
 
 type Step = {
@@ -21,7 +21,7 @@ type Franchise = {
   _id: string
   title?: string
   description?: string
-  pageBody?: FranchisePageBody
+  pageBodyBlocks?: unknown[] | null
   requirements?: FranchiseReq | null
   steps?: Step[] | null
 }
@@ -120,7 +120,7 @@ export default function FranchisePage() {
         franchises page. They can remain in the dataset or be removed in Sanity Studio when convenient.
       </p>
 
-      <FranchisePageBodyEditor franchiseId={data._id} pageBody={data.pageBody ?? null} onSaved={load} />
+      <FranchisePageBodyEditor franchiseId={data._id} pageBodyBlocks={data.pageBodyBlocks ?? null} onSaved={load} />
 
       {data.requirements ? <RequirementsEditor doc={data.requirements} /> : null}
 

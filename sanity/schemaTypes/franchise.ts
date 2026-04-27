@@ -66,6 +66,21 @@ export const franchise = defineType({
             ],
         }),
         defineField({
+            name: 'pageBodyBlocks',
+            title: 'Public page — blocks (new)',
+            description: 'Dynamic blocks for /franchises (preferred).',
+            type: 'array',
+            of: [
+                { type: 'franchise_page_block_hero' },
+                { type: 'franchise_page_block_value_checks' },
+                { type: 'franchise_page_block_ctas' },
+                { type: 'franchise_page_block_phone' },
+                { type: 'franchise_page_block_text_section' },
+                { type: 'franchise_page_block_bullets_section' },
+                { type: 'franchise_page_block_custom_markdown' },
+            ],
+        }),
+        defineField({
             name: 'supportCardImage',
             title: 'Contact card image (legacy)',
             description: 'Legacy field; no longer displayed on the public Franchises page. Safe to clear in Studio.',

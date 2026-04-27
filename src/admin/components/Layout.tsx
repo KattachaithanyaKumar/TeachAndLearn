@@ -111,6 +111,9 @@ export default function Layout() {
           <NavLink to={adminPath('submissions')} className={linkClass}>
             Submissions
           </NavLink>
+          <NavLink to={adminPath('franchise-inquiries')} className={linkClass}>
+            Franchise inquiries
+          </NavLink>
           <NavLink to={adminPath('contact')} className={linkClass}>
             Contact
           </NavLink>

@@ -9,12 +9,14 @@ import { home } from "./home";
 import { franchise, franchiseContact, franchiseSteps, franchiseReq } from "./franchise";
 import { contactAddress, contactDetails, contactUs } from "./contact_details";
 import { contact_submission } from "./contact_submission";
+import { franchise_inquiry } from "./franchise_inquiry";
 import { service_listing_item } from "./service_listing_item";
 import { service_listing_landing } from "./service_listing_landing";
 import { service_page_blocks } from "./service_page_blocks";
+import { franchise_page_blocks } from "./franchise_page_blocks";
 import { admin_user } from "./admin_user";
 import { footer_settings } from "./footer_settings";
 
 export const schemaTypes = [
-    service, stats, whyUs, approach, testimonials, our_philosophy, about_us, about_us_items, facility, home, franchise, franchiseContact, franchiseReq, franchiseSteps, contactAddress, contactDetails, contactUs, contact_submission, ...service_page_blocks, service_listing_item, service_listing_landing, footer_settings, admin_user
+    service, stats, whyUs, approach, testimonials, our_philosophy, about_us, about_us_items, facility, home, franchise, franchiseContact, franchiseReq, franchiseSteps, contactAddress, contactDetails, contactUs, contact_submission, franchise_inquiry, ...service_page_blocks, ...franchise_page_blocks, service_listing_item, service_listing_landing, footer_settings, admin_user
 ]

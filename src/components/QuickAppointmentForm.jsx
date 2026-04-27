@@ -1,11 +1,26 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Button from "./Button";
+import { getServices } from "../network/api_service";
 import { submitContactSubmission } from "../network/api_service";
 
 const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
 
 function digitsOnlyMax10(value) {
   return String(value ?? "").replace(/\D+/g, "").slice(0, 10);
+}
+
+function uniqStrings(list) {
+  const out = [];
+  const seen = new Set();
+  for (const v of Array.isArray(list) ? list : []) {
+    const s = String(v ?? "").trim();
+    if (!s) continue;
+    const k = s.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(s);
+  }
+  return out;
 }
 
 function setValidity(el, message) {
@@ -30,6 +45,14 @@ export default function QuickAppointmentForm({
   const [bookEmailError, setBookEmailError] = useState("");
   const [bookContactError, setBookContactError] = useState("");
   const [bookBranchError, setBookBranchError] = useState("");
+  const [bookRequestTypeError, setBookRequestTypeError] = useState("");
+  const [bookServicesError, setBookServicesError] = useState("");
+
+  const [requestType, setRequestType] = useState("");
+  const [selectedServices, setSelectedServices] = useState(() => new Set());
+
+  const [localServices, setLocalServices] = useState([]);
+  const [localServicesLoading, setLocalServicesLoading] = useState(false);
 
   const branchOptions = useMemo(() => {
     const list = Array.isArray(branches) ? branches : [];
@@ -39,6 +62,45 @@ export default function QuickAppointmentForm({
       label: `${String(b?.title ?? "Branch").trim()}${b?.address ? ` — ${String(b.address).trim()}` : ""}`,
     }));
   }, [branches]);
+
+  useEffect(() => {
+    // If no services are passed in, fetch from Sanity so the form is self-contained.
+    if (Array.isArray(services) && services.length > 0) return;
+    if (servicesLoading) return;
+    let alive = true;
+    setLocalServicesLoading(true);
+    getServices()
+      .then((rows) => {
+        if (!alive) return;
+        setLocalServices(Array.isArray(rows) ? rows : []);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setLocalServices([]);
+      })
+      .finally(() => {
+        if (!alive) return;
+        setLocalServicesLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [services, servicesLoading]);
+
+  const serviceNames = useMemo(() => {
+    const list = Array.isArray(services) && services.length > 0 ? services : localServices;
+    const names = list.map((s) => s?.name);
+    return uniqStrings(names);
+  }, [services, localServices]);
+
+  const effectiveServicesLoading = Boolean(
+    servicesLoading || (serviceNames.length === 0 && localServicesLoading)
+  );
+
+  const selectedServiceList = useMemo(() => Array.from(selectedServices), [selectedServices]);
+
+  const allSelected = serviceNames.length > 0 && selectedServices.size === serviceNames.length;
+  const someSelected = selectedServices.size > 0 && !allSelected;
 
   return (
     <form
@@ -54,6 +116,8 @@ export default function QuickAppointmentForm({
         setBookEmailError("");
         setBookContactError("");
         setBookBranchError("");
+        setBookRequestTypeError("");
+        setBookServicesError("");
         if (!hasWriteToken) {
           setBookSubmitStatus("error");
           setBookMessage(
@@ -91,12 +155,23 @@ export default function QuickAppointmentForm({
           form.branch?.focus?.();
           return;
         }
+
+        if (!requestType) {
+          setBookRequestTypeError("Please select Assessment or Service");
+          return;
+        }
+        if (selectedServices.size === 0) {
+          setBookServicesError("Please select at least one service");
+          return;
+        }
         const payload = {
           name: form.name.value.trim(),
           contact: contactValue,
           email: emailValue,
           message: `${form.message.value.trim()}\n\nPreferred branch: ${branchValue}`.trim(),
-          service: form.service.value.trim(),
+          requestType,
+          requestedServices: selectedServiceList,
+          service: selectedServiceList.join(", "),
           source: "home_book",
         };
         setBookSubmitStatus("submitting");
@@ -106,6 +181,8 @@ export default function QuickAppointmentForm({
           setBookMessage("Thanks! We will contact you shortly to confirm.");
           form.reset();
           setBookFormText("");
+          setRequestType("");
+          setSelectedServices(new Set());
           onSubmitted?.();
         } catch (err) {
           setBookSubmitStatus("error");
@@ -222,57 +299,168 @@ export default function QuickAppointmentForm({
         </p>
       ) : null}
 
-      <select
-        name="service"
-        required
-        defaultValue=""
-        className={
-          embedded
-            ? "w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            : "w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-        }
-      >
-        <option value="" disabled hidden>
-          {servicesLoading ? "Loading services..." : "Select Service"}
-        </option>
-        {!servicesLoading &&
-          (Array.isArray(services) ? services : []).map((item, index) => (
-            <option key={item?._id ?? index} value={item?.name}>
-              {item?.name}
-            </option>
-          ))}
-      </select>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-gray-800">
+            Request type <span className="text-orange-500">*</span>
+          </p>
+          {bookRequestTypeError ? (
+            <p className="text-sm text-red-700" role="alert">
+              {bookRequestTypeError}
+            </p>
+          ) : null}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { value: "assessment", label: "Assessment" },
+            { value: "service", label: "Service" },
+          ].map((opt) => {
+            const checked = requestType === opt.value;
+            return (
+              <label
+                key={opt.value}
+                className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer select-none ${
+                  checked ? "border-orange-500 ring-2 ring-orange-200 bg-orange-50" : "border-gray-300 bg-white"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="accent-orange-500"
+                  checked={checked}
+                  onChange={() => {
+                    setRequestType((prev) => (prev === opt.value ? "" : opt.value));
+                    if (bookRequestTypeError) setBookRequestTypeError("");
+                  }}
+                />
+                <span className="text-sm text-gray-800">{opt.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
 
-      <select
-        name="branch"
-        required
-        defaultValue=""
-        className={
-          embedded
-            ? "w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            : "w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-        }
-        aria-invalid={bookBranchError ? "true" : "false"}
-        onChange={() => {
-          if (bookBranchError) setBookBranchError("");
-        }}
-        onInvalid={(e) => setValidity(e.currentTarget, "Please select a branch")}
-        onInput={(e) => setValidity(e.currentTarget, "")}
-      >
-        <option value="" disabled hidden>
-          {branchesLoading
-            ? "Loading branches..."
-            : branchOptions.length > 0
-              ? "Select Branch"
-              : "No branches available"}
-        </option>
-        {!branchesLoading &&
-          branchOptions.map((b) => (
-            <option key={b.key} value={b.value}>
-              {b.label}
-            </option>
-          ))}
-      </select>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-gray-800 truncate">
+            Select service(s) <span className="text-orange-500">*</span>
+          </p>
+          <label
+            className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer select-none shrink-0 text-sm whitespace-nowrap ${
+              effectiveServicesLoading || serviceNames.length === 0
+                ? "border-orange-200 text-orange-300 bg-white opacity-70 cursor-not-allowed"
+                : allSelected || someSelected
+                  ? "border-orange-500 text-orange-700 ring-2 ring-orange-200 bg-orange-50"
+                  : "border-orange-300 text-orange-700 bg-white hover:bg-orange-50"
+            }`}
+          >
+            <input
+              type="checkbox"
+              className="accent-orange-500"
+              checked={allSelected}
+              ref={(el) => {
+                if (el) el.indeterminate = someSelected;
+              }}
+              onChange={() => {
+                setSelectedServices((prev) => {
+                  const next = new Set(prev);
+                  if (serviceNames.length === 0) return next;
+                  if (next.size === serviceNames.length) return new Set();
+                  return new Set(serviceNames);
+                });
+                if (bookServicesError) setBookServicesError("");
+              }}
+              disabled={effectiveServicesLoading || serviceNames.length === 0}
+            />
+            {effectiveServicesLoading ? "Loading…" : "Select all"}
+          </label>
+          {bookServicesError ? (
+            <p className="text-sm text-red-700 shrink-0" role="alert">
+              {bookServicesError}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {effectiveServicesLoading ? (
+            <div className="col-span-2 text-sm text-gray-500">Loading services…</div>
+          ) : serviceNames.length === 0 ? (
+            <div className="col-span-2 text-sm text-gray-500">No services available</div>
+          ) : (
+            serviceNames.map((name) => {
+              const checked = selectedServices.has(name);
+              return (
+                <label
+                  key={name}
+                  className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer select-none ${
+                    checked ? "border-orange-500 ring-2 ring-orange-200 bg-orange-50" : "border-gray-300 bg-white"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-orange-500"
+                    checked={checked}
+                    onChange={() => {
+                      setSelectedServices((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(name)) next.delete(name);
+                        else next.add(name);
+                        return next;
+                      });
+                      if (bookServicesError) setBookServicesError("");
+                    }}
+                  />
+                  <span className="text-sm text-gray-800">{name}</span>
+                </label>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      <div className="relative">
+        <select
+          name="branch"
+          required
+          defaultValue=""
+          className={
+            embedded
+              ? "w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+              : "w-full border border-gray-300 rounded-lg p-3 pr-12 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+          }
+          aria-invalid={bookBranchError ? "true" : "false"}
+          onChange={() => {
+            if (bookBranchError) setBookBranchError("");
+          }}
+          onInvalid={(e) => setValidity(e.currentTarget, "Please select a branch")}
+          onInput={(e) => setValidity(e.currentTarget, "")}
+        >
+          <option value="" disabled hidden>
+            {branchesLoading
+              ? "Loading branches..."
+              : branchOptions.length > 0
+                ? "Select Branch"
+                : "No branches available"}
+          </option>
+          {!branchesLoading &&
+            branchOptions.map((b) => (
+              <option key={b.key} value={b.value}>
+                {b.label}
+              </option>
+            ))}
+        </select>
+        <svg
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
       {bookBranchError ? (
         <p className="text-sm text-red-700 -mt-3" role="alert">
           {bookBranchError}

@@ -56,6 +56,7 @@ export const franchiseQuery = `*[_type == "franchise"][0]{
   _updatedAt,
   title,
   description,
+  pageBodyBlocks,
   pageBody {
     heroTitle,
     heroLead,

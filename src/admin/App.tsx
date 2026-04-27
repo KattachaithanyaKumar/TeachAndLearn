@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage'
 import ServiceListingsPage from './pages/ServiceListingsPage'
 import ServiceDetailPageEditor from './pages/ServiceDetailPageEditor'
 import SubmissionsPage from './pages/SubmissionsPage'
+import FranchiseInquiriesPage from './pages/FranchiseInquiriesPage'
 
 /**
  * Paths are relative to the parent `/admin/*` route. Descendant <Routes> match the URL *suffix*
@@ -31,6 +32,7 @@ export default function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="submissions" element={<SubmissionsPage />} />
+        <Route path="franchise-inquiries" element={<FranchiseInquiriesPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="footer-settings" element={<FooterSettingsPage />} />
         <Route path="home" element={<HomePage />} />

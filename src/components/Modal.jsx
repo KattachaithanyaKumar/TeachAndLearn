@@ -137,7 +137,9 @@ export default function Modal({
           </button>
         </div>
 
-        <div className="p-4 sm:p-6 overflow-hidden">{children}</div>
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(92vh-4.5rem)]">
+          {children}
+        </div>
       </div>
     </div>
   );

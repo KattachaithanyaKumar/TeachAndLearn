@@ -38,6 +38,23 @@ const CONTACT_SUBMISSIONS_QUERY = `*[_type == "contact_submission"] | order(subm
   respondedAt
 }`
 
+const FRANCHISE_INQUIRIES_QUERY = `*[_type == "franchise_inquiry"] | order(submittedAt desc) {
+  _id,
+  _type,
+  name,
+  email,
+  mobile,
+  dob,
+  education,
+  currentState,
+  currentDistrict,
+  location,
+  comments,
+  submittedAt,
+  responded,
+  respondedAt
+}`
+
 function client() {
   return getAdminSanityClient()
 }
@@ -76,6 +93,9 @@ export async function apiGet<T>(path: string): Promise<T> {
   }
   if (path === '/api/contact-submissions') {
     return c.fetch(CONTACT_SUBMISSIONS_QUERY) as Promise<T>
+  }
+  if (path === '/api/franchise-inquiries') {
+    return c.fetch(FRANCHISE_INQUIRIES_QUERY) as Promise<T>
   }
   if (path === '/api/about-section') {
     const doc = await c.fetch(aboutSectionQuery)

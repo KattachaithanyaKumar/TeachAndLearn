@@ -1,29 +1,5 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { apiPatch } from '../api/client'
-import { mergeFranchisePageBody, type FranchiseMergedPageBody } from '../../data/franchisePageCopy'
-
-export type FranchisePageBody = {
-  heroTitle?: string
-  heroLead?: string
-  valueChecks?: string[]
-  phoneDisplay?: string
-  phoneTel?: string
-  ctaApplyLabel?: string
-  ctaTalkLabel?: string
-  sectionWhyTitle?: string
-  sectionWhyBody?: string
-  sectionImpactTitle?: string
-  sectionImpactBody?: string
-  sectionTrustTitle?: string
-  sectionTrustBody?: string
-  sectionTrustPartner?: string
-  sectionFacilityTitle?: string
-  facilityLines?: string[]
-  sectionJoinTitle?: string
-  sectionJoinBody?: string
-  sectionPartnersTitle?: string
-  partnerCriteria?: string[]
-} | null
 
 function linesToText(lines: string[]) {
   return lines.join('\n')
@@ -36,113 +12,155 @@ function textToLines(text: string) {
     .filter(Boolean)
 }
 
+function newKey() {
+  // Sanity expects `_key` on array items; any stable-ish unique string works.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyCrypto: any = globalThis.crypto
+    if (anyCrypto?.randomUUID) return anyCrypto.randomUUID()
+  } catch {
+    // ignore
+  }
+  return Math.random().toString(16).slice(2) + Date.now().toString(16)
+}
+
+type BlockHero = { _key: string; _type: 'franchise_page_block_hero'; title?: string; lead?: string }
+type BlockValueChecks = { _key: string; _type: 'franchise_page_block_value_checks'; lines?: string[] }
+type BlockCtas = {
+  _key: string
+  _type: 'franchise_page_block_ctas'
+  applyLabel?: string
+  applyHref?: string
+  talkLabel?: string
+  talkHref?: string
+}
+type BlockPhone = { _key: string; _type: 'franchise_page_block_phone'; display?: string; telHref?: string }
+type BlockTextSection = {
+  _key: string
+  _type: 'franchise_page_block_text_section'
+  heading?: string
+  bodyMarkdown?: string
+}
+type BlockBulletsSection = { _key: string; _type: 'franchise_page_block_bullets_section'; heading?: string; bullets?: string[] }
+type BlockCustomMarkdown = { _key: string; _type: 'franchise_page_block_custom_markdown'; markdown?: string }
+
+type FranchisePageBlock =
+  | BlockHero
+  | BlockValueChecks
+  | BlockCtas
+  | BlockPhone
+  | BlockTextSection
+  | BlockBulletsSection
+  | BlockCustomMarkdown
+
 type Props = {
   franchiseId: string
-  pageBody: FranchisePageBody
+  pageBodyBlocks: unknown[] | null
   onSaved: () => void
 }
 
-export default function FranchisePageBodyEditor({ franchiseId, pageBody, onSaved }: Props) {
-  const merged = mergeFranchisePageBody(pageBody ?? undefined)
+function toBlocks(value: unknown[] | null): FranchisePageBlock[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((b) => b && typeof b === 'object')
+    .map((b) => {
+      const anyB = b as Record<string, unknown>
+      const _type = typeof anyB._type === 'string' ? anyB._type : ''
+      const _key = typeof anyB._key === 'string' ? anyB._key : newKey()
+      return { ...anyB, _type, _key } as FranchisePageBlock
+    })
+    .filter((b) => typeof b._type === 'string' && b._type.startsWith('franchise_page_block_'))
+}
 
-  const [heroTitle, setHeroTitle] = useState(merged.heroTitle)
-  const [heroLead, setHeroLead] = useState(merged.heroLead)
-  const [valueChecksText, setValueChecksText] = useState(linesToText(merged.valueChecks))
-  const [phoneDisplay, setPhoneDisplay] = useState(merged.phoneDisplay)
-  const [phoneTel, setPhoneTel] = useState(merged.phoneTel)
-  const [ctaApplyLabel, setCtaApplyLabel] = useState(merged.ctaApplyLabel)
-  const [ctaTalkLabel, setCtaTalkLabel] = useState(merged.ctaTalkLabel)
-  const [sectionWhyTitle, setSectionWhyTitle] = useState(merged.sectionWhyTitle)
-  const [sectionWhyBody, setSectionWhyBody] = useState(merged.sectionWhyBody)
-  const [sectionImpactTitle, setSectionImpactTitle] = useState(merged.sectionImpactTitle)
-  const [sectionImpactBody, setSectionImpactBody] = useState(merged.sectionImpactBody)
-  const [sectionTrustTitle, setSectionTrustTitle] = useState(merged.sectionTrustTitle)
-  const [sectionTrustBody, setSectionTrustBody] = useState(merged.sectionTrustBody)
-  const [sectionTrustPartner, setSectionTrustPartner] = useState(merged.sectionTrustPartner)
-  const [sectionFacilityTitle, setSectionFacilityTitle] = useState(merged.sectionFacilityTitle)
-  const [facilityLinesText, setFacilityLinesText] = useState(linesToText(merged.facilityLines))
-  const [sectionJoinTitle, setSectionJoinTitle] = useState(merged.sectionJoinTitle)
-  const [sectionJoinBody, setSectionJoinBody] = useState(merged.sectionJoinBody)
-  const [sectionPartnersTitle, setSectionPartnersTitle] = useState(merged.sectionPartnersTitle)
-  const [partnerCriteriaText, setPartnerCriteriaText] = useState(linesToText(merged.partnerCriteria))
+function makeBlock(type: FranchisePageBlock['_type']): FranchisePageBlock {
+  const _key = newKey()
+  switch (type) {
+    case 'franchise_page_block_hero':
+      return { _key, _type: type, title: '', lead: '' }
+    case 'franchise_page_block_value_checks':
+      return { _key, _type: type, lines: [''] }
+    case 'franchise_page_block_ctas':
+      return { _key, _type: type, applyLabel: '', applyHref: '#franchise-inquiry', talkLabel: '', talkHref: '/contact-us#contact-form' }
+    case 'franchise_page_block_phone':
+      return { _key, _type: type, display: '', telHref: '' }
+    case 'franchise_page_block_text_section':
+      return { _key, _type: type, heading: '', bodyMarkdown: '' }
+    case 'franchise_page_block_bullets_section':
+      return { _key, _type: type, heading: '', bullets: [''] }
+    case 'franchise_page_block_custom_markdown':
+      return { _key, _type: type, markdown: '' }
+    default:
+      return { _key, _type: 'franchise_page_block_custom_markdown', markdown: '' }
+  }
+}
+
+export default function FranchisePageBodyEditor({ franchiseId, pageBodyBlocks, onSaved }: Props) {
+  const initialBlocks = useMemo(() => toBlocks(pageBodyBlocks), [pageBodyBlocks])
+  const [blocks, setBlocks] = useState<FranchisePageBlock[]>(initialBlocks)
 
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle')
   const [msg, setMsg] = useState('')
 
-  const hydrateFromMerged = useCallback((m: FranchiseMergedPageBody) => {
-    setHeroTitle(m.heroTitle)
-    setHeroLead(m.heroLead)
-    setValueChecksText(linesToText(m.valueChecks))
-    setPhoneDisplay(m.phoneDisplay)
-    setPhoneTel(m.phoneTel)
-    setCtaApplyLabel(m.ctaApplyLabel)
-    setCtaTalkLabel(m.ctaTalkLabel)
-    setSectionWhyTitle(m.sectionWhyTitle)
-    setSectionWhyBody(m.sectionWhyBody)
-    setSectionImpactTitle(m.sectionImpactTitle)
-    setSectionImpactBody(m.sectionImpactBody)
-    setSectionTrustTitle(m.sectionTrustTitle)
-    setSectionTrustBody(m.sectionTrustBody)
-    setSectionTrustPartner(m.sectionTrustPartner)
-    setSectionFacilityTitle(m.sectionFacilityTitle)
-    setFacilityLinesText(linesToText(m.facilityLines))
-    setSectionJoinTitle(m.sectionJoinTitle)
-    setSectionJoinBody(m.sectionJoinBody)
-    setSectionPartnersTitle(m.sectionPartnersTitle)
-    setPartnerCriteriaText(linesToText(m.partnerCriteria))
-  }, [])
-
   useEffect(() => {
-    hydrateFromMerged(mergeFranchisePageBody(pageBody ?? undefined))
-  }, [franchiseId, pageBody, hydrateFromMerged])
+    setBlocks(toBlocks(pageBodyBlocks))
+  }, [franchiseId, pageBodyBlocks])
 
-  const resetToDefaults = () => {
-    hydrateFromMerged(mergeFranchisePageBody(null))
-    setMsg('Form reset to built-in defaults (click Save to write to Sanity).')
-  }
+  const [addType, setAddType] = useState<FranchisePageBlock['_type']>('franchise_page_block_hero')
 
   const save = async () => {
     setStatus('saving')
     setMsg('')
-    const valueChecks = textToLines(valueChecksText)
-    const facilityLines = textToLines(facilityLinesText)
-    const partnerCriteria = textToLines(partnerCriteriaText)
-    if (valueChecks.length === 0) {
+
+    if (blocks.length === 0) {
       setStatus('error')
-      setMsg('Add at least one value-check line.')
+      setMsg('Add at least one block.')
       return
     }
-    if (facilityLines.length === 0 || partnerCriteria.length === 0) {
-      setStatus('error')
-      setMsg('Facility lines and partner criteria need at least one line each.')
-      return
+
+    for (const b of blocks) {
+      if (b._type === 'franchise_page_block_hero') {
+        if (!String(b.title ?? '').trim()) {
+          setStatus('error')
+          setMsg('Hero block needs a title.')
+          return
+        }
+      }
+      if (b._type === 'franchise_page_block_value_checks') {
+        const lines = Array.isArray(b.lines) ? b.lines.filter((x) => String(x ?? '').trim()) : []
+        if (lines.length === 0) {
+          setStatus('error')
+          setMsg('Value checks block needs at least one line.')
+          return
+        }
+      }
+      if (b._type === 'franchise_page_block_phone') {
+        if (!String(b.display ?? '').trim() || !String(b.telHref ?? '').trim()) {
+          setStatus('error')
+          setMsg('Phone block needs display + tel link.')
+          return
+        }
+      }
+      if (b._type === 'franchise_page_block_bullets_section') {
+        const bullets = Array.isArray(b.bullets) ? b.bullets.filter((x) => String(x ?? '').trim()) : []
+        if (bullets.length === 0) {
+          setStatus('error')
+          setMsg('Bullets section needs at least one bullet.')
+          return
+        }
+      }
+      if (b._type === 'franchise_page_block_custom_markdown') {
+        if (!String(b.markdown ?? '').trim()) {
+          setStatus('error')
+          setMsg('Custom Markdown block cannot be empty.')
+          return
+        }
+      }
     }
-    const nextBody = {
-      heroTitle,
-      heroLead,
-      valueChecks,
-      phoneDisplay,
-      phoneTel,
-      ctaApplyLabel,
-      ctaTalkLabel,
-      sectionWhyTitle,
-      sectionWhyBody,
-      sectionImpactTitle,
-      sectionImpactBody,
-      sectionTrustTitle,
-      sectionTrustBody,
-      sectionTrustPartner,
-      sectionFacilityTitle,
-      facilityLines,
-      sectionJoinTitle,
-      sectionJoinBody,
-      sectionPartnersTitle,
-      partnerCriteria,
-    }
+
     try {
-      await apiPatch(`/api/documents/${franchiseId}`, { fields: { pageBody: nextBody } })
+      await apiPatch(`/api/documents/${franchiseId}`, { fields: { pageBodyBlocks: blocks } })
       setStatus('idle')
-      setMsg('Saved. Public /franchises will use this copy.')
+      setMsg('Saved. Public /franchises will render these blocks.')
       onSaved()
     } catch (e) {
       setStatus('error')
@@ -157,123 +175,237 @@ export default function FranchisePageBodyEditor({ franchiseId, pageBody, onSaved
     </label>
   )
 
+  const move = (idx: number, dir: -1 | 1) => {
+    setBlocks((prev) => {
+      const next = [...prev]
+      const to = idx + dir
+      if (to < 0 || to >= next.length) return prev
+      const tmp = next[idx]
+      next[idx] = next[to]
+      next[to] = tmp
+      return next
+    })
+  }
+
+  const remove = (idx: number) => {
+    setBlocks((prev) => prev.filter((_b, i) => i !== idx))
+  }
+
+  const update = (idx: number, patch: Partial<FranchisePageBlock>) => {
+    setBlocks((prev) => prev.map((b, i) => (i === idx ? ({ ...b, ...patch } as FranchisePageBlock) : b)))
+  }
+
   return (
     <section className="card">
-      <h3 className="card-title">Franchises page body</h3>
+      <h3 className="card-title">Franchises page body (blocks)</h3>
       <p className="muted small mb-4">
-        This content is shown on the public <code>/franchises</code> page (hero, CTAs, phone link, and sections below).
-        Apply still scrolls to the inquiry form; Talk still links to <code>/contact-us#contact-form</code>.
+        Add blocks, reorder, and save. The public <code>/franchises</code> page prefers blocks when present.
       </p>
 
-      <div className="field-grid">
-        {field(
-          'Hero title',
-          <textarea className="textarea" rows={2} value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} />,
-        )}
-        {field(
-          'Hero lead',
-          <textarea className="textarea" rows={4} value={heroLead} onChange={(e) => setHeroLead(e.target.value)} />,
-        )}
-        {field(
-          'Value checks (one line each)',
-          <textarea
-            className="textarea"
-            rows={4}
-            value={valueChecksText}
-            onChange={(e) => setValueChecksText(e.target.value)}
-          />,
-        )}
-        {field(
-          'Phone — display',
-          <input className="input" value={phoneDisplay} onChange={(e) => setPhoneDisplay(e.target.value)} />,
-        )}
-        {field(
-          'Phone — tel href',
-          <input className="input" value={phoneTel} onChange={(e) => setPhoneTel(e.target.value)} />,
-        )}
-        {field(
-          'CTA — Apply label',
-          <input className="input" value={ctaApplyLabel} onChange={(e) => setCtaApplyLabel(e.target.value)} />,
-        )}
-        {field(
-          'CTA — Talk label',
-          <input className="input" value={ctaTalkLabel} onChange={(e) => setCtaTalkLabel(e.target.value)} />,
-        )}
-        {field(
-          'Why — title',
-          <input className="input" value={sectionWhyTitle} onChange={(e) => setSectionWhyTitle(e.target.value)} />,
-        )}
-        {field(
-          'Why — body',
-          <textarea className="textarea" rows={5} value={sectionWhyBody} onChange={(e) => setSectionWhyBody(e.target.value)} />,
-        )}
-        {field(
-          'Impact — title',
-          <input className="input" value={sectionImpactTitle} onChange={(e) => setSectionImpactTitle(e.target.value)} />,
-        )}
-        {field(
-          'Impact — body',
-          <textarea className="textarea" rows={5} value={sectionImpactBody} onChange={(e) => setSectionImpactBody(e.target.value)} />,
-        )}
-        {field(
-          'Trust — title',
-          <input className="input" value={sectionTrustTitle} onChange={(e) => setSectionTrustTitle(e.target.value)} />,
-        )}
-        {field(
-          'Trust — body',
-          <textarea className="textarea" rows={4} value={sectionTrustBody} onChange={(e) => setSectionTrustBody(e.target.value)} />,
-        )}
-        {field(
-          'Trust — partner paragraph',
-          <textarea
-            className="textarea"
-            rows={4}
-            value={sectionTrustPartner}
-            onChange={(e) => setSectionTrustPartner(e.target.value)}
-          />,
-        )}
-        {field(
-          'Facility — title',
-          <input className="input" value={sectionFacilityTitle} onChange={(e) => setSectionFacilityTitle(e.target.value)} />,
-        )}
-        {field(
-          'Facility — bullets (one line each)',
-          <textarea
-            className="textarea"
-            rows={6}
-            value={facilityLinesText}
-            onChange={(e) => setFacilityLinesText(e.target.value)}
-          />,
-        )}
-        {field(
-          'Join — title',
-          <input className="input" value={sectionJoinTitle} onChange={(e) => setSectionJoinTitle(e.target.value)} />,
-        )}
-        {field(
-          'Join — body',
-          <textarea className="textarea" rows={4} value={sectionJoinBody} onChange={(e) => setSectionJoinBody(e.target.value)} />,
-        )}
-        {field(
-          'Partners — title',
-          <input className="input" value={sectionPartnersTitle} onChange={(e) => setSectionPartnersTitle(e.target.value)} />,
-        )}
-        {field(
-          'Partners — bullets (one line each)',
-          <textarea
-            className="textarea"
-            rows={8}
-            value={partnerCriteriaText}
-            onChange={(e) => setPartnerCriteriaText(e.target.value)}
-          />,
-        )}
+      <div className="row mb-4" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
+        <label className="field" style={{ maxWidth: 360 }}>
+          <span className="field-label">Add block</span>
+          <select className="input" value={addType} onChange={(e) => setAddType(e.target.value as FranchisePageBlock['_type'])}>
+            <option value="franchise_page_block_hero">Hero</option>
+            <option value="franchise_page_block_value_checks">Value checks</option>
+            <option value="franchise_page_block_ctas">CTAs</option>
+            <option value="franchise_page_block_phone">Phone line</option>
+            <option value="franchise_page_block_text_section">Text section (Markdown)</option>
+            <option value="franchise_page_block_bullets_section">Bullets section</option>
+            <option value="franchise_page_block_custom_markdown">Custom Markdown</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setBlocks((prev) => [...prev, makeBlock(addType)])}
+        >
+          Add
+        </button>
       </div>
 
-      <div className="row" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {blocks.map((b, idx) => (
+          <section key={b._key} className="card" style={{ padding: '1rem' }}>
+            <div className="row" style={{ justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <strong>
+                {idx + 1}. <code>{b._type}</code>
+              </strong>
+              <div className="row" style={{ gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => move(idx, -1)} disabled={idx === 0}>
+                  Up
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => move(idx, 1)}
+                  disabled={idx === blocks.length - 1}
+                >
+                  Down
+                </button>
+                <button type="button" className="btn" onClick={() => remove(idx)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            <div className="field-grid" style={{ marginTop: '0.75rem' }}>
+              {b._type === 'franchise_page_block_hero'
+                ? [
+                    field(
+                      'Title',
+                      <textarea
+                        className="textarea"
+                        rows={2}
+                        value={b.title ?? ''}
+                        onChange={(e) => update(idx, { title: e.target.value } as Partial<BlockHero>)}
+                      />,
+                    ),
+                    field(
+                      'Lead',
+                      <textarea
+                        className="textarea"
+                        rows={4}
+                        value={b.lead ?? ''}
+                        onChange={(e) => update(idx, { lead: e.target.value } as Partial<BlockHero>)}
+                      />,
+                    ),
+                  ]
+                : null}
+
+              {b._type === 'franchise_page_block_value_checks'
+                ? field(
+                    'Lines (one per line)',
+                    <textarea
+                      className="textarea"
+                      rows={5}
+                      value={linesToText(Array.isArray(b.lines) ? b.lines : [])}
+                      onChange={(e) => update(idx, { lines: textToLines(e.target.value) } as Partial<BlockValueChecks>)}
+                    />,
+                  )
+                : null}
+
+              {b._type === 'franchise_page_block_ctas'
+                ? [
+                    field(
+                      'Apply label',
+                      <input
+                        className="input"
+                        value={b.applyLabel ?? ''}
+                        onChange={(e) => update(idx, { applyLabel: e.target.value } as Partial<BlockCtas>)}
+                      />,
+                    ),
+                    field(
+                      'Apply href',
+                      <input
+                        className="input"
+                        value={b.applyHref ?? ''}
+                        onChange={(e) => update(idx, { applyHref: e.target.value } as Partial<BlockCtas>)}
+                      />,
+                    ),
+                    field(
+                      'Talk label',
+                      <input
+                        className="input"
+                        value={b.talkLabel ?? ''}
+                        onChange={(e) => update(idx, { talkLabel: e.target.value } as Partial<BlockCtas>)}
+                      />,
+                    ),
+                    field(
+                      'Talk href',
+                      <input
+                        className="input"
+                        value={b.talkHref ?? ''}
+                        onChange={(e) => update(idx, { talkHref: e.target.value } as Partial<BlockCtas>)}
+                      />,
+                    ),
+                  ]
+                : null}
+
+              {b._type === 'franchise_page_block_phone'
+                ? [
+                    field(
+                      'Display',
+                      <input
+                        className="input"
+                        value={b.display ?? ''}
+                        onChange={(e) => update(idx, { display: e.target.value } as Partial<BlockPhone>)}
+                      />,
+                    ),
+                    field(
+                      'tel href',
+                      <input
+                        className="input"
+                        value={b.telHref ?? ''}
+                        onChange={(e) => update(idx, { telHref: e.target.value } as Partial<BlockPhone>)}
+                      />,
+                    ),
+                  ]
+                : null}
+
+              {b._type === 'franchise_page_block_text_section'
+                ? [
+                    field(
+                      'Heading',
+                      <input
+                        className="input"
+                        value={b.heading ?? ''}
+                        onChange={(e) => update(idx, { heading: e.target.value } as Partial<BlockTextSection>)}
+                      />,
+                    ),
+                    field(
+                      'Body (Markdown)',
+                      <textarea
+                        className="textarea"
+                        rows={8}
+                        value={b.bodyMarkdown ?? ''}
+                        onChange={(e) => update(idx, { bodyMarkdown: e.target.value } as Partial<BlockTextSection>)}
+                      />,
+                    ),
+                  ]
+                : null}
+
+              {b._type === 'franchise_page_block_bullets_section'
+                ? [
+                    field(
+                      'Heading',
+                      <input
+                        className="input"
+                        value={b.heading ?? ''}
+                        onChange={(e) => update(idx, { heading: e.target.value } as Partial<BlockBulletsSection>)}
+                      />,
+                    ),
+                    field(
+                      'Bullets (one per line)',
+                      <textarea
+                        className="textarea"
+                        rows={8}
+                        value={linesToText(Array.isArray(b.bullets) ? b.bullets : [])}
+                        onChange={(e) => update(idx, { bullets: textToLines(e.target.value) } as Partial<BlockBulletsSection>)}
+                      />,
+                    ),
+                  ]
+                : null}
+
+              {b._type === 'franchise_page_block_custom_markdown'
+                ? field(
+                    'Markdown',
+                    <textarea
+                      className="textarea"
+                      rows={10}
+                      value={b.markdown ?? ''}
+                      onChange={(e) => update(idx, { markdown: e.target.value } as Partial<BlockCustomMarkdown>)}
+                    />,
+                  )
+                : null}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <div className="row" style={{ flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
         <button type="button" className="btn" onClick={() => void save()} disabled={status === 'saving'}>
           {status === 'saving' ? 'Saving…' : 'Save page body'}
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={resetToDefaults}>
-          Reset form to defaults
         </button>
         {msg ? <span className={status === 'error' ? 'text-error' : 'text-muted'}>{msg}</span> : null}
       </div>

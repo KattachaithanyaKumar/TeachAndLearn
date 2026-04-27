@@ -12,6 +12,12 @@ import {
   homeQuery,
 } from './queries.js'
 import { requireAdmin } from './middleware.js'
+import {
+  getRecipientForContactSubmission,
+  getRecipientForFranchiseInquiry,
+  sendEmail,
+} from './email.js'
+import { formatIstLong } from './emailTemplates.js'
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } })
 
@@ -56,6 +62,20 @@ function clientOrError(res) {
   }
 }
 
+function isEmail(v) {
+  return typeof v === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+}
+
+function digitsOnlyMax10(v) {
+  return String(v ?? '')
+    .replace(/\D+/g, '')
+    .slice(0, 10)
+}
+
+function str(v) {
+  return typeof v === 'string' ? v.trim() : ''
+}
+
 /** Express app for local `node server/index.js` and Netlify Functions (`netlify/functions/api.mjs`). */
 export function createApp() {
   const app = express()
@@ -75,6 +95,181 @@ export function createApp() {
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true })
+  })
+
+  // Public endpoints for website forms: save to Sanity (admin portal) + optionally email recipients.
+  app.post('/api/public/contact-submission', async (req, res) => {
+    const client = clientOrError(res)
+    if (!client) return
+
+    const name = str(req.body?.name)
+    const contact = digitsOnlyMax10(req.body?.contact)
+    const email = str(req.body?.email)
+    const message = str(req.body?.message)
+    const source = str(req.body?.source)
+    const service = str(req.body?.service)
+    const requestType = str(req.body?.requestType)
+    const requestedServices = Array.isArray(req.body?.requestedServices)
+      ? req.body.requestedServices.map((v) => str(v)).filter(Boolean)
+      : []
+
+    if (!name || !contact || !email || !message) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+    if (contact.length !== 10) {
+      return res.status(400).json({ error: 'Invalid contact number' })
+    }
+    if (!isEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email address' })
+    }
+    if (source === 'home_book' && !service) {
+      return res.status(400).json({ error: 'Missing service' })
+    }
+    if (source === 'home_book') {
+      if (requestType !== 'assessment' && requestType !== 'service') {
+        return res.status(400).json({ error: 'Missing request type' })
+      }
+      if (requestedServices.length === 0) {
+        return res.status(400).json({ error: 'Missing requested services' })
+      }
+    }
+
+    const doc = {
+      _type: 'contact_submission',
+      name,
+      contact,
+      email,
+      message,
+      source: source === 'home_book' || source === 'contact_page' ? source : undefined,
+      service: service || undefined,
+      requestType: requestType || undefined,
+      requestedServices: requestedServices.length > 0 ? requestedServices : undefined,
+      submittedAt: new Date().toISOString(),
+      responded: false,
+    }
+
+    try {
+      const created = await client.create(doc)
+
+      const to = getRecipientForContactSubmission(doc.source)
+      const subjectPrefix =
+        doc.source === 'home_book'
+          ? 'Quick appointment'
+          : doc.source === 'contact_page'
+            ? 'Contact us'
+            : 'Contact submission'
+      const emailResult = await sendEmail({
+        to,
+        replyTo: email,
+        subject: `[Teach&Learn] ${subjectPrefix} — ${name}`,
+        text: [
+          `Teach & Learn — ${subjectPrefix}`,
+          '',
+          `Source: ${doc.source || 'unknown'}`,
+          requestType ? `Request type: ${requestType}` : null,
+          requestedServices.length > 0 ? `Selected services: ${requestedServices.join(', ')}` : null,
+          service ? `Service: ${service}` : null,
+          `Name: ${name}`,
+          `Phone: ${contact}`,
+          `Email: ${email}`,
+          `Submitted at (IST): ${formatIstLong(doc.submittedAt)}`,
+          '',
+          'Message:',
+          message,
+          '',
+          'If you reply to this email, it will go to the submitter.',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      })
+
+      res.json({ ok: true, createdId: created?._id, emailed: Boolean(emailResult.emailed), emailResult })
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'submit failed' })
+    }
+  })
+
+  app.post('/api/public/franchise-inquiry', async (req, res) => {
+    const client = clientOrError(res)
+    if (!client) return
+
+    const name = str(req.body?.name)
+    const email = str(req.body?.email)
+    const mobile = digitsOnlyMax10(req.body?.mobile)
+    const dob = str(req.body?.dob)
+    const education = str(req.body?.education)
+    const currentState = str(req.body?.currentState)
+    const currentDistrict = str(req.body?.currentDistrict)
+    const location = str(req.body?.location)
+    const comments = str(req.body?.comments)
+
+    if (
+      !name ||
+      !email ||
+      !mobile ||
+      !dob ||
+      !education ||
+      !currentState ||
+      !currentDistrict ||
+      !location ||
+      !comments
+    ) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+    if (mobile.length !== 10) {
+      return res.status(400).json({ error: 'Invalid mobile number' })
+    }
+    if (!isEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email address' })
+    }
+
+    const doc = {
+      _type: 'franchise_inquiry',
+      name,
+      email,
+      mobile,
+      dob,
+      education,
+      currentState,
+      currentDistrict,
+      location,
+      comments,
+      submittedAt: new Date().toISOString(),
+      responded: false,
+    }
+
+    try {
+      const created = await client.create(doc)
+
+      const to = getRecipientForFranchiseInquiry()
+      const emailResult = await sendEmail({
+        to,
+        replyTo: email,
+        subject: `[Teach&Learn] Franchise inquiry — ${name}`,
+        text: [
+          'Teach & Learn — Franchise inquiry',
+          '',
+          `Name: ${name}`,
+          `Email: ${email}`,
+          `Mobile: ${mobile}`,
+          `DOB: ${dob}`,
+          `Education: ${education}`,
+          `Current state: ${currentState}`,
+          `Current district: ${currentDistrict}`,
+          `Preferred location: ${location}`,
+          `Submitted at (IST): ${formatIstLong(doc.submittedAt)}`,
+          '',
+          'Comments:',
+          comments,
+          '',
+          'If you reply to this email, it will go to the submitter.',
+        ].join('\n'),
+      })
+
+      res.json({ ok: true, createdId: created?._id, emailed: Boolean(emailResult.emailed), emailResult })
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'submit failed' })
+    }
   })
 
   const api = express.Router()
@@ -116,6 +311,36 @@ export function createApp() {
         message,
         source,
         service,
+        requestType,
+        requestedServices,
+        submittedAt,
+        responded,
+        respondedAt
+      }`,
+      )
+      res.json(rows)
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
+    }
+  })
+
+  api.get('/franchise-inquiries', async (_req, res) => {
+    const client = clientOrError(res)
+    if (!client) return
+    try {
+      const rows = await client.fetch(
+        `*[_type == "franchise_inquiry"] | order(submittedAt desc) {
+        _id,
+        _type,
+        name,
+        email,
+        mobile,
+        dob,
+        education,
+        currentState,
+        currentDistrict,
+        location,
+        comments,
         submittedAt,
         responded,
         respondedAt

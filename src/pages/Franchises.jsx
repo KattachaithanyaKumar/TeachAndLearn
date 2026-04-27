@@ -4,14 +4,17 @@ import { FaCheck } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Section from "../components/Section";
-import { getFranchise } from "../network/api_service";
+import { getFranchise, submitFranchiseInquiry } from "../network/api_service";
 import { useApiStates } from "../hooks/useApiStates";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import { INDIAN_STATES, EDUCATION_LEVELS } from "../constants/indianStates";
 import { mergeFranchisePageBody } from "../data/franchisePageCopy";
+import renderFranchisePageBlock from "./franchisePageBlocks/renderFranchisePageBlock";
 
 const COMMENTS_MAX = 500;
+
+const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
 
 function setValidity(el, message) {
   if (el && typeof el.setCustomValidity === "function") el.setCustomValidity(message);
@@ -19,14 +22,6 @@ function setValidity(el, message) {
 
 function digitsOnlyMax10(value) {
   return String(value ?? "").replace(/\D+/g, "").slice(0, 10);
-}
-
-function formatAlertLine(key, value) {
-  const label = key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (s) => s.toUpperCase())
-    .trim();
-  return `${label}: ${value}`;
 }
 
 const franchiseSelectClass =
@@ -61,6 +56,8 @@ const Franchises = () => {
   const [districtError, setDistrictError] = useState("");
   const [locationError, setLocationError] = useState("");
   const [commentsError, setCommentsError] = useState("");
+  const [formStatus, setFormStatus] = useState("idle");
+  const [formFeedback, setFormFeedback] = useState(null);
 
   const maxDob = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -132,7 +129,9 @@ const Franchises = () => {
     description: step.description,
   }));
 
-  const pb = mergeFranchisePageBody(franchiseData.pageBody);
+  const blocks = Array.isArray(franchiseData.pageBodyBlocks) ? franchiseData.pageBodyBlocks : null;
+  const hasBlocks = Boolean(blocks && blocks.length > 0);
+  const pb = hasBlocks ? null : mergeFranchisePageBody(franchiseData.pageBody);
 
   return (
     <div className="overflow-hidden px-4 sm:px-6">
@@ -149,99 +148,109 @@ const Franchises = () => {
 
       <Section className="relative px-2 sm:px-8 md:px-12 lg:px-20 py-0 overflow-hidden mt-6">
         <div className="relative z-10 max-w-3xl mx-auto py-12 sm:py-16 md:py-20 flex flex-col items-stretch text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg leading-tight">
-            {pb.heroTitle}
-          </h1>
-          <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-8">
-            {pb.heroLead}
-          </p>
+          {hasBlocks ? (
+            <div className="space-y-10">
+              {blocks.map((b, idx) => (
+                <React.Fragment key={b?._key ?? `${idx}-${b?._type ?? "block"}`}>
+                  {renderFranchisePageBlock(b)}
+                </React.Fragment>
+              ))}
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-red-500 via-orange-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg leading-tight">
+                {pb.heroTitle}
+              </h1>
+              <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-8">{pb.heroLead}</p>
 
-          <ul className="space-y-3 mb-8">
-            {pb.valueChecks.map((line, i) => (
-              <li key={`${i}-${line}`} className="flex items-start gap-3 text-gray-800 font-medium">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs">
-                  <FaCheck className="text-[10px]" aria-hidden />
+              <ul className="space-y-3 mb-8">
+                {pb.valueChecks.map((line, i) => (
+                  <li key={`${i}-${line}`} className="flex items-start gap-3 text-gray-800 font-medium">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs">
+                      <FaCheck className="text-[10px]" aria-hidden />
+                    </span>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+                <a
+                  href="#franchise-inquiry"
+                  className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-red-500 to-orange-500 px-6 py-3 text-center text-base font-bold text-white shadow-md transition hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                >
+                  {pb.ctaApplyLabel}
+                </a>
+                <Link
+                  to="/contact-us#contact-form"
+                  className="inline-flex items-center justify-center rounded-xl border-2 border-orange-400 bg-white px-6 py-3 text-center text-base font-bold text-orange-600 shadow-sm transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                >
+                  {pb.ctaTalkLabel}
+                </Link>
+              </div>
+
+              <p className="text-gray-700 mb-12">
+                <span className="mr-2" aria-hidden>
+                  📞
                 </span>
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
+                Call:{" "}
+                <a href={pb.phoneTel} className="font-semibold text-orange-600 underline-offset-2 hover:underline">
+                  {pb.phoneDisplay}
+                </a>
+              </p>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
-            <a
-              href="#franchise-inquiry"
-              className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-red-500 to-orange-500 px-6 py-3 text-center text-base font-bold text-white shadow-md transition hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-orange-300"
-            >
-              {pb.ctaApplyLabel}
-            </a>
-            <Link
-              to="/contact-us#contact-form"
-              className="inline-flex items-center justify-center rounded-xl border-2 border-orange-400 bg-white px-6 py-3 text-center text-base font-bold text-orange-600 shadow-sm transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-200"
-            >
-              {pb.ctaTalkLabel}
-            </Link>
-          </div>
+              <div className="space-y-10 text-gray-700 leading-relaxed">
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    {pb.sectionWhyTitle}
+                  </h2>
+                  <p>{pb.sectionWhyBody}</p>
+                </section>
 
-          <p className="text-gray-700 mb-12">
-            <span className="mr-2" aria-hidden>
-              📞
-            </span>
-            Call:{" "}
-            <a href={pb.phoneTel} className="font-semibold text-orange-600 underline-offset-2 hover:underline">
-              {pb.phoneDisplay}
-            </a>
-          </p>
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    {pb.sectionImpactTitle}
+                  </h2>
+                  <p>{pb.sectionImpactBody}</p>
+                </section>
 
-          <div className="space-y-10 text-gray-700 leading-relaxed">
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                {pb.sectionWhyTitle}
-              </h2>
-              <p>{pb.sectionWhyBody}</p>
-            </section>
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    {pb.sectionTrustTitle}
+                  </h2>
+                  <p className="mb-3">{pb.sectionTrustBody}</p>
+                  <p>{pb.sectionTrustPartner}</p>
+                </section>
 
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                {pb.sectionImpactTitle}
-              </h2>
-              <p>{pb.sectionImpactBody}</p>
-            </section>
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    {pb.sectionFacilityTitle}
+                  </h2>
+                  <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
+                    {pb.facilityLines.map((line, i) => (
+                      <li key={`${i}-${line}`}>{line}</li>
+                    ))}
+                  </ul>
+                </section>
 
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                {pb.sectionTrustTitle}
-              </h2>
-              <p className="mb-3">{pb.sectionTrustBody}</p>
-              <p>{pb.sectionTrustPartner}</p>
-            </section>
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    {pb.sectionJoinTitle}
+                  </h2>
+                  <p>{pb.sectionJoinBody}</p>
+                </section>
 
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                {pb.sectionFacilityTitle}
-              </h2>
-              <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
-                {pb.facilityLines.map((line, i) => (
-                  <li key={`${i}-${line}`}>{line}</li>
-                ))}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                {pb.sectionJoinTitle}
-              </h2>
-              <p>{pb.sectionJoinBody}</p>
-            </section>
-
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 text-gray-900">{pb.sectionPartnersTitle}</h2>
-              <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
-                {pb.partnerCriteria.map((line, i) => (
-                  <li key={`${i}-${line}`}>{line}</li>
-                ))}
-              </ul>
-            </section>
-          </div>
+                <section>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 text-gray-900">{pb.sectionPartnersTitle}</h2>
+                  <ul className="list-disc list-outside space-y-2 pl-5 marker:text-orange-500">
+                    {pb.partnerCriteria.map((line, i) => (
+                      <li key={`${i}-${line}`}>{line}</li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            </>
+          )}
         </div>
       </Section>
 
@@ -257,11 +266,31 @@ const Franchises = () => {
             Contact us today to learn more about our services and how we can support you or your loved one’s growth and
             development.
           </p>
+          {!hasWriteToken ? (
+            <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm mb-6">
+              Form submissions need <code className="text-xs">VITE_SANITY_WRITE_TOKEN</code> in{" "}
+              <code className="text-xs">.env</code> (see <code className="text-xs">.env.example</code>) and your site
+              origin under Sanity API → CORS.
+            </p>
+          ) : null}
+          {formFeedback ? (
+            <p
+              className={
+                formStatus === "success"
+                  ? "text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm mb-6"
+                  : "text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm mb-6"
+              }
+              role="status"
+            >
+              {formFeedback}
+            </p>
+          ) : null}
           <form
             className="space-y-6"
             noValidate
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
+              setFormFeedback(null);
               setNameError("");
               setEmailError("");
               setMobileError("");
@@ -359,13 +388,36 @@ const Franchises = () => {
                 location: locationTrim,
                 comments: commentsTrim,
               };
-              alert(
-                `Thank you for your interest!\n\n${Object.entries(data)
-                  .map(([k, v]) => formatAlertLine(k, v))
-                  .join("\n")}`,
-              );
-              form.reset();
-              setCommentsValue("");
+
+              if (!hasWriteToken) {
+                setFormStatus("error");
+                setFormFeedback(
+                  "Form is not configured. Add VITE_SANITY_WRITE_TOKEN to your environment.",
+                );
+                return;
+              }
+
+              setFormStatus("submitting");
+              try {
+                await submitFranchiseInquiry(data);
+                setFormStatus("success");
+                setFormFeedback("Thank you for your interest! We will get back to you soon.");
+                form.reset();
+                setCommentsValue("");
+              } catch (err) {
+                setFormStatus("error");
+                if (err?.code === "MISSING_WRITE_TOKEN") {
+                  setFormFeedback(
+                    "Form is not configured. Add VITE_SANITY_WRITE_TOKEN (see .env.example).",
+                  );
+                } else if (err instanceof Error) {
+                  setFormFeedback(err.message);
+                } else {
+                  setFormFeedback(
+                    "Could not send your inquiry. Check CORS settings in Sanity or try again.",
+                  );
+                }
+              }
             }}
           >
             <div className="flex flex-col md:flex-row gap-4">
@@ -631,9 +683,11 @@ const Franchises = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2"
+              disabled={formStatus === "submitting"}
+              className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl transition text-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Send Message <span aria-hidden>→</span>
+              {formStatus === "submitting" ? "Sending…" : "Send Message"}{" "}
+              {formStatus === "submitting" ? null : <span aria-hidden>→</span>}
             </button>
           </form>
         </div>

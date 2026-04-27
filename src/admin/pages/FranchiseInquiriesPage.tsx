@@ -2,33 +2,40 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { apiGet, apiPatch } from '../api/client'
 import {
-  type ContactSubmission,
-  type SubmissionSort,
-  filterSubmissions,
+  type FranchiseInquiry,
+  type FranchiseInquirySort,
+  EDUCATION_LEVELS,
+  INDIAN_STATES,
+  filterInquiries,
   formatDate,
-  sortSubmissions,
-  sourceLabel,
-} from '../lib/submissionUtils'
+  sortInquiries,
+} from '../lib/franchiseInquiryUtils'
 
 function parseStatus(v: string | null): 'all' | 'open' | 'responded' {
   if (v === 'open' || v === 'responded') return v
   return 'all'
 }
 
-function parseSource(v: string | null): 'all' | 'contact_page' | 'home_book' {
-  if (v === 'contact_page' || v === 'home_book') return v
-  return 'all'
+function parseState(v: string | null): 'all' | string {
+  if (!v || v === 'all') return 'all'
+  return INDIAN_STATES.includes(v) ? v : 'all'
 }
 
-function parseSort(v: string | null): SubmissionSort {
+function parseEducation(v: string | null): 'all' | string {
+  if (!v || v === 'all') return 'all'
+  return EDUCATION_LEVELS.some((o) => o.value === v) ? v : 'all'
+}
+
+function parseSort(v: string | null): FranchiseInquirySort {
   if (v === 'submitted_asc' || v === 'name_asc' || v === 'name_desc') return v
   return 'submitted_desc'
 }
 
-export default function SubmissionsPage() {
+export default function FranchiseInquiriesPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const status = parseStatus(searchParams.get('status'))
-  const source = parseSource(searchParams.get('source'))
+  const stateFilter = parseState(searchParams.get('state'))
+  const education = parseEducation(searchParams.get('education'))
   const sort = parseSort(searchParams.get('sort'))
   const q = searchParams.get('q') ?? ''
 
@@ -64,7 +71,7 @@ export default function SubmissionsPage() {
     setSearchParams({}, { replace: true })
   }
 
-  const setSortParam = (value: SubmissionSort) => {
+  const setSortParam = (value: FranchiseInquirySort) => {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
@@ -76,14 +83,14 @@ export default function SubmissionsPage() {
     )
   }
 
-  const [rows, setRows] = useState<ContactSubmission[] | null>(null)
+  const [rows, setRows] = useState<FranchiseInquiry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [toggleErr, setToggleErr] = useState<string | null>(null)
 
   const load = useCallback(() => {
     setError(null)
-    apiGet<ContactSubmission[]>('/api/contact-submissions')
+    apiGet<FranchiseInquiry[]>('/api/franchise-inquiries')
       .then(setRows)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
   }, [])
@@ -94,11 +101,11 @@ export default function SubmissionsPage() {
 
   const filtered = useMemo(() => {
     if (!rows) return []
-    const list = filterSubmissions(rows, { status, source, q })
-    return sortSubmissions(list, sort)
-  }, [rows, status, source, q, sort])
+    const list = filterInquiries(rows, { status, state: stateFilter, education, q })
+    return sortInquiries(list, sort)
+  }, [rows, status, stateFilter, education, q, sort])
 
-  const toggleResponded = async (row: ContactSubmission) => {
+  const toggleResponded = async (row: FranchiseInquiry) => {
     const next = !row.responded
     setUpdatingId(row._id)
     setToggleErr(null)
@@ -130,12 +137,12 @@ export default function SubmissionsPage() {
   }
 
   const hasActiveFilters =
-    status !== 'all' || source !== 'all' || q.trim().length > 0
+    status !== 'all' || stateFilter !== 'all' || education !== 'all' || q.trim().length > 0
 
   if (rows === null && !error) {
     return (
       <div className="page">
-        <h1 className="page-title">Form submissions</h1>
+        <h1 className="page-title">Franchise inquiries</h1>
         <p>Loading…</p>
       </div>
     )
@@ -144,7 +151,7 @@ export default function SubmissionsPage() {
   if (error) {
     return (
       <div className="page">
-        <h1 className="page-title">Form submissions</h1>
+        <h1 className="page-title">Franchise inquiries</h1>
         <p className="text-error">{error}</p>
         <button type="button" className="btn" onClick={load}>
           Retry
@@ -155,10 +162,10 @@ export default function SubmissionsPage() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Form submissions</h1>
+      <h1 className="page-title">Franchise inquiries</h1>
       <p className="muted">
-        Inquiries from the public site (<code>contact_submission</code>). Filters apply in the
-        browser; the URL reflects filters and sort so you can bookmark or share a view.
+        Submissions from the franchise page form (<code>franchise_inquiry</code>). Filters apply in
+        the browser; the URL reflects filters and sort so you can bookmark or share a view.
       </p>
 
       <div className="filter-bar card">
@@ -176,15 +183,33 @@ export default function SubmissionsPage() {
             </select>
           </label>
           <label className="filter-field">
-            <span className="field-label">Source</span>
+            <span className="field-label">State</span>
             <select
               className="input select"
-              value={source}
-              onChange={(e) => setFilter('source', e.target.value)}
+              value={stateFilter}
+              onChange={(e) => setFilter('state', e.target.value)}
             >
-              <option value="all">All sources</option>
-              <option value="contact_page">Contact page</option>
-              <option value="home_book">Home · Quick appointment</option>
+              <option value="all">All states</option>
+              {INDIAN_STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="filter-field">
+            <span className="field-label">Education</span>
+            <select
+              className="input select"
+              value={education}
+              onChange={(e) => setFilter('education', e.target.value)}
+            >
+              <option value="all">All levels</option>
+              {EDUCATION_LEVELS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </label>
           <label className="filter-field">
@@ -192,7 +217,7 @@ export default function SubmissionsPage() {
             <select
               className="input select"
               value={sort}
-              onChange={(e) => setSortParam(e.target.value as SubmissionSort)}
+              onChange={(e) => setSortParam(e.target.value as FranchiseInquirySort)}
             >
               <option value="submitted_desc">Newest submitted first</option>
               <option value="submitted_asc">Oldest submitted first</option>
@@ -205,7 +230,7 @@ export default function SubmissionsPage() {
             <input
               type="search"
               className="input"
-              placeholder="Name, email, phone, message…"
+              placeholder="Name, email, phone, district, location, message…"
               value={q}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -214,7 +239,7 @@ export default function SubmissionsPage() {
         <div className="filter-actions">
           <p className="filter-count muted">
             Showing <strong>{filtered.length}</strong> of <strong>{rows?.length ?? 0}</strong>{' '}
-            submissions
+            inquiries
           </p>
           {hasActiveFilters ? (
             <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>
@@ -227,9 +252,9 @@ export default function SubmissionsPage() {
       {toggleErr ? <p className="text-error">{toggleErr}</p> : null}
 
       {!rows?.length ? (
-        <p className="muted">No submissions yet.</p>
+        <p className="muted">No franchise inquiries yet.</p>
       ) : filtered.length === 0 ? (
-        <p className="muted">No submissions match the current filters.</p>
+        <p className="muted">No inquiries match the current filters.</p>
       ) : (
         <ul className="submission-list">
           {filtered.map((s) => (
@@ -243,7 +268,6 @@ export default function SubmissionsPage() {
                 </div>
                 <div className="submission-meta">
                   <span>{formatDate(s.submittedAt)}</span>
-                  <span className="muted">{sourceLabel(s.source)}</span>
                 </div>
               </div>
               <dl className="submission-dl">
@@ -252,33 +276,29 @@ export default function SubmissionsPage() {
                   <dd>{s.email ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt>Phone</dt>
-                  <dd>{s.contact ?? '—'}</dd>
+                  <dt>Mobile</dt>
+                  <dd>{s.mobile ?? '—'}</dd>
                 </div>
-                {s.requestType ? (
-                  <div>
-                    <dt>Request type</dt>
-                    <dd>
-                      {s.requestType === 'assessment'
-                        ? 'Assessment'
-                        : s.requestType === 'service'
-                          ? 'Service'
-                          : s.requestType}
-                    </dd>
-                  </div>
-                ) : null}
-                {Array.isArray(s.requestedServices) && s.requestedServices.length > 0 ? (
-                  <div>
-                    <dt>Selected services</dt>
-                    <dd>{s.requestedServices.filter(Boolean).join(', ')}</dd>
-                  </div>
-                ) : null}
-                {s.service ? (
-                  <div>
-                    <dt>Service</dt>
-                    <dd>{s.service}</dd>
-                  </div>
-                ) : null}
+                <div>
+                  <dt>Date of birth</dt>
+                  <dd>{s.dob ? formatDate(`${s.dob}T12:00:00`) : '—'}</dd>
+                </div>
+                <div>
+                  <dt>Education</dt>
+                  <dd>{s.education ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>State</dt>
+                  <dd>{s.currentState ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>District</dt>
+                  <dd>{s.currentDistrict ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>Preferred location</dt>
+                  <dd>{s.location ?? '—'}</dd>
+                </div>
                 {s.respondedAt ? (
                   <div>
                     <dt>Responded at</dt>
@@ -288,13 +308,13 @@ export default function SubmissionsPage() {
               </dl>
               <div className="submission-message">
                 <span className="field-label">Message</span>
-                <p className="submission-message-body">{s.message ?? '—'}</p>
+                <p className="submission-message-body">{s.comments ?? '—'}</p>
               </div>
               <button
                 type="button"
                 className="btn btn-secondary"
                 disabled={updatingId === s._id}
-                onClick={() => toggleResponded(s)}
+                onClick={() => void toggleResponded(s)}
               >
                 {updatingId === s._id
                   ? 'Updating…'

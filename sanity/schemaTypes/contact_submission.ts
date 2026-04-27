@@ -48,6 +48,40 @@ export const contact_submission = defineType({
       validation: (Rule) => Rule.max(200),
     }),
     defineField({
+      name: "requestType",
+      title: "Request type",
+      type: "string",
+      description: "Required for Quick Appointment submissions from the home page.",
+      options: {
+        list: [
+          { title: "Assessment", value: "assessment" },
+          { title: "Service", value: "service" },
+        ],
+        layout: "radio",
+      },
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          const source = ctx?.document?.source;
+          if (source === "home_book" && !value) return "Please select Assessment or Service.";
+          return true;
+        }),
+    }),
+    defineField({
+      name: "requestedServices",
+      title: "Requested services",
+      type: "array",
+      description: "Selected services for Quick Appointment submissions.",
+      of: [{ type: "string" }],
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          const source = ctx?.document?.source;
+          if (source !== "home_book") return true;
+          const list = Array.isArray(value) ? value.filter(Boolean) : [];
+          if (list.length < 1) return "Please pick at least one service.";
+          return true;
+        }),
+    }),
+    defineField({
       name: "submittedAt",
       title: "Submitted at",
       type: "datetime",
@@ -73,8 +107,10 @@ export const contact_submission = defineType({
       submittedAt: "submittedAt",
       source: "source",
       service: "service",
+      requestType: "requestType",
+      requestedServices: "requestedServices",
     },
-    prepare({ title, responded, submittedAt, source, service }) {
+    prepare({ title, responded, submittedAt, source, service, requestType, requestedServices }) {
       const date = submittedAt
         ? new Date(submittedAt).toLocaleString()
         : "";
@@ -84,10 +120,22 @@ export const contact_submission = defineType({
           : source === "contact_page"
             ? "Contact page"
             : "";
-      const svc = service ? ` · ${service}` : "";
+      const rt =
+        requestType === "assessment"
+          ? "Assessment"
+          : requestType === "service"
+            ? "Service"
+            : "";
+      const svcList =
+        Array.isArray(requestedServices) && requestedServices.length > 0
+          ? requestedServices.filter(Boolean).join(", ")
+          : "";
+      const svc = svcList ? ` · ${svcList}` : service ? ` · ${service}` : "";
       return {
         title: title || "Submission",
-        subtitle: `${responded ? "Responded" : "Open"}${date ? ` · ${date}` : ""}${src ? ` · ${src}` : ""}${svc}`,
+        subtitle: `${responded ? "Responded" : "Open"}${date ? ` · ${date}` : ""}${src ? ` · ${src}` : ""}${
+          rt ? ` · ${rt}` : ""
+        }${svc}`,
       };
     },
   },

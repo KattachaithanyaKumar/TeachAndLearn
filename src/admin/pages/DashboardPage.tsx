@@ -27,6 +27,8 @@ export default function DashboardPage() {
         <p className="muted" style={{ marginTop: '0.75rem' }}>
           <Link to={adminPath('submissions')}>Form submissions</Link>
           {' · '}
+          <Link to={adminPath('franchise-inquiries')}>Franchise inquiries</Link>
+          {' · '}
           <Link to={adminPath('contact')}>Contact CMS</Link>
         </p>
       </div>

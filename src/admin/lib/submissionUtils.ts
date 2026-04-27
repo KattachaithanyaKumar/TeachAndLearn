@@ -6,6 +6,8 @@ export type ContactSubmission = {
   message?: string
   source?: string
   service?: string
+  requestType?: string
+  requestedServices?: string[]
   submittedAt?: string
   responded?: boolean
   respondedAt?: string
@@ -79,6 +81,8 @@ export function filterSubmissions(
       s.contact,
       s.message,
       s.service,
+      s.requestType,
+      Array.isArray(s.requestedServices) ? s.requestedServices.join(' ') : undefined,
       sourceLabel(s.source),
     ]
       .filter(Boolean)
