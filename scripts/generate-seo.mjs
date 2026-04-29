@@ -13,9 +13,9 @@ import { existsSync, readFileSync } from "fs";
 
 import { SITE_NAME, STATIC_SEO_ROUTES } from "../src/seo/staticMeta.js";
 import {
-  serviceListingDescription,
-  serviceListingTitle,
-} from "../src/seo/serviceListingMeta.js";
+  servicePageDescription,
+  servicePageTitle,
+} from "../src/seo/servicePageMeta.js";
 import { buildSitemapXml } from "./buildSitemapXml.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -125,14 +125,11 @@ async function fetchServiceItems() {
     useCdn: true,
   });
   return client.fetch(
-    `*[_type == "service_listing_item" && defined(pathSegment)]{
-      audience,
-      pathSegment,
+    `*[_type == "service_page" && defined(slug.current)]{
+      "slug": slug.current,
       title,
-      description,
-      heroTagline,
-      pageTitlePrefix,
-      pageTitleAccent,
+      subtitle,
+      body,
       _updatedAt
     }`,
   );
@@ -179,13 +176,11 @@ async function main() {
   }
 
   for (const doc of serviceDocs) {
-    const seg = String(doc.pathSegment || "").trim();
+    const seg = String(doc.slug || "").trim();
     if (!seg) continue;
-    const audience = doc.audience === "adult" ? "adult" : "child";
-    const base = audience === "child" ? "child-services" : "adult-services";
-    const routePath = `/${base}/${seg}`;
-    const title = serviceListingTitle(doc);
-    const description = serviceListingDescription(doc);
+    const routePath = `/service/${seg}`;
+    const title = servicePageTitle(doc);
+    const description = servicePageDescription(doc);
     const canonicalUrl = `${siteUrl}${routePath}`;
 
     const html = injectIntoHtml(template, {

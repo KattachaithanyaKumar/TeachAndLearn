@@ -8,6 +8,7 @@ import {
   aboutSectionQuery,
   contactUsQuery,
   footerSettingsQuery,
+  featuredServicePagesForNavQuery,
   franchiseQuery,
   homeQuery,
 } from './queries.js'
@@ -386,40 +387,22 @@ export function createApp() {
     }
   })
 
-  api.get('/service-listing/:audience', async (req, res) => {
-    const audience = req.params.audience
-    if (audience !== 'child' && audience !== 'adult') {
-      return res.status(400).json({ error: 'Invalid audience' })
-    }
+  api.get('/service-pages', async (_req, res) => {
     const client = clientOrError(res)
     if (!client) return
     try {
-      const landing = await client.fetch(
-        `*[_type == "service_listing_landing" && audience == $audience][0]{
-        _id,
-        _type,
-        audience,
-        heroIntro,
-        sectionTitle,
-        sectionSubtitle
-      }`,
-        { audience },
-      )
       const items = await client.fetch(
-        `*[_type == "service_listing_item" && audience == $audience] | order(sortOrder asc, title asc) {
+        `*[_type == "service_page"] | order(sortOrder asc, title asc) {
         _id,
         _type,
-        audience,
         sortOrder,
         title,
-        pathSegment,
-        description,
-        items,
-        iconKey
+        subtitle,
+        isFeaturedInNav,
+        "slug": slug.current
       }`,
-        { audience },
       )
-      res.json({ landing, items })
+      res.json({ items })
     } catch (e) {
       res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
     }
@@ -431,6 +414,17 @@ export function createApp() {
     try {
       const rows = await client.fetch('*[_type == "facility"]')
       res.json(rows)
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
+    }
+  })
+
+  api.get('/service-pages/featured-nav', async (_req, res) => {
+    const client = clientOrError(res)
+    if (!client) return
+    try {
+      const items = await client.fetch(featuredServicePagesForNavQuery)
+      res.json({ items })
     } catch (e) {
       res.status(500).json({ error: e instanceof Error ? e.message : 'fetch failed' })
     }
@@ -461,14 +455,13 @@ export function createApp() {
   const CREATABLE_DOCUMENT_TYPES = new Set([
     'stats',
     'service',
+    'service_page',
     'testimonials',
     'whyUs',
     'our_philosophy',
     'about_us',
     'about_us_items',
     'approach',
-    'service_listing_landing',
-    'service_listing_item',
     'footer_settings',
     'contact_address',
   ])
@@ -567,7 +560,7 @@ export function createApp() {
     }
   })
 
-  const DELETABLE_DOCUMENT_TYPES = new Set(['service_listing_item'])
+  const DELETABLE_DOCUMENT_TYPES = new Set(['service_page'])
 
   api.delete('/documents/:id', async (req, res) => {
     const client = clientOrError(res)

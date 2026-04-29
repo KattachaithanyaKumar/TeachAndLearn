@@ -11,7 +11,7 @@ export function getAdminBase(): string {
 
 /**
  * Absolute path for admin routes and links.
- * @param path - segment(s) without base, e.g. "login", "service-listings/child", or "" for dashboard root
+ * @param path - segment(s) without base, e.g. "login", "service-pages", or "" for dashboard root
  */
 export function adminPath(path: string = ''): string {
   const base = getAdminBase()

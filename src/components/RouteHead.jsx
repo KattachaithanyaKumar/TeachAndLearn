@@ -13,7 +13,7 @@ function siteBase() {
 export default function RouteHead() {
   const { pathname } = useLocation();
   if (pathname.startsWith("/admin")) return null;
-  if (/^\/(child-services|adult-services)\/.+/.test(pathname)) return null;
+  if (/^\/service\/.+/.test(pathname)) return null;
 
   const meta = getStaticSeoForPath(pathname);
   if (!meta) return null;

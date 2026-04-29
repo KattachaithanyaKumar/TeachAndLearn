@@ -46,13 +46,10 @@ import Footer from "../components/Footer";
 
 const hasWriteToken = Boolean(import.meta.env.VITE_SANITY_WRITE_TOKEN?.trim());
 
-/** When set, home service cards link “Read More” to this detail route. */
+/** When set, home service cards link “Read More” to `/service/:slug`. */
 function serviceDetailPath(item) {
-  const seg = String(item?.pathSegment ?? "").trim();
-  const aud = item?.audience;
-  if ((aud === "child" || aud === "adult") && seg) {
-    return `/${aud}-services/${encodeURIComponent(seg)}`;
-  }
+  const seg = String(item?.serviceSlug ?? "").trim();
+  if (seg) return `/service/${encodeURIComponent(seg)}`;
   return null;
 }
 
@@ -343,7 +340,7 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
-              <Button onClick={() => navigate("/child-services")}>
+              <Button onClick={() => navigate("/services")}>
                 <span className="flex items-center gap-1">
                   {heroPrimaryCtaLabel}{" "}
                   <IoIosArrowRoundForward size={24} />
@@ -853,21 +850,6 @@ const Home = () => {
               <p className="text-gray-600">No testimonials available at the moment.</p>
             </div>
           )}
-        </div>
-
-        {/* Wave at Bottom */}
-        <div className="absolute bottom-0 left-0 w-full z-10">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 180"
-            className="w-full h-[80px] rotate-180"
-            preserveAspectRatio="none"
-          >
-            <path
-              fill="#fef3c6"
-              d="M0,100L34.3,90C68.6,80,137,40,206,40C274.3,40,343,80,411,100C480,120,549,130,617,150C685.7,170,754,180,823,160C891.4,140,960,80,1029,50C1097.1,20,1166,40,1234,50C1302.9,60,1371,60,1406,60L1440,60L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z"
-            />
-          </svg>
         </div>
       </section>
 

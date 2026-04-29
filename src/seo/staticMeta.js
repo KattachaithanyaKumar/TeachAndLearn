@@ -19,16 +19,10 @@ export const STATIC_SEO_ROUTES = [
       "Learn about Teach and Learn’s mission, team, and approach to speech therapy and developmental support in Hyderabad.",
   },
   {
-    path: "/child-services",
-    title: "Child Services | Teach and Learn",
+    path: "/services",
+    title: "Services | Teach and Learn",
     description:
-      "Explore speech therapy and developmental services for children at Teach and Learn, Kondapur, Hyderabad.",
-  },
-  {
-    path: "/adult-services",
-    title: "Adult Services | Teach and Learn",
-    description:
-      "Speech and communication services for adults at Teach and Learn, Kondapur, Hyderabad.",
+      "Browse all Teach and Learn service pages, including detailed markdown content and images.",
   },
   {
     path: "/facilities",

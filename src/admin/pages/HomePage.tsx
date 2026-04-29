@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
 import HeroHomeEditor from '../components/HeroHomeEditor'
 import ReferenceListSection from '../components/ReferenceListSection'
-import ServiceLinkedListingPicker from '../components/ServiceLinkedListingPicker'
+import ServicePagePicker from '../components/ServicePagePicker'
 import { apiGet } from '../api/client'
 
 type RefDoc = { _id: string; [k: string]: unknown }
@@ -180,10 +180,10 @@ export default function HomePage() {
         }}
         onChanged={load}
         addButtonLabel="Add service"
-        firstEntryNote="Order matches the service cards on the public home page. Use “Link to full service page” below to pick an existing child or adult listing for “Read More”; leave unlinked to hide Read More."
+        firstEntryNote="Order matches the service cards on the public home page. Use “Link to full service page” below to pick a service page for “Read More” (/service/…); leave unlinked to hide Read More."
         renderItem={(s) => {
-          const linked = s.linkedListingItem as
-            | { _id: string; title?: string; pathSegment?: string }
+          const linked = s.linkedServicePage as
+            | { _id: string; title?: string; slug?: string | null }
             | undefined
           return (
             <>
@@ -196,11 +196,7 @@ export default function HomePage() {
                   icon: String(s.icon ?? ''),
                 }}
               />
-              <ServiceLinkedListingPicker
-                serviceDocId={s._id}
-                linked={linked}
-                onUpdated={load}
-              />
+              <ServicePagePicker serviceDocId={s._id} linked={linked} onUpdated={load} />
             </>
           )
         }}

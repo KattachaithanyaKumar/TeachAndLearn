@@ -18,12 +18,12 @@ export const service = defineType({
             type: 'string',
         }),
         defineField({
-            name: 'linkedListingItem',
+            name: 'linkedServicePage',
             title: 'Full service page',
             type: 'reference',
-            to: [{ type: 'service_listing_item' }],
+            to: [{ type: 'service_page' }],
             description:
-                'Pick the existing child or adult service listing this card should open for “Read More” on the home page.',
+                'Service page opened by “Read More” on the home page (/service/your-slug).',
         }),
     ]
 });

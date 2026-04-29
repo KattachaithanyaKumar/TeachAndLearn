@@ -35,9 +35,8 @@ async function fetchServiceItemsForSitemap(options) {
   });
   try {
     return await client.fetch(
-      `*[_type == "service_listing_item" && defined(pathSegment)]{
-      audience,
-      pathSegment,
+      `*[_type == "service_page" && defined(slug.current)]{
+      "slug": slug.current,
       _updatedAt
     }`,
     );
@@ -77,11 +76,9 @@ export async function buildSitemapXml(siteUrl, options) {
     : await fetchServiceItemsForSitemap(options);
 
   for (const doc of serviceDocs) {
-    const seg = String(doc.pathSegment || "").trim();
+    const seg = String(doc.slug || "").trim();
     if (!seg) continue;
-    const audience = doc.audience === "adult" ? "adult" : "child";
-    const slug = audience === "child" ? "child-services" : "adult-services";
-    const routePath = `/${slug}/${seg}`;
+    const routePath = `/service/${seg}`;
     const canonicalUrl = `${base}${routePath}`;
     const lastmod =
       typeof doc._updatedAt === "string" ? doc._updatedAt.slice(0, 10) : buildDate;

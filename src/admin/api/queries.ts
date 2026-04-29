@@ -171,14 +171,12 @@ export const homeQuery = `
       name,
       description,
       icon,
-      linkedListingItem->{
+      linkedServicePage->{
         _id,
         title,
-        audience,
-        pathSegment
+        "slug": slug.current
       },
-      "audience": linkedListingItem->audience,
-      "pathSegment": linkedListingItem->pathSegment
+      "serviceSlug": linkedServicePage->slug.current
     },
     stats[]->{
       _id,

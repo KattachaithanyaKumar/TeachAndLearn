@@ -171,14 +171,12 @@ export const homeQuery = `
       name,
       description,
       icon,
-      linkedListingItem->{
+      linkedServicePage->{
         _id,
         title,
-        audience,
-        pathSegment
+        "slug": slug.current
       },
-      "audience": linkedListingItem->audience,
-      "pathSegment": linkedListingItem->pathSegment
+      "serviceSlug": linkedServicePage->slug.current
     },
     stats[]->{
       _id,
@@ -256,5 +254,14 @@ export const aboutSectionQuery = `
         description
       }
     }
+  }
+`
+
+export const featuredServicePagesForNavQuery = `
+  *[_type == "service_page" && isFeaturedInNav == true] | order(sortOrder asc, title asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    contentHtml
   }
 `

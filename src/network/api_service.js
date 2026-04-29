@@ -355,31 +355,66 @@ export function urlForSanityImage(image) {
 }
 
 /**
- * @param {'child'|'adult'} audience
- * @param {string} pathSegment slug, e.g. speech, psychology
+ * @param {string} slug URL segment after /service/
  */
-export async function getServiceListingPage(audience, pathSegment) {
-  const slug = String(pathSegment || "").trim();
+export async function getServicePageBySlug(slugParam) {
+  const slug = String(slugParam || "").trim();
   if (!slug) return null;
   return client.fetch(
-    `*[_type == "service_listing_item" && audience == $audience && pathSegment == $slug][0]{
+    `*[_type == "service_page" && slug.current == $slug][0]{
       _id,
       _type,
-      audience,
       sortOrder,
       title,
-      pathSegment,
-      description,
-      items,
-      iconKey,
+      subtitle,
+      body,
+      contentHtml,
+      isFeaturedInNav,
       headerColor,
-      pageTitlePrefix,
-      pageTitleAccent,
-      heroTagline,
       showCta,
-      pageBlocks
+      slug,
+      contentBlocks[]{
+        _key,
+        tags,
+        title,
+        body,
+        images[]{
+          _key,
+          alt,
+          caption,
+          image{
+            asset,
+            hotspot,
+            crop
+          }
+        }
+      }
     }`,
-    { audience, slug },
+    { slug },
+  );
+}
+
+/** Featured services for navbar strip with heading source content. */
+export async function getFeaturedServicePagesForNav() {
+  return client.fetch(
+    `*[_type == "service_page" && isFeaturedInNav == true] | order(sortOrder asc, title asc) {
+      _id,
+      title,
+      "slug": slug.current,
+      contentHtml
+    }`,
+  );
+}
+
+/** Minimal rows for footer / nav (title + slug). */
+export async function getServicePagesIndex() {
+  return client.fetch(
+    `*[_type == "service_page"] | order(sortOrder asc, title asc) {
+      _id,
+      title,
+      "slug": slug.current,
+      cardHighlights
+    }`,
   );
 }
 
@@ -516,8 +551,12 @@ export async function getHome() {
           name,
           description,
           icon,
-          "audience": linkedListingItem->audience,
-          "pathSegment": linkedListingItem->pathSegment
+          linkedServicePage->{
+            _id,
+            title,
+            "slug": slug.current
+          },
+          "serviceSlug": linkedServicePage->slug.current
         },
         stats[]->{
           _id,
@@ -597,37 +636,6 @@ export async function getStatistics() {
     console.error("Error fetching statistics:", error);
     throw error;
   }
-}
-
-export async function getServiceListingLanding(audience) {
-  return client.fetch(
-    `*[_type == "service_listing_landing" && audience == $audience][0]{
-      _id,
-      _type,
-      audience,
-      heroIntro,
-      sectionTitle,
-      sectionSubtitle
-    }`,
-    { audience },
-  );
-}
-
-export async function getServiceListingItems(audience) {
-  return client.fetch(
-    `*[_type == "service_listing_item" && audience == $audience] | order(sortOrder asc, title asc) {
-      _id,
-      _type,
-      audience,
-      sortOrder,
-      title,
-      pathSegment,
-      description,
-      items,
-      iconKey
-    }`,
-    { audience },
-  );
 }
 
 /** First `about_us` block as referenced on the `home` document (same ordering as Home page). */

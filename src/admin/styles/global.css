@@ -270,6 +270,52 @@ code {
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* CKEditor in admin: keep readable contrast while editing content. */
+.ck.ck-editor {
+  --ck-color-base-background: #ffffff;
+  --ck-color-base-foreground: #f7f7f7;
+  --ck-color-text: #111827;
+  --ck-color-base-text: #111827;
+  --ck-color-toolbar-background: #f8fafc;
+  --ck-color-toolbar-border: #d1d5db;
+  --ck-color-base-border: #d1d5db;
+  --ck-color-focus-border: #5b9fd4;
+}
+
+.ck.ck-editor .ck-editor__editable_inline {
+  color: #111827;
+  background: #ffffff;
+  min-height: 240px;
+}
+
+.ck.ck-editor .ck-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0.9rem 0 0.5rem;
+}
+
+.ck.ck-editor .ck-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0.8rem 0 0.45rem;
+}
+
+.ck.ck-editor .ck-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0.7rem 0 0.4rem;
+}
+
+.ck.ck-editor .ck-content ul,
+.ck.ck-editor .ck-content ol {
+  padding-left: 1.5rem;
+  margin: 0.6rem 0;
+  list-style-position: outside;
+}
+
 .btn {
   font: inherit;
   cursor: pointer;

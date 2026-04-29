@@ -49,16 +49,8 @@ export const navItems = [
     path: "/about-us",
   },
   {
-    label: "Child Services",
-    path: "/child-services",
-  },
-  // {
-  //   label: "School Readiness",
-  //   path: "/school-readiness",
-  // },
-  {
-    label: "Adult Services",
-    path: "/adult-services",
+    label: "Services",
+    path: "/services",
   },
   {
     label: "Facilities",

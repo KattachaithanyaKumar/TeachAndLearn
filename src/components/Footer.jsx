@@ -11,11 +11,7 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 import { footerSocialPlatformLabel } from "../constants/footerSocialPlatforms";
-import { getFooterSettings } from "../network/api_service";
-import { getServiceItemsWithFallback } from "../network/serviceListing";
-import {
-  fallbackChildServiceItems,
-} from "../utils/serviceListingFallbacks";
+import { getFooterSettings, getServicePagesIndex } from "../network/api_service";
 
 const FOOTER_FALLBACK = {
   brandTitle: "Teach & Learn",
@@ -116,7 +112,7 @@ function FooterSocialLinks({ links }) {
 }
 
 const Footer = ({ color }) => {
-  const [childServices, setChildServices] = useState([]);
+  const [serviceLinks, setServiceLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [footerCfg, setFooterCfg] = useState(null);
 
@@ -124,15 +120,13 @@ const Footer = ({ color }) => {
     let cancelled = false;
     (async () => {
       try {
-        const child = await getServiceItemsWithFallback("child");
+        const rows = await getServicePagesIndex();
         if (!cancelled) {
-          setChildServices(child);
+          setServiceLinks(Array.isArray(rows) ? rows : []);
         }
       } catch (e) {
-        console.error("Footer: failed to load service listings", e);
-        if (!cancelled) {
-          setChildServices(fallbackChildServiceItems());
-        }
+        console.error("Footer: failed to load service pages", e);
+        if (!cancelled) setServiceLinks([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -173,9 +167,9 @@ const Footer = ({ color }) => {
   const locationIsExternal = /^https?:\/\//i.test(locationLink);
   const year = new Date().getFullYear();
 
-  const toServiceDetail = (audience, item) => {
-    const seg = String(item?.pathSegment ?? "").trim();
-    return seg ? `/${audience}-services/${encodeURIComponent(seg)}` : `/${audience}-services`;
+  const toServicePage = (item) => {
+    const seg = String(item?.slug ?? "").trim();
+    return seg ? `/service/${encodeURIComponent(seg)}` : "/services";
   };
 
   return (
@@ -183,17 +177,22 @@ const Footer = ({ color }) => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-        {/* Child services — own column */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Quick Links</h2>
+          <h2 className="text-lg font-semibold mb-3">Services</h2>
           {loading ? (
             <p className="text-sm text-gray-500">Loading…</p>
+          ) : serviceLinks.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              <Link to="/services" className="text-orange-600 hover:underline">
+                View all services
+              </Link>
+            </p>
           ) : (
             <ul className="text-sm text-gray-700 space-y-1">
-              {childServices.map((item) => (
-                <li key={item._id ?? item.pathSegment ?? item.title}>
+              {serviceLinks.map((item) => (
+                <li key={item._id ?? item.slug ?? item.title}>
                   <Link
-                    to={toServiceDetail("child", item)}
+                    to={toServicePage(item)}
                     className="cursor-pointer text-gray-700 no-underline transition-colors hover:text-orange-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded-sm"
                   >
                     {item.title}
