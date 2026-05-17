@@ -62,10 +62,26 @@ export default function ServiceDetailPage() {
       const target = byExactId || bySuffixId;
 
       if (!target) return false;
+
       const navEl = document.querySelector('[data-site-navbar="true"]');
       const navHeight = navEl ? navEl.getBoundingClientRect().height : 140;
-      const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 8;
-      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      const paddingBelowNav = 12;
+
+      const top = target.getBoundingClientRect().top + window.scrollY - navHeight - paddingBelowNav;
+      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+
+      // One more correction after layout/paint to guarantee the heading isn't covered.
+      window.requestAnimationFrame(() => {
+        const navAfter = document.querySelector('[data-site-navbar="true"]');
+        const navH = navAfter ? navAfter.getBoundingClientRect().height : navHeight;
+        const targetTop = target.getBoundingClientRect().top;
+        const minTop = navH + paddingBelowNav;
+        if (targetTop < minTop) {
+          const delta = minTop - targetTop;
+          window.scrollBy({ top: delta, behavior: "auto" });
+        }
+      });
+
       return true;
     };
 
