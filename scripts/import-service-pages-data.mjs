@@ -1,4 +1,5 @@
 import childSpeech from "./seed-service-pages/child-speech.mjs";
+import childSpeechRhetoric from "./seed-service-pages/child-speech-rhetoric.mjs";
 import childOccupational from "./seed-service-pages/child-occupational.mjs";
 import childBehavioral from "./seed-service-pages/child-behavioral.mjs";
 import childPhysio from "./seed-service-pages/child-physiotherapy.mjs";
@@ -10,6 +11,7 @@ import adultBehavioral from "./seed-service-pages/adult-behavioral.mjs";
 
 export const services = [
   childSpeech,
+  childSpeechRhetoric,
   childOccupational,
   childBehavioral,
   childPhysio,
